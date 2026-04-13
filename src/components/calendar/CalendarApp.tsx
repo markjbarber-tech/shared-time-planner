@@ -19,6 +19,7 @@ export function CalendarApp() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogDate, setDialogDate] = useState('');
 
+  const { user, signOut } = useAuth();
   const { events, addEvent, getEventsForDate } = useCalendarEvents();
 
   const navigateMonth = (delta: number) => {
