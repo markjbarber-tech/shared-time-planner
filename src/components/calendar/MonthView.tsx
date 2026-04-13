@@ -8,6 +8,7 @@ interface MonthViewProps {
   events: CalendarEvent[];
   onDateClick: (date: string) => void;
   onDayView: (date: string) => void;
+  getDisplayName: (userId: string) => string;
 }
 
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -65,7 +66,7 @@ function getEventsForDate(events: CalendarEvent[], date: string) {
   return events.filter(e => date >= e.startDate && date <= e.endDate);
 }
 
-export function MonthView({ year, month, events, onDateClick, onDayView }: MonthViewProps) {
+export function MonthView({ year, month, events, onDateClick, onDayView, getDisplayName }: MonthViewProps) {
   const grid = useMemo(() => getMonthGrid(year, month), [year, month]);
   const today = formatDate(new Date());
 
@@ -125,7 +126,8 @@ export function MonthView({ year, month, events, onDateClick, onDayView }: Month
                       onDayView(date);
                     }}
                   >
-                    {event.title}
+                    <span className="truncate">{event.title}</span>
+                    <span className="text-[9px] opacity-60 ml-1 shrink-0">— {getDisplayName(event.userId)}</span>
                   </div>
                 ))}
                 {dayEvents.length > 3 && (
