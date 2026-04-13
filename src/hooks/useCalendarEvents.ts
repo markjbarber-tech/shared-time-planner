@@ -76,7 +76,10 @@ export function useCalendarEvents() {
   }, [user]);
 
   const updateEvent = useCallback(async (id: string, updates: Partial<CalendarEvent>) => {
-    const mapped: Record<string, unknown> = {};
+    const mapped: {
+      title?: string; description?: string | null; start_date?: string; end_date?: string;
+      start_time?: string; end_time?: string; visibility?: string; user_color?: number;
+    } = {};
     if (updates.title !== undefined) mapped.title = updates.title;
     if (updates.description !== undefined) mapped.description = updates.description ?? null;
     if (updates.startDate !== undefined) mapped.start_date = updates.startDate;
