@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +13,10 @@ interface EventDialogProps {
   open: boolean;
   onClose: () => void;
   onSave: (event: Omit<CalendarEvent, 'id' | 'createdAt'>) => void;
+  onUpdate?: (id: string, event: Omit<CalendarEvent, 'id' | 'createdAt'>) => void;
+  onDelete?: (id: string) => void;
   initialDate: string;
+  editingEvent?: CalendarEvent | null;
 }
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -34,7 +37,7 @@ function generateYears() {
   return Array.from({ length: 10 }, (_, i) => String(current - 2 + i));
 }
 
-export function EventDialog({ open, onClose, onSave, initialDate }: EventDialogProps) {
+export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initialDate, editingEvent }: EventDialogProps) {
   const { user } = useAuth();
   const now = new Date();
   const [year, month, day] = initialDate.split('-');
@@ -57,30 +60,75 @@ export function EventDialog({ open, onClose, onSave, initialDate }: EventDialogP
   const [reminderType, setReminderType] = useState<ReminderType>('push');
   const [reminderTiming, setReminderTiming] = useState<ReminderTiming>('1hour');
 
+  const isEditing = !!editingEvent;
+
+  // Pre-fill when editing
+  useEffect(() => {
+    if (editingEvent && open) {
+      setTitle(editingEvent.title);
+      setDescription(editingEvent.description ?? '');
+      const [sy, sm, sd] = editingEvent.startDate.split('-');
+      const [ey, em, ed] = editingEvent.endDate.split('-');
+      setStartYear(sy); setStartMonth(String(parseInt(sm) - 1)); setStartDay(sd);
+      setEndYear(ey); setEndMonth(String(parseInt(em) - 1)); setEndDay(ed);
+      const [sh, smin] = editingEvent.startTime.split(':');
+      const [eh, emin] = editingEvent.endTime.split(':');
+      setStartHour(sh); setStartMinute(smin);
+      setEndHour(eh); setEndMinute(emin);
+      setVisibility(editingEvent.visibility);
+      setReminderEnabled(!!editingEvent.reminder);
+      if (editingEvent.reminder) {
+        setReminderType(editingEvent.reminder.type);
+        setReminderTiming(editingEvent.reminder.timing);
+      }
+    } else if (!editingEvent && open) {
+      // Reset for new event
+      const [y, m, d] = initialDate.split('-');
+      setTitle(''); setDescription('');
+      setStartYear(y); setStartMonth(String(parseInt(m) - 1)); setStartDay(d);
+      setEndYear(y); setEndMonth(String(parseInt(m) - 1)); setEndDay(d);
+      setStartHour(String(now.getHours()).padStart(2, '0'));
+      setStartMinute(String(Math.floor(now.getMinutes() / 5) * 5).padStart(2, '0'));
+      setEndHour(String((now.getHours() + 1) % 24).padStart(2, '0'));
+      setEndMinute(String(Math.floor(now.getMinutes() / 5) * 5).padStart(2, '0'));
+      setVisibility('public');
+      setReminderEnabled(false);
+    }
+  }, [editingEvent, open, initialDate]);
+
   const years = useMemo(() => generateYears(), []);
   const startDays = useMemo(() => generateDays(parseInt(startYear), parseInt(startMonth)), [startYear, startMonth]);
   const endDays = useMemo(() => generateDays(parseInt(endYear), parseInt(endMonth)), [endYear, endMonth]);
 
+  const buildEventData = () => ({
+    title: title.trim(),
+    description: description.trim() || undefined,
+    startDate: `${startYear}-${String(parseInt(startMonth) + 1).padStart(2, '0')}-${startDay}`,
+    endDate: `${endYear}-${String(parseInt(endMonth) + 1).padStart(2, '0')}-${endDay}`,
+    startTime: `${startHour}:${startMinute}`,
+    endTime: `${endHour}:${endMinute}`,
+    visibility,
+    userId: user?.id ?? '',
+    userColor: editingEvent?.userColor ?? 0,
+    reminder: reminderEnabled ? { type: reminderType, timing: reminderTiming } : undefined,
+  });
+
   const handleSave = () => {
     if (!title.trim()) return;
-    const sm = String(parseInt(startMonth) + 1).padStart(2, '0');
-    const em = String(parseInt(endMonth) + 1).padStart(2, '0');
-    onSave({
-      title: title.trim(),
-      description: description.trim() || undefined,
-      startDate: `${startYear}-${sm}-${startDay}`,
-      endDate: `${endYear}-${em}-${endDay}`,
-      startTime: `${startHour}:${startMinute}`,
-      endTime: `${endHour}:${endMinute}`,
-      visibility,
-      userId: user?.id ?? '',
-      userColor: 0,
-      reminder: reminderEnabled ? { type: reminderType, timing: reminderTiming } : undefined,
-    });
-    // Reset
-    setTitle('');
-    setDescription('');
+    const data = buildEventData();
+    if (isEditing && onUpdate) {
+      onUpdate(editingEvent.id, data);
+    } else {
+      onSave(data);
+    }
     onClose();
+  };
+
+  const handleDelete = () => {
+    if (isEditing && onDelete) {
+      onDelete(editingEvent.id);
+      onClose();
+    }
   };
 
   const visibilityOptions: { value: EventVisibility; label: string; icon: typeof Eye }[] = [
@@ -95,11 +143,15 @@ export function EventDialog({ open, onClose, onSave, initialDate }: EventDialogP
     { value: '1week', label: '1 week before' },
   ];
 
+  const canEdit = !isEditing || editingEvent.userId === user?.id;
+
   return (
     <Dialog open={open} onOpenChange={() => onClose()}>
       <DialogContent className="vellum-layer border-foreground/5 max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="font-serif text-2xl font-light italic">New Entry</DialogTitle>
+          <DialogTitle className="font-serif text-2xl font-light italic">
+            {isEditing ? 'Edit Entry' : 'New Entry'}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6 pt-2">
@@ -111,6 +163,7 @@ export function EventDialog({ open, onClose, onSave, initialDate }: EventDialogP
               onChange={e => setTitle(e.target.value)}
               placeholder="Event title..."
               className="border-foreground/10 bg-background/50"
+              disabled={!canEdit}
             />
           </div>
 
@@ -123,6 +176,7 @@ export function EventDialog({ open, onClose, onSave, initialDate }: EventDialogP
               placeholder="Optional details..."
               className="border-foreground/10 bg-background/50 resize-none"
               rows={2}
+              disabled={!canEdit}
             />
           </div>
 
@@ -166,12 +220,13 @@ export function EventDialog({ open, onClose, onSave, initialDate }: EventDialogP
               {visibilityOptions.map(opt => (
                 <button
                   key={opt.value}
-                  onClick={() => setVisibility(opt.value)}
+                  onClick={() => canEdit && setVisibility(opt.value)}
                   className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all border ${
                     visibility === opt.value
                       ? 'bg-foreground text-background border-foreground'
                       : 'bg-background/50 border-foreground/10 hover:border-foreground/20'
-                  }`}
+                  } ${!canEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  disabled={!canEdit}
                 >
                   <opt.icon className="w-3.5 h-3.5" />
                   {opt.label}
@@ -183,8 +238,9 @@ export function EventDialog({ open, onClose, onSave, initialDate }: EventDialogP
           {/* Reminder */}
           <div className="space-y-3">
             <button
-              onClick={() => setReminderEnabled(!reminderEnabled)}
+              onClick={() => canEdit && setReminderEnabled(!reminderEnabled)}
               className="flex items-center gap-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+              disabled={!canEdit}
             >
               <Bell className="w-3.5 h-3.5" />
               {reminderEnabled ? 'Reminder enabled' : 'Add reminder'}
@@ -223,16 +279,27 @@ export function EventDialog({ open, onClose, onSave, initialDate }: EventDialogP
 
           {/* Actions */}
           <div className="flex gap-3 pt-2">
+            {isEditing && canEdit && (
+              <Button
+                variant="outline"
+                onClick={handleDelete}
+                className="border-destructive/30 text-destructive hover:bg-destructive/10"
+              >
+                Delete
+              </Button>
+            )}
             <Button variant="outline" onClick={onClose} className="flex-1 border-foreground/10">
               Cancel
             </Button>
-            <Button
-              onClick={handleSave}
-              disabled={!title.trim()}
-              className="flex-1 bg-foreground text-background hover:bg-foreground/90"
-            >
-              Create Entry
-            </Button>
+            {canEdit && (
+              <Button
+                onClick={handleSave}
+                disabled={!title.trim()}
+                className="flex-1 bg-foreground text-background hover:bg-foreground/90"
+              >
+                {isEditing ? 'Save Changes' : 'Create Entry'}
+              </Button>
+            )}
           </div>
         </div>
       </DialogContent>
