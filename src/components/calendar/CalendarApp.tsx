@@ -5,7 +5,7 @@ import { DayView } from './DayView';
 import { EventDialog } from './EventDialog';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
 import { useAuth } from '@/hooks/useAuth';
-import type { CalendarView } from '@/types/calendar';
+import type { CalendarView, CalendarEvent } from '@/types/calendar';
 import { ChevronLeft, ChevronRight, Plus, LogOut } from 'lucide-react';
 
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -180,6 +180,12 @@ export function CalendarApp() {
             date={selectedDate}
             events={getEventsForDate(selectedDate)}
             onBack={handleBackToMonth}
+            onEditEvent={(event) => {
+              setEditingEvent(event);
+              setDialogDate(event.startDate);
+              setDialogOpen(true);
+            }}
+            onDeleteEvent={deleteEvent}
           />
         )}
       </div>
@@ -201,9 +207,12 @@ export function CalendarApp() {
       {/* Event Dialog */}
       <EventDialog
         open={dialogOpen}
-        onClose={() => setDialogOpen(false)}
+        onClose={() => { setDialogOpen(false); setEditingEvent(null); }}
         onSave={addEvent}
+        onUpdate={(id, data) => updateEvent(id, data)}
+        onDelete={deleteEvent}
         initialDate={dialogDate}
+        editingEvent={editingEvent}
       />
     </div>
   );
