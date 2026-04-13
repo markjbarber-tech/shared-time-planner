@@ -4,8 +4,9 @@ import { YearView } from './YearView';
 import { DayView } from './DayView';
 import { EventDialog } from './EventDialog';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
+import { useAuth } from '@/hooks/useAuth';
 import type { CalendarView } from '@/types/calendar';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, LogOut } from 'lucide-react';
 
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
