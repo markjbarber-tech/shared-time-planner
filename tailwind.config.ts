@@ -13,12 +13,23 @@ export default {
       },
     },
     extend: {
+      fontFamily: {
+        sans: ['Space Grotesk', 'sans-serif'],
+        serif: ['Cormorant Garamond', 'serif'],
+      },
       colors: {
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",
         background: "hsl(var(--background))",
         foreground: "hsl(var(--foreground))",
+        blueprint: "hsl(var(--blueprint))",
+        ink: "hsl(var(--ink))",
+        "wash-sage": "hsl(var(--wash-sage))",
+        "wash-clay": "hsl(var(--wash-clay))",
+        "wash-dusk": "hsl(var(--wash-dusk))",
+        "vellum-base": "hsl(var(--vellum-base))",
+        "vellum-paper": "hsl(var(--vellum-paper))",
         primary: {
           DEFAULT: "hsl(var(--primary))",
           foreground: "hsl(var(--primary-foreground))",
