@@ -138,6 +138,7 @@ export default function Auth() {
           Continue with Apple
         </Button>
 
+        <p className="text-center text-sm text-muted-foreground">
           {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
           <button
             onClick={() => setIsSignUp(!isSignUp)}
