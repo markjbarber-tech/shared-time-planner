@@ -4,8 +4,9 @@ import { YearView } from './YearView';
 import { DayView } from './DayView';
 import { EventDialog } from './EventDialog';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
+import { useAuth } from '@/hooks/useAuth';
 import type { CalendarView } from '@/types/calendar';
-import { ChevronLeft, ChevronRight, Plus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, LogOut } from 'lucide-react';
 
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
@@ -18,6 +19,7 @@ export function CalendarApp() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogDate, setDialogDate] = useState('');
 
+  const { user, signOut } = useAuth();
   const { events, addEvent, getEventsForDate } = useCalendarEvents();
 
   const navigateMonth = (delta: number) => {
@@ -84,6 +86,15 @@ export function CalendarApp() {
           </div>
 
           <div className="flex gap-6 items-center">
+            {/* Sign Out */}
+            <button
+              onClick={signOut}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              title="Sign out"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              Sign out
+            </button>
             {/* View Switcher */}
             <div className="flex bg-foreground/5 p-1 rounded-full">
               {viewButtons.map(btn => (

@@ -14,7 +14,87 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      events: {
+        Row: {
+          created_at: string
+          description: string | null
+          end_date: string
+          end_time: string
+          id: string
+          reminder_timing: string | null
+          reminder_type: string | null
+          start_date: string
+          start_time: string
+          title: string
+          updated_at: string
+          user_color: number
+          user_id: string
+          visibility: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          end_date: string
+          end_time: string
+          id?: string
+          reminder_timing?: string | null
+          reminder_type?: string | null
+          start_date: string
+          start_time: string
+          title: string
+          updated_at?: string
+          user_color?: number
+          user_id: string
+          visibility?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          end_date?: string
+          end_time?: string
+          id?: string
+          reminder_timing?: string | null
+          reminder_type?: string | null
+          start_date?: string
+          start_time?: string
+          title?: string
+          updated_at?: string
+          user_color?: number
+          user_id?: string
+          visibility?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string | null
+          id: string
+          preferred_color: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          preferred_color?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string | null
+          id?: string
+          preferred_color?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

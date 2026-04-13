@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DialPicker } from './DialPicker';
+import { useAuth } from '@/hooks/useAuth';
 import type { CalendarEvent, EventVisibility, ReminderType, ReminderTiming } from '@/types/calendar';
 import { Eye, EyeOff, Users, Bell } from 'lucide-react';
 
@@ -34,6 +35,7 @@ function generateYears() {
 }
 
 export function EventDialog({ open, onClose, onSave, initialDate }: EventDialogProps) {
+  const { user } = useAuth();
   const now = new Date();
   const [year, month, day] = initialDate.split('-');
   
@@ -71,7 +73,7 @@ export function EventDialog({ open, onClose, onSave, initialDate }: EventDialogP
       startTime: `${startHour}:${startMinute}`,
       endTime: `${endHour}:${endMinute}`,
       visibility,
-      userId: 'current-user',
+      userId: user?.id ?? '',
       userColor: 0,
       reminder: reminderEnabled ? { type: reminderType, timing: reminderTiming } : undefined,
     });
