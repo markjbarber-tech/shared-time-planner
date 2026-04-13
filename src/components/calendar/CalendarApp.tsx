@@ -86,6 +86,15 @@ export function CalendarApp() {
           </div>
 
           <div className="flex gap-6 items-center">
+            {/* Sign Out */}
+            <button
+              onClick={signOut}
+              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+              title="Sign out"
+            >
+              <LogOut className="w-3.5 h-3.5" />
+              Sign out
+            </button>
             {/* View Switcher */}
             <div className="flex bg-foreground/5 p-1 rounded-full">
               {viewButtons.map(btn => (

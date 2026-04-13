@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DialPicker } from './DialPicker';
+import { useAuth } from '@/hooks/useAuth';
 import type { CalendarEvent, EventVisibility, ReminderType, ReminderTiming } from '@/types/calendar';
 import { Eye, EyeOff, Users, Bell } from 'lucide-react';
 
