@@ -33,6 +33,7 @@ export function CalendarApp() {
   };
 
   const handleDateClick = useCallback((date: string) => {
+    setEditingEvent(null);
     setDialogDate(date);
     setDialogOpen(true);
   }, []);
