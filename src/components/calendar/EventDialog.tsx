@@ -73,7 +73,7 @@ export function EventDialog({ open, onClose, onSave, initialDate }: EventDialogP
       startTime: `${startHour}:${startMinute}`,
       endTime: `${endHour}:${endMinute}`,
       visibility,
-      userId: 'current-user',
+      userId: user?.id ?? '',
       userColor: 0,
       reminder: reminderEnabled ? { type: reminderType, timing: reminderTiming } : undefined,
     });
