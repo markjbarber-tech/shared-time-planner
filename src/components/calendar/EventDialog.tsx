@@ -35,6 +35,7 @@ function generateYears() {
 }
 
 export function EventDialog({ open, onClose, onSave, initialDate }: EventDialogProps) {
+  const { user } = useAuth();
   const now = new Date();
   const [year, month, day] = initialDate.split('-');
   
