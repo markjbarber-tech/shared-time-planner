@@ -121,6 +121,28 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
   const startDays = useMemo(() => generateDays(parseInt(startYear), parseInt(startMonth)), [startYear, startMonth]);
   const endDays = useMemo(() => generateDays(parseInt(endYear), parseInt(endMonth)), [endYear, endMonth]);
 
+  // Auto-update end time to 1 hour after start time when start changes (new events only)
+  useEffect(() => {
+    if (endTimeManuallySet) return;
+    const h = parseInt(startHour);
+    const m = parseInt(startMinute);
+    const newEndH = (h + 1) % 24;
+    setEndHour(String(newEndH).padStart(2, '0'));
+    setEndMinute(String(m).padStart(2, '0'));
+    // If hour wraps past midnight, advance end date by 1 day
+    if (newEndH < h) {
+      const startDateObj = new Date(parseInt(startYear), parseInt(startMonth), parseInt(startDay));
+      startDateObj.setDate(startDateObj.getDate() + 1);
+      setEndYear(String(startDateObj.getFullYear()));
+      setEndMonth(String(startDateObj.getMonth()));
+      setEndDay(String(startDateObj.getDate()).padStart(2, '0'));
+    } else {
+      setEndYear(startYear);
+      setEndMonth(startMonth);
+      setEndDay(startDay);
+    }
+  }, [startHour, startMinute, startYear, startMonth, startDay, endTimeManuallySet]);
+
   const selectedChildProfile = childProfiles.find(cp => cp.id === selectedChildProfileId);
 
   const buildEventData = () => ({
