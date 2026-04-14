@@ -123,10 +123,10 @@ export function CalendarApp() {
             {/* Child Profiles */}
             <button
               onClick={() => setShowChildManager(!showChildManager)}
-              className={`flex items-center gap-1.5 text-xs transition-colors ${showChildManager ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+              className={`flex items-center gap-2 min-h-[44px] min-w-[44px] px-3 py-2 text-sm rounded-lg transition-colors ${showChildManager ? 'text-foreground bg-foreground/10' : 'text-muted-foreground hover:text-foreground hover:bg-foreground/5'}`}
               title="Manage child profiles"
             >
-              <Baby className="w-3.5 h-3.5" />
+              <Baby className="w-5 h-5" />
               <span className="hidden sm:inline">Family</span>
             </button>
 
@@ -136,20 +136,20 @@ export function CalendarApp() {
               return (
                 <button
                   onClick={() => navigate('/auth')}
-                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  className="flex items-center gap-2 min-h-[44px] min-w-[44px] px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-foreground/5 rounded-lg transition-colors"
                   title={hasLoggedInBefore ? 'Sign in to your account' : 'Create account to share with others'}
                 >
-                  {hasLoggedInBefore ? <LogIn className="w-3.5 h-3.5" /> : <UserPlus className="w-3.5 h-3.5" />}
+                  {hasLoggedInBefore ? <LogIn className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
                   <span className="hidden sm:inline">{hasLoggedInBefore ? 'Sign In' : 'Sign Up'}</span>
                 </button>
               );
             })() : (
               <button
                 onClick={signOut}
-                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                className="flex items-center gap-2 min-h-[44px] min-w-[44px] px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-foreground/5 rounded-lg transition-colors"
                 title="Sign out"
               >
-                <LogOut className="w-3.5 h-3.5" />
+                <LogOut className="w-5 h-5" />
                 <span className="hidden sm:inline">Sign out</span>
               </button>
             )}
