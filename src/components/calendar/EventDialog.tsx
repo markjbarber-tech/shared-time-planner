@@ -72,6 +72,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
   const [attendeeSearch, setAttendeeSearch] = useState('');
   const [showAttendeePicker, setShowAttendeePicker] = useState(false);
   const [selectedChildProfileId, setSelectedChildProfileId] = useState<string | null>(null);
+  const [endTimeManuallySet, setEndTimeManuallySet] = useState(false);
 
   const isEditing = !!editingEvent;
 
@@ -96,6 +97,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       }
       setPendingAttendees([]);
       setSelectedChildProfileId(editingEvent.childProfileId ?? null);
+      setEndTimeManuallySet(true); // don't auto-update end time when editing
     } else if (!editingEvent && open) {
       const [y, m, d] = initialDate.split('-');
       setTitle(''); setDescription('');
@@ -109,6 +111,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       setReminderEnabled(false);
       setPendingAttendees([]);
       setSelectedChildProfileId(null);
+      setEndTimeManuallySet(false);
     }
     setAttendeeSearch('');
     setShowAttendeePicker(false);
@@ -117,6 +120,28 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
   const years = useMemo(() => generateYears(), []);
   const startDays = useMemo(() => generateDays(parseInt(startYear), parseInt(startMonth)), [startYear, startMonth]);
   const endDays = useMemo(() => generateDays(parseInt(endYear), parseInt(endMonth)), [endYear, endMonth]);
+
+  // Auto-update end time to 1 hour after start time when start changes (new events only)
+  useEffect(() => {
+    if (endTimeManuallySet) return;
+    const h = parseInt(startHour);
+    const m = parseInt(startMinute);
+    const newEndH = (h + 1) % 24;
+    setEndHour(String(newEndH).padStart(2, '0'));
+    setEndMinute(String(m).padStart(2, '0'));
+    // If hour wraps past midnight, advance end date by 1 day
+    if (newEndH < h) {
+      const startDateObj = new Date(parseInt(startYear), parseInt(startMonth), parseInt(startDay));
+      startDateObj.setDate(startDateObj.getDate() + 1);
+      setEndYear(String(startDateObj.getFullYear()));
+      setEndMonth(String(startDateObj.getMonth()));
+      setEndDay(String(startDateObj.getDate()).padStart(2, '0'));
+    } else {
+      setEndYear(startYear);
+      setEndMonth(startMonth);
+      setEndDay(startDay);
+    }
+  }, [startHour, startMinute, startYear, startMonth, startDay, endTimeManuallySet]);
 
   const selectedChildProfile = childProfiles.find(cp => cp.id === selectedChildProfileId);
 
@@ -267,14 +292,14 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
             <div className="space-y-2">
               <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">End</Label>
               <div className="flex gap-1 bg-background/50 rounded-lg border border-foreground/5 p-2">
-                <DialPicker items={endDays} value={endDay} onChange={setEndDay} className="w-10" />
-                <DialPicker items={MONTHS} value={MONTHS[parseInt(endMonth)]} onChange={v => setEndMonth(String(MONTHS.indexOf(v)))} className="w-12" />
-                <DialPicker items={years} value={endYear} onChange={setEndYear} className="w-14" />
+                <DialPicker items={endDays} value={endDay} onChange={v => { setEndTimeManuallySet(true); setEndDay(v); }} className="w-10" />
+                <DialPicker items={MONTHS} value={MONTHS[parseInt(endMonth)]} onChange={v => { setEndTimeManuallySet(true); setEndMonth(String(MONTHS.indexOf(v))); }} className="w-12" />
+                <DialPicker items={years} value={endYear} onChange={v => { setEndTimeManuallySet(true); setEndYear(v); }} className="w-14" />
               </div>
               <div className="flex gap-1 bg-background/50 rounded-lg border border-foreground/5 p-2">
-                <DialPicker items={HOURS} value={endHour} onChange={setEndHour} className="w-12" />
+                <DialPicker items={HOURS} value={endHour} onChange={v => { setEndTimeManuallySet(true); setEndHour(v); }} className="w-12" />
                 <span className="flex items-center text-muted-foreground font-bold self-center">:</span>
-                <DialPicker items={MINUTES} value={endMinute} onChange={setEndMinute} className="w-12" />
+                <DialPicker items={MINUTES} value={endMinute} onChange={v => { setEndTimeManuallySet(true); setEndMinute(v); }} className="w-12" />
               </div>
             </div>
           </div>
