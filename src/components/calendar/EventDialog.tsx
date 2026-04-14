@@ -22,6 +22,7 @@ interface EventDialogProps {
   initialDate: string;
   editingEvent?: CalendarEvent | null;
   profiles: Record<string, string>;
+  profileList: ProfileData[];
   attendees: EventAttendee[];
   onAddAttendee?: (eventId: string, userId: string) => Promise<void>;
   onRemoveAttendee?: (eventId: string, attendeeId: string) => Promise<void>;
