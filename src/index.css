@@ -107,15 +107,15 @@
   }
 
   .dial-picker-item {
-    @apply flex items-center justify-center text-sm transition-all duration-150;
-    height: 40px;
+    @apply flex items-center justify-center text-xs transition-all duration-150;
+    height: 28px;
   }
 
   .dial-picker-item.active {
-    @apply font-semibold text-foreground scale-110;
+    @apply font-semibold text-foreground scale-105;
   }
 
   .dial-picker-item:not(.active) {
-    @apply text-muted-foreground/50 scale-90;
+    @apply text-muted-foreground/50 scale-95;
   }
 }
