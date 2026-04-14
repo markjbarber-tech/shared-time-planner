@@ -51,6 +51,19 @@ export function CalendarApp() {
   const { childProfiles, addChildProfile, updateChildProfile, deleteChildProfile, getChildProfileName } = useChildProfiles();
   const [showChildManager, setShowChildManager] = useState(false);
 
+  // Merge nicknames into profiles map for display throughout the app
+  const mergedProfiles = useMemo(() => {
+    const merged = { ...profiles };
+    for (const [uid, nick] of Object.entries(nicknames)) {
+      if (merged[uid]) merged[uid] = nick;
+    }
+    return merged;
+  }, [profiles, nicknames]);
+
+  const mergedGetDisplayName = useCallback((userId: string) => {
+    return nicknames[userId] || profiles[userId] || 'Unknown';
+  }, [profiles, nicknames]);
+
   const handlePullRefresh = useCallback(async () => {
     // Refresh calendar data
     await refresh();
