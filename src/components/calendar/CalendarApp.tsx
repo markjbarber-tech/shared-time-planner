@@ -155,11 +155,15 @@ export function CalendarApp() {
     setView('month');
   }, []);
 
-  const viewButtons: { value: CalendarView; label: string }[] = [
+  type AppViewBtn = { value: AppView; label: string };
+  const viewButtons: AppViewBtn[] = [
+    { value: 'today', label: 'Today' },
     { value: 'day', label: 'Day' },
     { value: 'month', label: 'Month' },
     { value: 'year', label: 'Year' },
   ];
+
+  const currentUserProfile = profileList.find(p => p.userId === user?.id);
 
   return (
     <div ref={containerRef} className="min-h-dvh light-table-glow text-foreground antialiased selection:bg-blueprint/10">
