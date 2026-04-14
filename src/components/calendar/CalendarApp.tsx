@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { MonthView } from './MonthView';
 import { YearView } from './YearView';
 import { DayView } from './DayView';
+import { TodayView } from './TodayView';
 import { EventDialog } from './EventDialog';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
 import { useProfiles } from '@/hooks/useProfiles';
@@ -12,6 +13,8 @@ import { useNicknames } from '@/hooks/useNicknames';
 import { useChildProfiles } from '@/hooks/useChildProfiles';
 import { useAuth } from '@/hooks/useAuth';
 import type { CalendarView, CalendarEvent } from '@/types/calendar';
+// Extend CalendarView to include 'today'
+type AppView = CalendarView | 'today';
 import { USER_COLORS } from '@/types/calendar';
 import { ChevronLeft, ChevronRight, Plus, LogOut, Baby, UserPlus, LogIn, Share2 } from 'lucide-react';
 import { ChildProfileManager } from './ChildProfileManager';
@@ -23,7 +26,7 @@ const MONTH_NAMES = ['January','February','March','April','May','June','July','A
 
 export function CalendarApp() {
   const today = new Date();
-  const [view, setView] = useState<CalendarView>('month');
+  const [view, setView] = useState<AppView>('month');
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
@@ -153,7 +156,8 @@ export function CalendarApp() {
     setView('month');
   }, []);
 
-  const viewButtons: { value: CalendarView; label: string }[] = [
+  const viewButtons: { value: AppView; label: string }[] = [
+    { value: 'today', label: 'Today' },
     { value: 'day', label: 'Day' },
     { value: 'month', label: 'Month' },
     { value: 'year', label: 'Year' },
