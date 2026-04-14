@@ -47,11 +47,11 @@ export function CalendarApp() {
   const migrationToastShown = useRef(false);
   const { toast } = useToast();
   const { events, addEvent, updateEvent, deleteEvent, getEventsForDate, refresh } = useCalendarEvents();
-  const { profiles, profileList, getDisplayName, updateDisplayName } = useProfiles();
+  const { profiles, profileList, getDisplayName, updateDisplayName, updatePreferredColor } = useProfiles();
   const { fetchAttendees, fetchAllAttendees, addAttendee, removeAttendee, getAttendees } = useEventAttendees();
   const { nicknames, setNickname, getDisplayName: getNicknameDisplayName } = useNicknames();
   const { childProfiles, addChildProfile, updateChildProfile, deleteChildProfile, getChildProfileName } = useChildProfiles();
-  const [showChildManager, setShowChildManager] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // Merge nicknames into profiles map for display throughout the app
   const mergedProfiles = useMemo(() => {
