@@ -230,58 +230,57 @@ export function CalendarApp() {
             </div>
           </div>
 
-          <div className="flex gap-3 sm:gap-6 items-center flex-wrap">
-            {/* Child Profiles */}
-            <button
-              onClick={() => setShowChildManager(!showChildManager)}
-              className={`flex items-center gap-2 min-h-[44px] min-w-[44px] px-3 py-2 text-sm rounded-lg transition-colors ${showChildManager ? 'text-foreground bg-foreground/10' : 'text-muted-foreground hover:text-foreground hover:bg-foreground/5'}`}
-              title="Manage child profiles"
-            >
-              <Baby className="w-5 h-5" />
-              <span className="hidden sm:inline">Family</span>
-            </button>
+          <div className="flex gap-3 sm:gap-4 items-center flex-wrap">
+            {/* Hamburger Menu */}
+            <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+              <SheetTrigger asChild>
+                <button
+                  className="flex items-center justify-center size-9 rounded-full border border-foreground/10 hover:bg-background transition-all"
+                  title="Member Settings"
+                >
+                  <Menu className="w-5 h-5" />
+                </button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[320px] sm:w-[380px] overflow-y-auto">
+                <div className="pt-6 pb-8 px-1">
+                  <MemberSettings
+                    profileList={profileList}
+                    currentUserProfile={currentUserProfile}
+                    nicknames={nicknames}
+                    onUpdateDisplayName={updateDisplayName}
+                    onUpdateColor={updatePreferredColor}
+                    onSetNickname={setNickname}
+                    childProfiles={childProfiles}
+                    onAddChild={addChildProfile}
+                    onUpdateChild={updateChildProfile}
+                    onDeleteChild={deleteChildProfile}
+                    isAnonymous={isAnonymous}
+                    onNavigateAuth={() => { setMenuOpen(false); navigate('/auth'); }}
+                  />
 
-            {/* Auth actions */}
-            {isAnonymous ? (() => {
-              const hasLoggedInBefore = localStorage.getItem('has_logged_in_before') === 'true';
-              return (
-                <button
-                  onClick={() => navigate('/auth')}
-                  className="flex items-center gap-2 min-h-[44px] min-w-[44px] px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-foreground/5 rounded-lg transition-colors"
-                  title={hasLoggedInBefore ? 'Sign in to your account' : 'Create account to share with others'}
-                >
-                  {hasLoggedInBefore ? <LogIn className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
-                  <span className="hidden sm:inline">{hasLoggedInBefore ? 'Sign In' : 'Sign Up'}</span>
-                </button>
-              );
-            })() : (
-              <>
-                <button
-                  onClick={() => {
-                    const inviteUrl = `https://time-together-share.lovable.app/auth?invite=true`;
-                    navigator.clipboard.writeText(inviteUrl).then(() => {
-                      toast({
-                        title: 'Invite link copied!',
-                        description: 'Share this link with others so they can join your calendar.',
-                      });
-                    });
-                  }}
-                  className="flex items-center gap-2 min-h-[44px] min-w-[44px] px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-foreground/5 rounded-lg transition-colors"
-                  title="Invite people to join calendar"
-                >
-                  <Share2 className="w-5 h-5" />
-                  <span className="hidden sm:inline">Invite</span>
-                </button>
-                <button
-                  onClick={signOut}
-                  className="flex items-center gap-2 min-h-[44px] min-w-[44px] px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-foreground/5 rounded-lg transition-colors"
-                  title="Sign out"
-                >
-                  <LogOut className="w-5 h-5" />
-                  <span className="hidden sm:inline">Sign out</span>
-                </button>
-              </>
-            )}
+                  {/* Auth actions at bottom */}
+                  <div className="mt-8 pt-4 border-t border-foreground/5">
+                    {isAnonymous ? (
+                      <button
+                        onClick={() => { setMenuOpen(false); navigate('/auth'); }}
+                        className="w-full flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-foreground/5 transition-colors text-left text-sm"
+                      >
+                        <LogIn className="w-5 h-5 text-muted-foreground" />
+                        <span>Sign In / Sign Up</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => { setMenuOpen(false); signOut(); }}
+                        className="w-full flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-foreground/5 transition-colors text-left text-sm text-muted-foreground"
+                      >
+                        <LogOut className="w-5 h-5" />
+                        <span>Sign out</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
 
             {/* View Switcher */}
             <div className="flex bg-foreground/5 p-1 rounded-full">
@@ -306,8 +305,6 @@ export function CalendarApp() {
               ))}
             </div>
 
-
-
             {view === 'year' && (
               <div className="flex items-center gap-2">
                 <button
@@ -326,43 +323,6 @@ export function CalendarApp() {
             )}
           </div>
         </nav>
-        {/* Members */}
-        {!isAnonymous && profileList.length > 0 && (
-          <div className="flex items-center gap-3">
-            <div className="flex -space-x-2">
-              {profileList.map((p) => {
-                const displayName = getNicknameDisplayName(p.userId, p.displayName);
-                return (
-                  <button
-                    key={p.userId}
-                    onClick={() => setSelectedProfile(p)}
-                    className="size-8 rounded-full border-2 border-background flex items-center justify-center text-[11px] font-semibold text-white shrink-0 cursor-pointer hover:scale-110 transition-transform"
-                    style={{ backgroundColor: USER_COLORS[p.preferredColor % USER_COLORS.length] }}
-                    title={displayName}
-                  >
-                    {displayName[0]?.toUpperCase() || '?'}
-                  </button>
-                );
-              })}
-            </div>
-            <span className="text-xs text-muted-foreground">
-              {profileList.length} {profileList.length === 1 ? 'member' : 'members'}
-            </span>
-          </div>
-        )}
-
-
-        {showChildManager && (
-          <div className="vellum-layer rounded-xl border border-foreground/5 p-4 sm:p-6 shadow-lg">
-            <ChildProfileManager
-              childProfiles={childProfiles}
-              onAdd={addChildProfile}
-              onUpdate={updateChildProfile}
-              onDelete={deleteChildProfile}
-              onClose={() => setShowChildManager(false)}
-            />
-          </div>
-        )}
 
         {/* Views */}
         {view === 'month' && (
