@@ -74,7 +74,7 @@ export function useCalendarEvents() {
       start_time: event.startTime,
       end_time: event.endTime,
       visibility: event.visibility,
-      user_id: user.id,
+      user_id: event.userId || user.id,
       user_color: event.userColor,
       child_profile_id: event.childProfileId ?? null,
       reminder_type: event.reminder?.type ?? null,
