@@ -252,7 +252,7 @@ export function CalendarApp() {
               <>
                 <button
                   onClick={() => {
-                    const inviteUrl = `https://markjbarber-tech.github.io/shared-time-planner/auth?invite=true`;
+                    const inviteUrl = `https://time-together-share.lovable.app/auth?invite=true`;
                     navigator.clipboard.writeText(inviteUrl).then(() => {
                       toast({
                         title: 'Invite link copied!',
