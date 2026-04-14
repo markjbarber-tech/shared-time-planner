@@ -80,14 +80,7 @@ export function ChildProfileManager({ childProfiles, onAdd, onUpdate, onDelete, 
               <X className="w-3.5 h-3.5" />
             </button>
           )}
-          <button
-            onClick={() => setShowAdd(true)}
-            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <Plus className="w-3 h-3" />
-            Add
-          </button>
-        )}
+        </div>
       </div>
 
       {childProfiles.map(cp => (
