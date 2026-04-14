@@ -12,6 +12,12 @@ import { getLocalDataForMigration } from '@/lib/localStorageEvents';
 export default function Auth() {
   const [searchParams] = useSearchParams();
   const isInvite = searchParams.get('invite') === 'true';
+  // Mark that this user arrived via invite — they must sign in
+  useEffect(() => {
+    if (isInvite) {
+      localStorage.setItem('invited_user', 'true');
+    }
+  }, [isInvite]);
   const [isSignUp, setIsSignUp] = useState(isInvite); // default to sign-up for invites
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState('');
@@ -25,6 +31,8 @@ export default function Auth() {
   // When user becomes authenticated, show migration toast and redirect
   useEffect(() => {
     if (!user) return;
+    // Clear invite flag once signed in
+    localStorage.removeItem('invited_user');
     if (migrationResult) {
       toast({
         title: 'Data migrated',
