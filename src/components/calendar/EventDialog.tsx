@@ -534,7 +534,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                           className="size-5 rounded-full flex items-center justify-center text-[10px] font-semibold text-white shrink-0"
                           style={{ backgroundColor: color || 'hsl(var(--muted-foreground))' }}
                         >
-                          {(p?.displayName || profiles[uid] || 'U')[0]?.toUpperCase()}
+                          {(profiles[uid] || p?.displayName || 'U')[0]?.toUpperCase()}
                         </span>
                         {profiles[uid] || p?.displayName || 'Unknown'}
                         {uid === user?.id && ' (me)'}
