@@ -218,6 +218,9 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
         : (editingEvent?.userColor ?? 0),
     childProfileId: selectedChildProfileId,
     reminder: reminderEnabled ? { type: reminderType, timing: reminderTiming } : undefined,
+    recurrenceType: recurrenceEnabled ? recurrenceType : null,
+    recurrenceInterval: recurrenceEnabled ? recurrenceInterval : 1,
+    recurrenceEndDate: recurrenceEnabled && recurrenceEndDate ? recurrenceEndDate : null,
   });
 
   const handleSave = async () => {
