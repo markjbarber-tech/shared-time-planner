@@ -9,6 +9,7 @@ interface MonthViewProps {
   onDateClick: (date: string) => void;
   onDayView: (date: string) => void;
   getDisplayName: (userId: string) => string;
+  getChildProfileName?: (childProfileId: string) => string;
 }
 
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
