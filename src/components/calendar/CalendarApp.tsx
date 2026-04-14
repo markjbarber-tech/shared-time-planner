@@ -25,9 +25,10 @@ export function CalendarApp() {
   const [dialogDate, setDialogDate] = useState('');
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
 
-  const { user, signOut } = useAuth();
+  const { user, signOut, migrationResult } = useAuth();
   const navigate = useNavigate();
   const isAnonymous = !user;
+  const migrationToastShown = useRef(false);
   const { events, addEvent, updateEvent, deleteEvent, getEventsForDate } = useCalendarEvents();
   const { profiles, getDisplayName } = useProfiles();
   const { fetchAttendees, fetchAllAttendees, addAttendee, removeAttendee, getAttendees } = useEventAttendees();
