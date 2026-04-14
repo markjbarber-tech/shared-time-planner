@@ -12,6 +12,12 @@ import { getLocalDataForMigration } from '@/lib/localStorageEvents';
 export default function Auth() {
   const [searchParams] = useSearchParams();
   const isInvite = searchParams.get('invite') === 'true';
+  // Mark that this user arrived via invite — they must sign in
+  useEffect(() => {
+    if (isInvite) {
+      localStorage.setItem('invited_user', 'true');
+    }
+  }, [isInvite]);
   const [isSignUp, setIsSignUp] = useState(isInvite); // default to sign-up for invites
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState('');
