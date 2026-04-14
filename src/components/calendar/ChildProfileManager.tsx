@@ -168,7 +168,9 @@ export function ChildProfileManager({ childProfiles, onAdd, onUpdate, onDelete, 
               autoFocus
               onKeyDown={e => e.key === 'Enter' && handleAdd()}
             />
-            <Button onClick={handleAdd} size="sm" disabled={!newName.trim()} className="h-8 text-xs bg-foreground text-background hover:bg-foreground/90">
+            <Button onClick={handleAdd} size="sm" disabled={!newName.trim() || adding} className="h-8 text-xs bg-foreground text-background hover:bg-foreground/90">
+              {adding ? '...' : 'Add'}
+            </Button>
               Add
             </Button>
             <Button onClick={() => { setShowAdd(false); setNewName(''); }} size="sm" variant="outline" className="h-8 text-xs border-foreground/10">
