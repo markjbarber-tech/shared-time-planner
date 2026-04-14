@@ -114,6 +114,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       setPendingAttendees([]);
       setSelectedChildProfileId(null);
       setEndTimeManuallySet(false);
+      setViewMode(false); // new events go straight to edit mode
     }
     setAttendeeSearch('');
     setShowAttendeePicker(false);
