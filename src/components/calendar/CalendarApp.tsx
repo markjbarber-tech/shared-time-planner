@@ -47,7 +47,11 @@ export function CalendarApp() {
   }, [isAnonymous, navigate]);
   const migrationToastShown = useRef(false);
   const { toast } = useToast();
-  const { events, addEvent, updateEvent, deleteEvent, getEventsForDate, refresh } = useCalendarEvents();
+  const {
+    groups, activeGroupId, switchGroup, createGroup, addMemberToGroup,
+    removeMemberFromGroup, updateGroupName, deleteGroup, getGroupMembers, isAdmin,
+  } = useCalendarGroups();
+  const { events, addEvent, updateEvent, deleteEvent, getEventsForDate, refresh } = useCalendarEvents(activeGroupId);
   const { profiles, profileList, getDisplayName, updateDisplayName, updatePreferredColor } = useProfiles();
   const { fetchAttendees, fetchAllAttendees, addAttendee, removeAttendee, getAttendees } = useEventAttendees();
   const { nicknames, setNickname, getDisplayName: getNicknameDisplayName } = useNicknames();
