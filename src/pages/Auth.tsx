@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { getLocalDataForMigration, clearLocalData } from '@/lib/localStorageEvents';
+import { getLocalDataForMigration } from '@/lib/localStorageEvents';
 
 export default function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -16,7 +16,7 @@ export default function Auth() {
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [loading, setLoading] = useState(false);
-  const { user, signIn, signUp } = useAuth();
+  const { user, signIn, signUp, migrationResult } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
 
