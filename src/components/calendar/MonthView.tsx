@@ -70,12 +70,34 @@ function getEventsForDate(events: CalendarEvent[], date: string) {
   return events.filter(e => date >= e.startDate && date <= e.endDate);
 }
 
-export function MonthView({ year, month, events, onDateClick, onDayView, onEventClick, getDisplayName, getChildProfileName }: MonthViewProps) {
+export function MonthView({ year, month, events, onDateClick, onDayView, onEventClick, onSwipeMonth, getDisplayName, getChildProfileName }: MonthViewProps) {
   const grid = useMemo(() => getMonthGrid(year, month), [year, month]);
   const today = formatDate(new Date());
 
+  const touchStartY = useRef(0);
+  const touchStartX = useRef(0);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => {
+    touchStartY.current = e.touches[0].clientY;
+    touchStartX.current = e.touches[0].clientX;
+  }, []);
+
+  const handleTouchEnd = useCallback((e: React.TouchEvent) => {
+    if (!onSwipeMonth) return;
+    const deltaY = e.changedTouches[0].clientY - touchStartY.current;
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+    // Only trigger if vertical swipe is dominant and exceeds threshold
+    if (Math.abs(deltaY) > 60 && Math.abs(deltaY) > Math.abs(deltaX) * 1.5) {
+      onSwipeMonth(deltaY < 0 ? 1 : -1);
+    }
+  }, [onSwipeMonth]);
+
   return (
-    <div className="vellum-layer rounded-xl border border-foreground/5 p-0.5 sm:p-1 shadow-2xl overflow-hidden">
+    <div
+      className="vellum-layer rounded-xl border border-foreground/5 p-0.5 sm:p-1 shadow-2xl overflow-hidden"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
       {/* Day headers */}
       <div className="grid grid-cols-7 border-b border-foreground/5">
         {DAY_NAMES.map((d, i) => (
