@@ -171,8 +171,6 @@ export function ChildProfileManager({ childProfiles, onAdd, onUpdate, onDelete, 
             <Button onClick={handleAdd} size="sm" disabled={!newName.trim() || adding} className="h-8 text-xs bg-foreground text-background hover:bg-foreground/90">
               {adding ? '...' : 'Add'}
             </Button>
-              Add
-            </Button>
             <Button onClick={() => { setShowAdd(false); setNewName(''); }} size="sm" variant="outline" className="h-8 text-xs border-foreground/10">
               <X className="w-3 h-3" />
             </Button>
