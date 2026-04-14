@@ -402,14 +402,6 @@ export function CalendarApp() {
         isAnonymous={isAnonymous}
         onPromptSignup={() => navigate('/auth')}
       />
-      <UserProfileDialog
-        profile={selectedProfile}
-        open={!!selectedProfile}
-        onOpenChange={(open) => { if (!open) setSelectedProfile(null); }}
-        nickname={selectedProfile ? nicknames[selectedProfile.userId] : undefined}
-        onSetNickname={setNickname}
-        onUpdateDisplayName={updateDisplayName}
-      />
     </div>
   );
 }
