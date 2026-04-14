@@ -145,5 +145,16 @@ export function useCalendarEvents() {
     setEvents(getLocalEvents());
   }, []);
 
-  return { events, loading, addEvent, updateEvent, deleteEvent, getEventsForDate, getEventsForMonth, hasEventsOnDate, refreshFromLocal };
+  const refresh = useCallback(async () => {
+    if (isAnonymous) {
+      setEvents(getLocalEvents());
+    } else {
+      const { data, error } = await supabase.from('events').select('*');
+      if (!error && data) {
+        setEvents(data.map(mapRow));
+      }
+    }
+  }, [isAnonymous]);
+
+  return { events, loading, addEvent, updateEvent, deleteEvent, getEventsForDate, getEventsForMonth, hasEventsOnDate, refreshFromLocal, refresh };
 }

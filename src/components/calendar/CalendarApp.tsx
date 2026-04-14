@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { useNavigate } from 'react-router-dom';
 import { MonthView } from './MonthView';
 import { YearView } from './YearView';
@@ -31,11 +32,15 @@ export function CalendarApp() {
   const isAnonymous = !user;
   const migrationToastShown = useRef(false);
   const { toast } = useToast();
-  const { events, addEvent, updateEvent, deleteEvent, getEventsForDate } = useCalendarEvents();
+  const { events, addEvent, updateEvent, deleteEvent, getEventsForDate, refresh } = useCalendarEvents();
   const { profiles, getDisplayName } = useProfiles();
   const { fetchAttendees, fetchAllAttendees, addAttendee, removeAttendee, getAttendees } = useEventAttendees();
   const { childProfiles, addChildProfile, updateChildProfile, deleteChildProfile, getChildProfileName } = useChildProfiles();
   const [showChildManager, setShowChildManager] = useState(false);
+
+  const { containerRef, pullDistance, refreshing } = usePullToRefresh({
+    onRefresh: refresh,
+  });
 
   // Show migration toast when data is migrated (works for OAuth redirects too)
   useEffect(() => {
@@ -91,7 +96,25 @@ export function CalendarApp() {
   ];
 
   return (
-    <div className="min-h-dvh light-table-glow text-foreground antialiased selection:bg-blueprint/10">
+    <div ref={containerRef} className="min-h-dvh light-table-glow text-foreground antialiased selection:bg-blueprint/10">
+      {/* Pull to refresh indicator */}
+      <div
+        className="flex items-center justify-center overflow-hidden transition-all duration-200 ease-out"
+        style={{ height: pullDistance > 0 ? `${pullDistance}px` : '0px' }}
+      >
+        <div className={`flex items-center gap-2 text-muted-foreground text-sm ${refreshing ? 'animate-pulse' : ''}`}>
+          <svg
+            className={`w-5 h-5 transition-transform duration-200 ${refreshing ? 'animate-spin' : ''}`}
+            style={{ transform: refreshing ? undefined : `rotate(${Math.min(pullDistance / 80 * 180, 180)}deg)` }}
+            viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+          >
+            <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+            <polyline points="21 3 21 9 15 9" />
+          </svg>
+          <span>{refreshing ? 'Refreshing…' : pullDistance >= 80 ? 'Release to refresh' : 'Pull to refresh'}</span>
+        </div>
+      </div>
+
       {/* Subtle dot texture */}
       <div className="fixed inset-0 pointer-events-none -z-20 opacity-15">
         <div
