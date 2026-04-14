@@ -135,9 +135,14 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       const attendeeUserIds = attendees.map(a => a.userId);
       setAssignedUserIds([editingEvent.userId, ...attendeeUserIds.filter(id => id !== editingEvent.userId)]);
       setEndTimeManuallySet(true);
-      setViewMode(true); // start in detail view when opening existing event
+      setViewMode(true);
       setEditingStartDate(false); setEditingStartTime(false);
       setEditingEndDate(false); setEditingEndTime(false);
+      // Recurrence
+      setRecurrenceEnabled(!!editingEvent.recurrenceType);
+      setRecurrenceType(editingEvent.recurrenceType || 'weekly');
+      setRecurrenceInterval(editingEvent.recurrenceInterval || 1);
+      setRecurrenceEndDate(editingEvent.recurrenceEndDate || '');
     } else if (!editingEvent && open) {
       const [y, m, d] = initialDate.split('-');
       setTitle(''); setDescription('');
