@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import type { CalendarEvent } from '@/types/calendar';
+import { expandRecurringEvents } from '@/lib/recurrence';
 import {
   getLocalEvents, addLocalEvent, updateLocalEvent, deleteLocalEvent, saveLocalEvents, getAnonymousUserId,
 } from '@/lib/localStorageEvents';
@@ -55,9 +56,11 @@ export function useCalendarEvents() {
     reminder: e.reminder_type && e.reminder_timing
       ? { type: e.reminder_type as 'email' | 'push', timing: e.reminder_timing as '1hour' | '1day' | '1week' }
       : undefined,
+    recurrenceType: e.recurrence_type ?? null,
+    recurrenceInterval: e.recurrence_interval ?? 1,
+    recurrenceEndDate: e.recurrence_end_date ?? null,
     createdAt: e.created_at,
   });
-
   const addEvent = useCallback(async (event: Omit<CalendarEvent, 'id' | 'createdAt'>) => {
     if (isAnonymous) {
       const newEvent = addLocalEvent({ ...event, userId: getAnonymousUserId() });
@@ -79,6 +82,9 @@ export function useCalendarEvents() {
       child_profile_id: event.childProfileId ?? null,
       reminder_type: event.reminder?.type ?? null,
       reminder_timing: event.reminder?.timing ?? null,
+      recurrence_type: event.recurrenceType ?? null,
+      recurrence_interval: event.recurrenceInterval ?? 1,
+      recurrence_end_date: event.recurrenceEndDate ?? null,
     }).select().single();
 
     if (error) throw error;
@@ -108,6 +114,9 @@ export function useCalendarEvents() {
     if (updates.userColor !== undefined) mapped.user_color = updates.userColor;
     if (updates.childProfileId !== undefined) mapped.child_profile_id = updates.childProfileId ?? null;
     if (updates.userId !== undefined) mapped.user_id = updates.userId;
+    if (updates.recurrenceType !== undefined) mapped.recurrence_type = updates.recurrenceType ?? null;
+    if (updates.recurrenceInterval !== undefined) mapped.recurrence_interval = updates.recurrenceInterval;
+    if (updates.recurrenceEndDate !== undefined) mapped.recurrence_end_date = updates.recurrenceEndDate ?? null;
 
     const { data } = await supabase.from('events').update(mapped).eq('id', id).select().single();
     if (data) {
@@ -127,18 +136,19 @@ export function useCalendarEvents() {
   }, [isAnonymous]);
 
   const getEventsForDate = useCallback((date: string) => {
-    return events.filter(e => date >= e.startDate && date <= e.endDate);
+    const expanded = expandRecurringEvents(events, date, date);
+    return expanded;
   }, [events]);
 
   const getEventsForMonth = useCallback((year: number, month: number) => {
     const start = `${year}-${String(month + 1).padStart(2, '0')}-01`;
     const lastDay = new Date(year, month + 1, 0).getDate();
     const end = `${year}-${String(month + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
-    return events.filter(e => e.startDate <= end && e.endDate >= start);
+    return expandRecurringEvents(events, start, end);
   }, [events]);
 
   const hasEventsOnDate = useCallback((date: string) => {
-    return events.some(e => date >= e.startDate && date <= e.endDate);
+    return expandRecurringEvents(events, date, date).length > 0;
   }, [events]);
 
   // Force refresh from localStorage (used after migration)

@@ -1,6 +1,7 @@
 export type EventVisibility = 'public' | 'shared' | 'private';
 export type ReminderType = 'email' | 'push';
 export type ReminderTiming = '1hour' | '1day' | '1week';
+export type RecurrenceType = 'weekly' | 'monthly';
 
 export interface CalendarEvent {
   id: string;
@@ -18,6 +19,9 @@ export interface CalendarEvent {
     type: ReminderType;
     timing: ReminderTiming;
   };
+  recurrenceType?: RecurrenceType | null;
+  recurrenceInterval?: number;
+  recurrenceEndDate?: string | null; // YYYY-MM-DD
   createdAt: string;
 }
 

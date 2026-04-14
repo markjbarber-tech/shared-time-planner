@@ -7,9 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DialPicker } from './DialPicker';
 import { useAuth } from '@/hooks/useAuth';
-import type { CalendarEvent, EventVisibility, ReminderType, ReminderTiming, ChildProfile } from '@/types/calendar';
+import type { CalendarEvent, EventVisibility, ReminderType, ReminderTiming, RecurrenceType, ChildProfile } from '@/types/calendar';
 import { USER_COLORS } from '@/types/calendar';
-import { Eye, EyeOff, Users, Bell, X, UserPlus, Baby, Pencil, Clock, Calendar, MapPin, Link, Check } from 'lucide-react';
+import { Eye, EyeOff, Users, Bell, X, UserPlus, Baby, Pencil, Clock, Calendar, MapPin, Link, Check, Repeat } from 'lucide-react';
 import type { EventAttendee } from '@/hooks/useEventAttendees';
 import { useToast } from '@/hooks/use-toast';
 
@@ -103,6 +103,10 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
   const [editingStartTime, setEditingStartTime] = useState(false);
   const [editingEndDate, setEditingEndDate] = useState(false);
   const [editingEndTime, setEditingEndTime] = useState(false);
+  const [recurrenceEnabled, setRecurrenceEnabled] = useState(false);
+  const [recurrenceType, setRecurrenceType] = useState<RecurrenceType>('weekly');
+  const [recurrenceInterval, setRecurrenceInterval] = useState(1);
+  const [recurrenceEndDate, setRecurrenceEndDate] = useState('');
 
   const isEditing = !!editingEvent;
 
@@ -131,9 +135,14 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       const attendeeUserIds = attendees.map(a => a.userId);
       setAssignedUserIds([editingEvent.userId, ...attendeeUserIds.filter(id => id !== editingEvent.userId)]);
       setEndTimeManuallySet(true);
-      setViewMode(true); // start in detail view when opening existing event
+      setViewMode(true);
       setEditingStartDate(false); setEditingStartTime(false);
       setEditingEndDate(false); setEditingEndTime(false);
+      // Recurrence
+      setRecurrenceEnabled(!!editingEvent.recurrenceType);
+      setRecurrenceType(editingEvent.recurrenceType || 'weekly');
+      setRecurrenceInterval(editingEvent.recurrenceInterval || 1);
+      setRecurrenceEndDate(editingEvent.recurrenceEndDate || '');
     } else if (!editingEvent && open) {
       const [y, m, d] = initialDate.split('-');
       setTitle(''); setDescription('');
@@ -152,6 +161,10 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       setViewMode(false); // new events go straight to edit mode
       setEditingStartDate(false); setEditingStartTime(false);
       setEditingEndDate(false); setEditingEndTime(false);
+      setRecurrenceEnabled(false);
+      setRecurrenceType('weekly');
+      setRecurrenceInterval(1);
+      setRecurrenceEndDate('');
     }
     setAttendeeSearch('');
     setShowAssignPicker(false);
@@ -205,6 +218,9 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
         : (editingEvent?.userColor ?? 0),
     childProfileId: selectedChildProfileId,
     reminder: reminderEnabled ? { type: reminderType, timing: reminderTiming } : undefined,
+    recurrenceType: recurrenceEnabled ? recurrenceType : null,
+    recurrenceInterval: recurrenceEnabled ? recurrenceInterval : 1,
+    recurrenceEndDate: recurrenceEnabled && recurrenceEndDate ? recurrenceEndDate : null,
   });
 
   const handleSave = async () => {
@@ -354,6 +370,17 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                       editingEvent.reminder.timing === '1hour' ? '1 hour before' :
                       editingEvent.reminder.timing === '1day' ? '1 day before' : '1 week before'
                     }
+                  </span>
+                </div>
+              )}
+
+              {editingEvent?.recurrenceType && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Repeat className="w-4 h-4 text-muted-foreground" />
+                  <span>
+                    Every {editingEvent.recurrenceInterval && editingEvent.recurrenceInterval > 1 ? `${editingEvent.recurrenceInterval} ` : ''}
+                    {editingEvent.recurrenceType === 'weekly' ? (editingEvent.recurrenceInterval && editingEvent.recurrenceInterval > 1 ? 'weeks' : 'week') : (editingEvent.recurrenceInterval && editingEvent.recurrenceInterval > 1 ? 'months' : 'month')}
+                    {editingEvent.recurrenceEndDate && ` until ${editingEvent.recurrenceEndDate}`}
                   </span>
                 </div>
               )}
@@ -746,6 +773,69 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                     </button>
                   ))}
                 </div>
+              </div>
+            )}
+          </div>
+
+          {/* Recurrence */}
+          <div className="space-y-3">
+            <button
+              onClick={() => canEdit && setRecurrenceEnabled(!recurrenceEnabled)}
+              className="flex items-center gap-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+              disabled={!canEdit}
+            >
+              <Repeat className="w-3.5 h-3.5" />
+              {recurrenceEnabled ? 'Repeating' : 'Make recurring'}
+            </button>
+            {recurrenceEnabled && (
+              <div className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">Every</span>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={52}
+                    value={recurrenceInterval}
+                    onChange={e => setRecurrenceInterval(Math.max(1, parseInt(e.target.value) || 1))}
+                    className="w-16 h-8 text-xs border-foreground/10 bg-background/50 text-center"
+                    style={{ fontSize: '16px' }}
+                  />
+                  <div className="flex gap-1 p-1 bg-background/50 rounded-lg border border-foreground/5">
+                    {(['weekly', 'monthly'] as RecurrenceType[]).map(t => (
+                      <button
+                        key={t}
+                        onClick={() => setRecurrenceType(t)}
+                        className={`px-3 py-1 rounded text-[11px] font-medium transition-all ${
+                          recurrenceType === t ? 'bg-foreground text-background' : 'text-muted-foreground'
+                        }`}
+                      >
+                        {t === 'weekly' ? (recurrenceInterval > 1 ? 'Weeks' : 'Week') : (recurrenceInterval > 1 ? 'Months' : 'Month')}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-xs text-muted-foreground">Until</span>
+                  <Input
+                    type="date"
+                    value={recurrenceEndDate}
+                    onChange={e => setRecurrenceEndDate(e.target.value)}
+                    className="h-8 text-xs border-foreground/10 bg-background/50 flex-1"
+                    style={{ fontSize: '16px' }}
+                    placeholder="No end date"
+                  />
+                  {recurrenceEndDate && (
+                    <button
+                      onClick={() => setRecurrenceEndDate('')}
+                      className="text-xs text-muted-foreground hover:text-foreground"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+                {!recurrenceEndDate && (
+                  <p className="text-[10px] text-muted-foreground">No end date — repeats indefinitely</p>
+                )}
               </div>
             )}
           </div>
