@@ -90,12 +90,12 @@
   }
 
   .calendar-cell {
-    @apply border-r border-b p-3 flex flex-col gap-1 transition-colors hover:bg-background/60 cursor-pointer;
+    @apply border-r border-b p-1.5 sm:p-2 flex flex-col gap-0.5 transition-colors hover:bg-background/60 cursor-pointer;
     border-color: hsl(var(--ink) / 0.05);
   }
 
   .event-pill {
-    @apply px-2 py-1 rounded-sm text-[11px] font-medium leading-tight;
+    @apply px-1.5 py-0.5 rounded-sm text-[10px] sm:text-[11px] font-medium leading-tight;
     border-left: 2px solid;
   }
 
