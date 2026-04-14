@@ -189,6 +189,18 @@ export function CalendarApp() {
           </div>
         </nav>
 
+        {/* Child Profile Manager */}
+        {showChildManager && (
+          <div className="vellum-layer rounded-xl border border-foreground/5 p-4 sm:p-6 shadow-lg">
+            <ChildProfileManager
+              childProfiles={childProfiles}
+              onAdd={addChildProfile}
+              onUpdate={updateChildProfile}
+              onDelete={deleteChildProfile}
+            />
+          </div>
+        )}
+
         {/* Views */}
         {view === 'month' && (
           <MonthView
@@ -198,6 +210,7 @@ export function CalendarApp() {
             onDateClick={handleDateClick}
             onDayView={handleDayView}
             getDisplayName={getDisplayName}
+            getChildProfileName={getChildProfileName}
           />
         )}
 
@@ -221,6 +234,7 @@ export function CalendarApp() {
             }}
             onDeleteEvent={deleteEvent}
             getDisplayName={getDisplayName}
+            getChildProfileName={getChildProfileName}
             getAttendees={getAttendees}
           />
         )}
@@ -254,6 +268,7 @@ export function CalendarApp() {
         attendees={editingEvent ? getAttendees(editingEvent.id) : []}
         onAddAttendee={addAttendee}
         onRemoveAttendee={removeAttendee}
+        childProfiles={childProfiles}
       />
     </div>
   );
