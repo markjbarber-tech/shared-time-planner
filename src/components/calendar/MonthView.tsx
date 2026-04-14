@@ -94,7 +94,7 @@ export function MonthView({ year, month, events, onDateClick, onDayView, onEvent
 
   return (
     <div
-      className="vellum-layer rounded-xl border border-foreground/5 p-0.5 sm:p-1 shadow-2xl overflow-hidden"
+      className="vellum-layer rounded-none sm:rounded-xl border-x-0 sm:border-x border border-foreground/5 p-0 sm:p-1 shadow-2xl overflow-hidden -mx-4 sm:mx-0"
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
     >
