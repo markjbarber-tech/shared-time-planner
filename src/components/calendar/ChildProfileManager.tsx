@@ -22,12 +22,21 @@ export function ChildProfileManager({ childProfiles, onAdd, onUpdate, onDelete, 
   const [editColor, setEditColor] = useState(0);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
+  const [adding, setAdding] = useState(false);
+
   const handleAdd = async () => {
-    if (!newName.trim()) return;
-    await onAdd(newName.trim(), newColor);
-    setNewName('');
-    setNewColor(0);
-    setShowAdd(false);
+    if (!newName.trim() || adding) return;
+    setAdding(true);
+    try {
+      await onAdd(newName.trim(), newColor);
+      setNewName('');
+      setNewColor(0);
+      setShowAdd(false);
+    } catch (e) {
+      console.error('Failed to add child profile:', e);
+    } finally {
+      setAdding(false);
+    }
   };
 
   const handleStartEdit = (cp: ChildProfile) => {
