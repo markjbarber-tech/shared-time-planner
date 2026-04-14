@@ -29,8 +29,27 @@ interface EventDialogProps {
 }
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+const HOURS_12 = Array.from({ length: 12 }, (_, i) => String(i === 0 ? 12 : i));
 const MINUTES = Array.from({ length: 12 }, (_, i) => String(i * 5).padStart(2, '0'));
+
+function to12h(h24: string): { hour12: string; period: 'AM' | 'PM' } {
+  const h = parseInt(h24);
+  const period: 'AM' | 'PM' = h >= 12 ? 'PM' : 'AM';
+  const hour12 = h === 0 ? '12' : h > 12 ? String(h - 12) : String(h);
+  return { hour12, period };
+}
+
+function to24h(hour12: string, period: 'AM' | 'PM'): string {
+  let h = parseInt(hour12);
+  if (period === 'AM') h = h === 12 ? 0 : h;
+  else h = h === 12 ? 12 : h + 12;
+  return String(h).padStart(2, '0');
+}
+
+function format12h(h24: string, min: string): string {
+  const { hour12, period } = to12h(h24);
+  return `${hour12}:${min} ${period}`;
+}
 
 function getDaysInMonth(year: number, month: number) {
   return new Date(year, month + 1, 0).getDate();
