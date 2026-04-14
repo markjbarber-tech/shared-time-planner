@@ -28,6 +28,16 @@ export function CalendarApp() {
   const { events, addEvent, updateEvent, deleteEvent, getEventsForDate } = useCalendarEvents();
   const { profiles, getDisplayName } = useProfiles();
   const { fetchAttendees, fetchAllAttendees, addAttendee, removeAttendee, getAttendees } = useEventAttendees();
+  const { childProfiles, addChildProfile, updateChildProfile, deleteChildProfile, getChildProfileName } = useChildProfiles();
+  const [showChildManager, setShowChildManager] = useState(false);
+
+  // Enhanced display name that checks child profiles first
+  const getEventDisplayName = useCallback((event: CalendarEvent) => {
+    if (event.childProfileId) {
+      return getChildProfileName(event.childProfileId);
+    }
+    return getDisplayName(event.userId);
+  }, [getChildProfileName, getDisplayName]);
 
   // Fetch attendees when events change
   useEffect(() => {
