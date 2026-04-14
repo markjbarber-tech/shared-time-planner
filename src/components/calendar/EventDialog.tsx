@@ -328,6 +328,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
               </button>
             )}
             
+            {!isAnonymous && <>
             {/* Current attendees */}
             {displayedAttendeeIds.length > 0 && (
               <div className="flex flex-wrap gap-2">
