@@ -38,5 +38,15 @@ export function useProfiles() {
     return profiles[userId] || 'Unknown';
   }, [profiles]);
 
-  return { profiles, profileList, getDisplayName };
+  const updateDisplayName = useCallback(async (userId: string, newName: string) => {
+    const { error } = await supabase
+      .from('profiles')
+      .update({ display_name: newName })
+      .eq('user_id', userId);
+    if (error) throw error;
+    setProfiles(prev => ({ ...prev, [userId]: newName }));
+    setProfileList(prev => prev.map(p => p.userId === userId ? { ...p, displayName: newName } : p));
+  }, []);
+
+  return { profiles, profileList, getDisplayName, updateDisplayName };
 }

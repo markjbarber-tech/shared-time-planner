@@ -14,19 +14,24 @@ interface UserProfileDialogProps {
   onOpenChange: (open: boolean) => void;
   nickname?: string;
   onSetNickname?: (targetUserId: string, nickname: string) => Promise<void>;
+  onUpdateDisplayName?: (userId: string, newName: string) => Promise<void>;
 }
 
-export default function UserProfileDialog({ profile, open, onOpenChange, nickname, onSetNickname }: UserProfileDialogProps) {
+export default function UserProfileDialog({ profile, open, onOpenChange, nickname, onSetNickname, onUpdateDisplayName }: UserProfileDialogProps) {
   const { user } = useAuth();
   const [editing, setEditing] = useState(false);
   const [nicknameValue, setNicknameValue] = useState('');
+  const [editingName, setEditingName] = useState(false);
+  const [nameValue, setNameValue] = useState('');
 
   useEffect(() => {
     if (open) {
       setNicknameValue(nickname || '');
       setEditing(false);
+      setEditingName(false);
+      setNameValue(profile?.displayName || '');
     }
-  }, [open, nickname]);
+  }, [open, nickname, profile]);
 
   if (!profile) return null;
 
@@ -39,6 +44,13 @@ export default function UserProfileDialog({ profile, open, onOpenChange, nicknam
       await onSetNickname(profile.userId, nicknameValue);
     }
     setEditing(false);
+  };
+
+  const handleSaveName = async () => {
+    if (onUpdateDisplayName && nameValue.trim()) {
+      await onUpdateDisplayName(profile.userId, nameValue.trim());
+    }
+    setEditingName(false);
   };
 
   return (
@@ -67,6 +79,41 @@ export default function UserProfileDialog({ profile, open, onOpenChange, nicknam
               <span className="text-sm text-muted-foreground">Calendar color</span>
             </div>
           </div>
+
+          {/* Own profile name editing */}
+          {isOwnProfile && onUpdateDisplayName && (
+            <div className="w-full pt-2 border-t border-foreground/5">
+              {editingName ? (
+                <div className="space-y-2">
+                  <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Display Name</Label>
+                  <div className="flex gap-2">
+                    <Input
+                      value={nameValue}
+                      onChange={e => setNameValue(e.target.value)}
+                      placeholder="Your display name"
+                      className="border-foreground/10 bg-background/50 text-sm flex-1"
+                    />
+                    <Button size="icon" variant="ghost" onClick={handleSaveName} className="shrink-0">
+                      <Check className="w-4 h-4" />
+                    </Button>
+                    <Button size="icon" variant="ghost" onClick={() => setEditingName(false)} className="shrink-0">
+                      <X className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setEditingName(true)}
+                  className="w-full border-foreground/10 text-xs"
+                >
+                  <Pencil className="w-3 h-3 mr-1.5" />
+                  Rename Profile
+                </Button>
+              )}
+            </div>
+          )}
 
           {/* Nickname editing - only for other users */}
           {!isOwnProfile && onSetNickname && (
