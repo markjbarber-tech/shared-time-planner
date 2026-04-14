@@ -48,7 +48,7 @@ export function CalendarApp() {
   const migrationToastShown = useRef(false);
   const { toast } = useToast();
   const { events, addEvent, updateEvent, deleteEvent, getEventsForDate, refresh } = useCalendarEvents();
-  const { profiles, profileList, getDisplayName, updateDisplayName } = useProfiles();
+  const { profiles, profileList, getDisplayName, updateDisplayName, updatePreferredColor } = useProfiles();
   const { fetchAttendees, fetchAllAttendees, addAttendee, removeAttendee, getAttendees } = useEventAttendees();
   const { nicknames, setNickname, getDisplayName: getNicknameDisplayName } = useNicknames();
   const { childProfiles, addChildProfile, updateChildProfile, deleteChildProfile, getChildProfileName } = useChildProfiles();
@@ -468,6 +468,7 @@ export function CalendarApp() {
         nickname={selectedProfile ? nicknames[selectedProfile.userId] : undefined}
         onSetNickname={setNickname}
         onUpdateDisplayName={updateDisplayName}
+        onUpdateColor={updatePreferredColor}
       />
     </div>
   );
