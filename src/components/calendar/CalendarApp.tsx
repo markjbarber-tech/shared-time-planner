@@ -372,7 +372,7 @@ export function CalendarApp() {
               setDialogOpen(true);
             }}
             onSwipeMonth={navigateMonth}
-            getDisplayName={getDisplayName}
+            getDisplayName={mergedGetDisplayName}
             getChildProfileName={getChildProfileName}
           />
         )}
@@ -396,7 +396,7 @@ export function CalendarApp() {
               setDialogOpen(true);
             }}
             onDeleteEvent={deleteEvent}
-            getDisplayName={getDisplayName}
+            getDisplayName={mergedGetDisplayName}
             getChildProfileName={getChildProfileName}
             getAttendees={getAttendees}
           />
@@ -427,7 +427,7 @@ export function CalendarApp() {
         onDelete={deleteEvent}
         initialDate={dialogDate}
         editingEvent={editingEvent}
-        profiles={profiles}
+        profiles={mergedProfiles}
         profileList={profileList}
         attendees={editingEvent ? getAttendees(editingEvent.id) : []}
         onAddAttendee={isAnonymous ? undefined : addAttendee}
