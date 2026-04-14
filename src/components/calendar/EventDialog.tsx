@@ -128,7 +128,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
     startTime: `${startHour}:${startMinute}`,
     endTime: `${endHour}:${endMinute}`,
     visibility,
-    userId: user?.id ?? '',
+    userId: user?.id ?? 'local-user',
     userColor: selectedChildProfile ? selectedChildProfile.preferredColor : (editingEvent?.userColor ?? 0),
     childProfileId: selectedChildProfileId,
     reminder: reminderEnabled ? { type: reminderType, timing: reminderTiming } : undefined,
