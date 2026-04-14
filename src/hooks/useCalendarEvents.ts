@@ -81,6 +81,9 @@ export function useCalendarEvents() {
       child_profile_id: event.childProfileId ?? null,
       reminder_type: event.reminder?.type ?? null,
       reminder_timing: event.reminder?.timing ?? null,
+      recurrence_type: event.recurrenceType ?? null,
+      recurrence_interval: event.recurrenceInterval ?? 1,
+      recurrence_end_date: event.recurrenceEndDate ?? null,
     }).select().single();
 
     if (error) throw error;
@@ -110,6 +113,9 @@ export function useCalendarEvents() {
     if (updates.userColor !== undefined) mapped.user_color = updates.userColor;
     if (updates.childProfileId !== undefined) mapped.child_profile_id = updates.childProfileId ?? null;
     if (updates.userId !== undefined) mapped.user_id = updates.userId;
+    if (updates.recurrenceType !== undefined) mapped.recurrence_type = updates.recurrenceType ?? null;
+    if (updates.recurrenceInterval !== undefined) mapped.recurrence_interval = updates.recurrenceInterval;
+    if (updates.recurrenceEndDate !== undefined) mapped.recurrence_end_date = updates.recurrenceEndDate ?? null;
 
     const { data } = await supabase.from('events').update(mapped).eq('id', id).select().single();
     if (data) {
