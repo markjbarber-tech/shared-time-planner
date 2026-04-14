@@ -362,34 +362,34 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
           </div>
 
           {/* Date & Time Pickers */}
-          <div className="grid grid-cols-2 gap-6">
+          <div className="grid grid-cols-2 gap-4">
             {/* Start */}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Start</Label>
-              <div className="flex gap-1 bg-background/50 rounded-lg border border-foreground/5 p-2">
-                <DialPicker items={startDays} value={startDay} onChange={setStartDay} className="w-10" />
-                <DialPicker items={MONTHS} value={MONTHS[parseInt(startMonth)]} onChange={v => setStartMonth(String(MONTHS.indexOf(v)))} className="w-12" />
-                <DialPicker items={years} value={startYear} onChange={setStartYear} className="w-14" />
+              <div className="flex gap-0.5 bg-background/50 rounded-md border border-foreground/5 p-1">
+                <DialPicker items={startDays} value={startDay} onChange={setStartDay} className="w-8" />
+                <DialPicker items={MONTHS} value={MONTHS[parseInt(startMonth)]} onChange={v => setStartMonth(String(MONTHS.indexOf(v)))} className="w-10" />
+                <DialPicker items={years} value={startYear} onChange={setStartYear} className="w-11" />
               </div>
-              <div className="flex gap-1 bg-background/50 rounded-lg border border-foreground/5 p-2">
-                <DialPicker items={HOURS} value={startHour} onChange={setStartHour} className="w-12" />
-                <span className="flex items-center text-muted-foreground font-bold self-center">:</span>
-                <DialPicker items={MINUTES} value={startMinute} onChange={setStartMinute} className="w-12" />
+              <div className="flex gap-0.5 bg-background/50 rounded-md border border-foreground/5 p-1">
+                <DialPicker items={HOURS} value={startHour} onChange={setStartHour} className="w-10" />
+                <span className="flex items-center text-muted-foreground font-bold self-center text-xs">:</span>
+                <DialPicker items={MINUTES} value={startMinute} onChange={setStartMinute} className="w-10" />
               </div>
             </div>
 
             {/* End */}
-            <div className="space-y-2">
+            <div className="space-y-1.5">
               <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">End</Label>
-              <div className="flex gap-1 bg-background/50 rounded-lg border border-foreground/5 p-2">
-                <DialPicker items={endDays} value={endDay} onChange={v => { setEndTimeManuallySet(true); setEndDay(v); }} className="w-10" />
-                <DialPicker items={MONTHS} value={MONTHS[parseInt(endMonth)]} onChange={v => { setEndTimeManuallySet(true); setEndMonth(String(MONTHS.indexOf(v))); }} className="w-12" />
-                <DialPicker items={years} value={endYear} onChange={v => { setEndTimeManuallySet(true); setEndYear(v); }} className="w-14" />
+              <div className="flex gap-0.5 bg-background/50 rounded-md border border-foreground/5 p-1">
+                <DialPicker items={endDays} value={endDay} onChange={v => { setEndTimeManuallySet(true); setEndDay(v); }} className="w-8" />
+                <DialPicker items={MONTHS} value={MONTHS[parseInt(endMonth)]} onChange={v => { setEndTimeManuallySet(true); setEndMonth(String(MONTHS.indexOf(v))); }} className="w-10" />
+                <DialPicker items={years} value={endYear} onChange={v => { setEndTimeManuallySet(true); setEndYear(v); }} className="w-11" />
               </div>
-              <div className="flex gap-1 bg-background/50 rounded-lg border border-foreground/5 p-2">
-                <DialPicker items={HOURS} value={endHour} onChange={v => { setEndTimeManuallySet(true); setEndHour(v); }} className="w-12" />
-                <span className="flex items-center text-muted-foreground font-bold self-center">:</span>
-                <DialPicker items={MINUTES} value={endMinute} onChange={v => { setEndTimeManuallySet(true); setEndMinute(v); }} className="w-12" />
+              <div className="flex gap-0.5 bg-background/50 rounded-md border border-foreground/5 p-1">
+                <DialPicker items={HOURS} value={endHour} onChange={v => { setEndTimeManuallySet(true); setEndHour(v); }} className="w-10" />
+                <span className="flex items-center text-muted-foreground font-bold self-center text-xs">:</span>
+                <DialPicker items={MINUTES} value={endMinute} onChange={v => { setEndTimeManuallySet(true); setEndMinute(v); }} className="w-10" />
               </div>
             </div>
           </div>
