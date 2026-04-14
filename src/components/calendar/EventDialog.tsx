@@ -310,6 +310,13 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                 <span>{format12h(startHour, startMinute)} — {format12h(endHour, endMinute)}</span>
               </div>
 
+              {editingEvent && editingEvent.userId !== user?.id && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Users className="w-4 h-4 text-muted-foreground" />
+                  <span>Assigned to {profiles[editingEvent.userId] || 'Unknown'}</span>
+                </div>
+              )}
+
               {selectedChildProfile && (
                 <div className="flex items-center gap-2 text-sm">
                   <Baby className="w-4 h-4 text-muted-foreground" />
