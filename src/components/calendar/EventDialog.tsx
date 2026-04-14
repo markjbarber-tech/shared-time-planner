@@ -68,6 +68,8 @@ function generateYears() {
 
 export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initialDate, editingEvent, profiles, attendees, onAddAttendee, onRemoveAttendee, childProfiles, isAnonymous, onPromptSignup }: EventDialogProps) {
   const { user } = useAuth();
+  const { toast } = useToast();
+  const [inviteLinkCopied, setInviteLinkCopied] = useState(false);
   const now = new Date();
   const [year, month, day] = initialDate.split('-');
   
