@@ -13,11 +13,20 @@ export interface CalendarEvent {
   visibility: EventVisibility;
   userId: string;
   userColor: number; // index 0-5
+  childProfileId?: string | null;
   reminder?: {
     type: ReminderType;
     timing: ReminderTiming;
   };
   createdAt: string;
+}
+
+export interface ChildProfile {
+  id: string;
+  parentUserId: string;
+  displayName: string;
+  preferredColor: number;
+  avatarUrl?: string | null;
 }
 
 export type CalendarView = 'month' | 'year' | 'day';
