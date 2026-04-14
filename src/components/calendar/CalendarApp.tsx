@@ -222,6 +222,7 @@ export function CalendarApp() {
               onAdd={addChildProfile}
               onUpdate={updateChildProfile}
               onDelete={deleteChildProfile}
+              onClose={() => setShowChildManager(false)}
             />
           </div>
         )}
