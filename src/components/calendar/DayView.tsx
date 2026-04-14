@@ -74,6 +74,7 @@ export function DayView({ date, events, onBack, onEditEvent, onDeleteEvent, getD
           const color = USER_COLORS[event.userColor % USER_COLORS.length];
           const bg = USER_COLOR_BGS[event.userColor % USER_COLOR_BGS.length];
           const isOwner = event.userId === user?.id;
+          const eventAttendees = getAttendees ? getAttendees(event.id) : [];
 
           return (
             <div
