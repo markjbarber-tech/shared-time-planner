@@ -228,6 +228,10 @@ export function CalendarApp() {
         onDelete={deleteEvent}
         initialDate={dialogDate}
         editingEvent={editingEvent}
+        profiles={profiles}
+        attendees={editingEvent ? getAttendees(editingEvent.id) : []}
+        onAddAttendee={addAttendee}
+        onRemoveAttendee={removeAttendee}
       />
     </div>
   );
