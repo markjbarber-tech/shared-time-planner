@@ -8,8 +8,8 @@ interface DialPickerProps {
   className?: string;
 }
 
-const ITEM_HEIGHT = 40;
-const VISIBLE_ITEMS = 5;
+const ITEM_HEIGHT = 28;
+const VISIBLE_ITEMS = 3;
 
 export function DialPicker({ items, value, onChange, className }: DialPickerProps) {
   const containerRef = useRef<HTMLDivElement>(null);
