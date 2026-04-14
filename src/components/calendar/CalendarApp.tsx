@@ -8,6 +8,7 @@ import { TodayView } from './TodayView';
 import { EventDialog } from './EventDialog';
 import { MemberSettings } from './MemberSettings';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
+import { useCalendarGroups } from '@/hooks/useCalendarGroups';
 import { useProfiles } from '@/hooks/useProfiles';
 import { useEventAttendees } from '@/hooks/useEventAttendees';
 import { useNicknames } from '@/hooks/useNicknames';
