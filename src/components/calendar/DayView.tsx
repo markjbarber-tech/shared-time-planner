@@ -2,7 +2,8 @@ import { useState } from 'react';
 import type { CalendarEvent } from '@/types/calendar';
 import { USER_COLORS, USER_COLOR_BGS } from '@/types/calendar';
 import { useAuth } from '@/hooks/useAuth';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, Users } from 'lucide-react';
+import type { EventAttendee } from '@/hooks/useEventAttendees';
 
 interface DayViewProps {
   date: string;
@@ -11,6 +12,7 @@ interface DayViewProps {
   onEditEvent: (event: CalendarEvent) => void;
   onDeleteEvent: (id: string) => void;
   getDisplayName: (userId: string) => string;
+  getAttendees?: (eventId: string) => EventAttendee[];
 }
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
@@ -20,7 +22,7 @@ function timeToMinutes(time: string): number {
   return h * 60 + m;
 }
 
-export function DayView({ date, events, onBack, onEditEvent, onDeleteEvent, getDisplayName }: DayViewProps) {
+export function DayView({ date, events, onBack, onEditEvent, onDeleteEvent, getDisplayName, getAttendees }: DayViewProps) {
   const { user } = useAuth();
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const dayEvents = events.filter(e => date >= e.startDate && date <= e.endDate);
@@ -72,6 +74,7 @@ export function DayView({ date, events, onBack, onEditEvent, onDeleteEvent, getD
           const color = USER_COLORS[event.userColor % USER_COLORS.length];
           const bg = USER_COLOR_BGS[event.userColor % USER_COLOR_BGS.length];
           const isOwner = event.userId === user?.id;
+          const eventAttendees = getAttendees ? getAttendees(event.id) : [];
 
           return (
             <div
@@ -103,6 +106,27 @@ export function DayView({ date, events, onBack, onEditEvent, onDeleteEvent, getD
                   {height > 55 && event.description && (
                     <div className="text-[10px] text-muted-foreground/70 mt-1 truncate">
                       {event.description}
+                    </div>
+                  )}
+                  {height > 45 && eventAttendees.length > 0 && (
+                    <div className="flex items-center gap-1 mt-1">
+                      <Users className="w-2.5 h-2.5 text-muted-foreground/50 shrink-0" />
+                      <div className="flex -space-x-1.5">
+                        {eventAttendees.slice(0, 5).map(a => (
+                          <span
+                            key={a.id}
+                            className="size-4 rounded-full bg-foreground/15 flex items-center justify-center text-[7px] font-semibold uppercase ring-1 ring-background"
+                            title={getDisplayName(a.userId)}
+                          >
+                            {(getDisplayName(a.userId) || 'U')[0]}
+                          </span>
+                        ))}
+                        {eventAttendees.length > 5 && (
+                          <span className="text-[8px] text-muted-foreground/60 ml-1">
+                            +{eventAttendees.length - 5}
+                          </span>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>

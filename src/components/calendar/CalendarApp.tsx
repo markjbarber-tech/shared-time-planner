@@ -1,10 +1,11 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { MonthView } from './MonthView';
 import { YearView } from './YearView';
 import { DayView } from './DayView';
 import { EventDialog } from './EventDialog';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
 import { useProfiles } from '@/hooks/useProfiles';
+import { useEventAttendees } from '@/hooks/useEventAttendees';
 import { useAuth } from '@/hooks/useAuth';
 import type { CalendarView, CalendarEvent } from '@/types/calendar';
 import { ChevronLeft, ChevronRight, Plus, LogOut } from 'lucide-react';
@@ -23,7 +24,15 @@ export function CalendarApp() {
 
   const { user, signOut } = useAuth();
   const { events, addEvent, updateEvent, deleteEvent, getEventsForDate } = useCalendarEvents();
-  const { getDisplayName } = useProfiles();
+  const { profiles, getDisplayName } = useProfiles();
+  const { fetchAttendees, fetchAllAttendees, addAttendee, removeAttendee, getAttendees } = useEventAttendees();
+
+  // Fetch attendees when events change
+  useEffect(() => {
+    if (events.length > 0) {
+      fetchAllAttendees(events.map(e => e.id));
+    }
+  }, [events, fetchAllAttendees]);
 
   const navigateMonth = (delta: number) => {
     let m = currentMonth + delta;
@@ -191,6 +200,7 @@ export function CalendarApp() {
             }}
             onDeleteEvent={deleteEvent}
             getDisplayName={getDisplayName}
+            getAttendees={getAttendees}
           />
         )}
       </div>
@@ -219,6 +229,10 @@ export function CalendarApp() {
         onDelete={deleteEvent}
         initialDate={dialogDate}
         editingEvent={editingEvent}
+        profiles={profiles}
+        attendees={editingEvent ? getAttendees(editingEvent.id) : []}
+        onAddAttendee={addAttendee}
+        onRemoveAttendee={removeAttendee}
       />
     </div>
   );
