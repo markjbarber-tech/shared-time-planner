@@ -303,6 +303,7 @@ export function CalendarApp() {
               setDialogDate(event.startDate);
               setDialogOpen(true);
             }}
+            onSwipeMonth={navigateMonth}
             getDisplayName={getDisplayName}
             getChildProfileName={getChildProfileName}
           />
