@@ -98,7 +98,8 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       }
       setPendingAttendees([]);
       setSelectedChildProfileId(editingEvent.childProfileId ?? null);
-      setEndTimeManuallySet(true); // don't auto-update end time when editing
+      setEndTimeManuallySet(true);
+      setViewMode(true); // start in detail view when opening existing event
     } else if (!editingEvent && open) {
       const [y, m, d] = initialDate.split('-');
       setTitle(''); setDescription('');
