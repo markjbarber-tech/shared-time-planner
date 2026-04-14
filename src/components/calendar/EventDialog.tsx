@@ -109,6 +109,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
   const [recurrenceType, setRecurrenceType] = useState<RecurrenceType>('weekly');
   const [recurrenceInterval, setRecurrenceInterval] = useState(1);
   const [recurrenceEndDate, setRecurrenceEndDate] = useState('');
+  const [calendarGroupId, setCalendarGroupId] = useState<string | null>(activeGroupId ?? null);
 
   const isEditing = !!editingEvent;
 
