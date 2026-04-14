@@ -10,6 +10,7 @@ interface DayViewProps {
   onBack: () => void;
   onEditEvent: (event: CalendarEvent) => void;
   onDeleteEvent: (id: string) => void;
+  getDisplayName: (userId: string) => string;
 }
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
@@ -19,7 +20,7 @@ function timeToMinutes(time: string): number {
   return h * 60 + m;
 }
 
-export function DayView({ date, events, onBack, onEditEvent, onDeleteEvent }: DayViewProps) {
+export function DayView({ date, events, onBack, onEditEvent, onDeleteEvent, getDisplayName }: DayViewProps) {
   const { user } = useAuth();
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const dayEvents = events.filter(e => date >= e.startDate && date <= e.endDate);
@@ -90,6 +91,9 @@ export function DayView({ date, events, onBack, onEditEvent, onDeleteEvent }: Da
                 <div className="flex-1 min-w-0">
                   <div className="text-xs font-medium truncate" style={{ color }}>
                     {event.title}
+                  </div>
+                  <div className="text-[10px] text-muted-foreground/60 truncate">
+                    by {getDisplayName(event.userId)}
                   </div>
                   {height > 35 && (
                     <div className="text-[10px] text-muted-foreground mt-0.5">

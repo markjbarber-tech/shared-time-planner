@@ -4,6 +4,7 @@ import { YearView } from './YearView';
 import { DayView } from './DayView';
 import { EventDialog } from './EventDialog';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
+import { useProfiles } from '@/hooks/useProfiles';
 import { useAuth } from '@/hooks/useAuth';
 import type { CalendarView, CalendarEvent } from '@/types/calendar';
 import { ChevronLeft, ChevronRight, Plus, LogOut } from 'lucide-react';
@@ -22,6 +23,7 @@ export function CalendarApp() {
 
   const { user, signOut } = useAuth();
   const { events, addEvent, updateEvent, deleteEvent, getEventsForDate } = useCalendarEvents();
+  const { getDisplayName } = useProfiles();
 
   const navigateMonth = (delta: number) => {
     let m = currentMonth + delta;
@@ -165,6 +167,7 @@ export function CalendarApp() {
             events={events}
             onDateClick={handleDateClick}
             onDayView={handleDayView}
+            getDisplayName={getDisplayName}
           />
         )}
 
@@ -187,6 +190,7 @@ export function CalendarApp() {
               setDialogOpen(true);
             }}
             onDeleteEvent={deleteEvent}
+            getDisplayName={getDisplayName}
           />
         )}
       </div>
