@@ -4,6 +4,7 @@ import { YearView } from './YearView';
 import { DayView } from './DayView';
 import { EventDialog } from './EventDialog';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
+import { useProfiles } from '@/hooks/useProfiles';
 import { useAuth } from '@/hooks/useAuth';
 import type { CalendarView, CalendarEvent } from '@/types/calendar';
 import { ChevronLeft, ChevronRight, Plus, LogOut } from 'lucide-react';
