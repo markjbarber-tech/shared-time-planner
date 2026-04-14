@@ -240,7 +240,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
     { value: '1week', label: '1 week before' },
   ];
 
-  const canEdit = !isEditing || editingEvent.userId === user?.id;
+  const canEdit = !isEditing || editingEvent.userId === (user?.id ?? 'local-user');
 
   // Combined list of attendee user IDs to display
   const displayedAttendeeIds = isEditing
