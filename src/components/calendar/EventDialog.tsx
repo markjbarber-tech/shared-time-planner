@@ -601,6 +601,34 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                         ))
                       )}
                     </div>
+                    {/* Invite new user via link */}
+                    <div className="border-t border-foreground/5 p-2">
+                      <button
+                        onClick={() => {
+                          const baseUrl = window.location.origin;
+                          const eventRef = isEditing && editingEvent ? editingEvent.id : 'new';
+                          const inviteUrl = `${baseUrl}/auth?invite=true&event=${eventRef}`;
+                          navigator.clipboard.writeText(inviteUrl).then(() => {
+                            setInviteLinkCopied(true);
+                            toast({
+                              title: 'Invite link copied',
+                              description: 'Share this link with someone to invite them to join and view this event.',
+                            });
+                            setTimeout(() => setInviteLinkCopied(false), 3000);
+                          });
+                        }}
+                        className="w-full flex items-center gap-2 px-3 py-2 hover:bg-foreground/5 transition-colors text-left rounded-md"
+                      >
+                        {inviteLinkCopied ? (
+                          <Check className="w-4 h-4 text-green-500 shrink-0" />
+                        ) : (
+                          <Link className="w-4 h-4 text-muted-foreground shrink-0" />
+                        )}
+                        <span className="text-xs font-medium">
+                          {inviteLinkCopied ? 'Link copied!' : 'Copy invite link for new user'}
+                        </span>
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
