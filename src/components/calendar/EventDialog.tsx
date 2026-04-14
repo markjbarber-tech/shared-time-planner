@@ -741,6 +741,30 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
             </div>
           </div>
 
+          {/* Calendar Group */}
+          {groups && groups.length > 0 && (
+            <div className="space-y-2">
+              <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Calendar Group</Label>
+              <div className="flex gap-2 flex-wrap">
+                {groups.map(g => (
+                  <button
+                    key={g.id}
+                    onClick={() => canEdit && setCalendarGroupId(g.id)}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all border ${
+                      calendarGroupId === g.id
+                        ? 'bg-foreground text-background border-foreground'
+                        : 'bg-background/50 border-foreground/10 hover:border-foreground/20'
+                    } ${!canEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    disabled={!canEdit}
+                  >
+                    <FolderOpen className="w-3.5 h-3.5" />
+                    {g.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Reminder */}
           <div className="space-y-3">
             <button
