@@ -7,16 +7,21 @@ import { Textarea } from '@/components/ui/textarea';
 import { DialPicker } from './DialPicker';
 import { useAuth } from '@/hooks/useAuth';
 import type { CalendarEvent, EventVisibility, ReminderType, ReminderTiming } from '@/types/calendar';
-import { Eye, EyeOff, Users, Bell } from 'lucide-react';
+import { Eye, EyeOff, Users, Bell, X, UserPlus } from 'lucide-react';
+import type { EventAttendee } from '@/hooks/useEventAttendees';
 
 interface EventDialogProps {
   open: boolean;
   onClose: () => void;
-  onSave: (event: Omit<CalendarEvent, 'id' | 'createdAt'>) => void;
+  onSave: (event: Omit<CalendarEvent, 'id' | 'createdAt'>) => Promise<any>;
   onUpdate?: (id: string, event: Omit<CalendarEvent, 'id' | 'createdAt'>) => void;
   onDelete?: (id: string) => void;
   initialDate: string;
   editingEvent?: CalendarEvent | null;
+  profiles: Record<string, string>;
+  attendees: EventAttendee[];
+  onAddAttendee?: (eventId: string, userId: string) => Promise<void>;
+  onRemoveAttendee?: (eventId: string, attendeeId: string) => Promise<void>;
 }
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -37,7 +42,7 @@ function generateYears() {
   return Array.from({ length: 10 }, (_, i) => String(current - 2 + i));
 }
 
-export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initialDate, editingEvent }: EventDialogProps) {
+export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initialDate, editingEvent, profiles, attendees, onAddAttendee, onRemoveAttendee }: EventDialogProps) {
   const { user } = useAuth();
   const now = new Date();
   const [year, month, day] = initialDate.split('-');
@@ -59,6 +64,9 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
   const [reminderEnabled, setReminderEnabled] = useState(false);
   const [reminderType, setReminderType] = useState<ReminderType>('push');
   const [reminderTiming, setReminderTiming] = useState<ReminderTiming>('1hour');
+  const [pendingAttendees, setPendingAttendees] = useState<string[]>([]);
+  const [attendeeSearch, setAttendeeSearch] = useState('');
+  const [showAttendeePicker, setShowAttendeePicker] = useState(false);
 
   const isEditing = !!editingEvent;
 
@@ -81,8 +89,8 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
         setReminderType(editingEvent.reminder.type);
         setReminderTiming(editingEvent.reminder.timing);
       }
+      setPendingAttendees([]);
     } else if (!editingEvent && open) {
-      // Reset for new event
       const [y, m, d] = initialDate.split('-');
       setTitle(''); setDescription('');
       setStartYear(y); setStartMonth(String(parseInt(m) - 1)); setStartDay(d);
@@ -93,7 +101,10 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       setEndMinute(String(Math.floor(now.getMinutes() / 5) * 5).padStart(2, '0'));
       setVisibility('public');
       setReminderEnabled(false);
+      setPendingAttendees([]);
     }
+    setAttendeeSearch('');
+    setShowAttendeePicker(false);
   }, [editingEvent, open, initialDate]);
 
   const years = useMemo(() => generateYears(), []);
@@ -113,13 +124,19 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
     reminder: reminderEnabled ? { type: reminderType, timing: reminderTiming } : undefined,
   });
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!title.trim()) return;
     const data = buildEventData();
     if (isEditing && onUpdate) {
       onUpdate(editingEvent.id, data);
     } else {
-      onSave(data);
+      const result = await onSave(data);
+      // Add pending attendees to newly created event
+      if (result?.id && onAddAttendee && pendingAttendees.length > 0) {
+        for (const userId of pendingAttendees) {
+          await onAddAttendee(result.id, userId);
+        }
+      }
     }
     onClose();
   };
@@ -128,6 +145,40 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
     if (isEditing && onDelete) {
       onDelete(editingEvent.id);
       onClose();
+    }
+  };
+
+  // Attendee helpers
+  const currentAttendeeUserIds = new Set(attendees.map(a => a.userId));
+  const pendingSet = new Set(pendingAttendees);
+  const allTaggedUserIds = new Set([...currentAttendeeUserIds, ...pendingSet]);
+
+  const availableUsers = Object.entries(profiles).filter(([uid]) => {
+    if (uid === user?.id) return false; // don't show self
+    if (allTaggedUserIds.has(uid)) return false;
+    if (attendeeSearch) {
+      const name = profiles[uid]?.toLowerCase() || '';
+      return name.includes(attendeeSearch.toLowerCase());
+    }
+    return true;
+  });
+
+  const handleAddExistingAttendee = async (userId: string) => {
+    if (isEditing && editingEvent && onAddAttendee) {
+      await onAddAttendee(editingEvent.id, userId);
+    } else {
+      setPendingAttendees(prev => [...prev, userId]);
+    }
+    setAttendeeSearch('');
+    setShowAttendeePicker(false);
+  };
+
+  const handleRemoveAttendee = async (userId: string) => {
+    if (isEditing && editingEvent && onRemoveAttendee) {
+      const attendee = attendees.find(a => a.userId === userId);
+      if (attendee) await onRemoveAttendee(editingEvent.id, attendee.id);
+    } else {
+      setPendingAttendees(prev => prev.filter(id => id !== userId));
     }
   };
 
@@ -144,6 +195,11 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
   ];
 
   const canEdit = !isEditing || editingEvent.userId === user?.id;
+
+  // Combined list of attendee user IDs to display
+  const displayedAttendeeIds = isEditing
+    ? attendees.map(a => a.userId)
+    : pendingAttendees;
 
   return (
     <Dialog open={open} onOpenChange={() => onClose()}>
@@ -211,6 +267,83 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                 <DialPicker items={MINUTES} value={endMinute} onChange={setEndMinute} className="w-12" />
               </div>
             </div>
+          </div>
+
+          {/* Attendees */}
+          <div className="space-y-3">
+            <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Attendees</Label>
+            
+            {/* Current attendees */}
+            {displayedAttendeeIds.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {displayedAttendeeIds.map(uid => (
+                  <span
+                    key={uid}
+                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-foreground/5 text-xs font-medium"
+                  >
+                    <span className="size-5 rounded-full bg-foreground/10 flex items-center justify-center text-[10px] font-semibold uppercase">
+                      {(profiles[uid] || 'U')[0]}
+                    </span>
+                    {profiles[uid] || 'Unknown'}
+                    {canEdit && (
+                      <button
+                        onClick={() => handleRemoveAttendee(uid)}
+                        className="ml-0.5 size-4 rounded-full hover:bg-foreground/10 flex items-center justify-center transition-colors"
+                      >
+                        <X className="w-2.5 h-2.5" />
+                      </button>
+                    )}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Add attendee */}
+            {canEdit && (
+              <div className="relative">
+                <button
+                  onClick={() => setShowAttendeePicker(!showAttendeePicker)}
+                  className="flex items-center gap-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  Add attendee
+                </button>
+
+                {showAttendeePicker && (
+                  <div className="mt-2 border border-foreground/10 rounded-lg bg-background shadow-lg overflow-hidden">
+                    <div className="p-2 border-b border-foreground/5">
+                      <Input
+                        value={attendeeSearch}
+                        onChange={e => setAttendeeSearch(e.target.value)}
+                        placeholder="Search users..."
+                        className="h-8 text-xs border-foreground/10 bg-background/50"
+                        autoFocus
+                      />
+                    </div>
+                    <div className="max-h-[150px] overflow-y-auto">
+                      {availableUsers.length === 0 ? (
+                        <div className="p-3 text-xs text-muted-foreground text-center">
+                          No users found
+                        </div>
+                      ) : (
+                        availableUsers.map(([uid, name]) => (
+                          <button
+                            key={uid}
+                            onClick={() => handleAddExistingAttendee(uid)}
+                            className="w-full flex items-center gap-2 px-3 py-2 hover:bg-foreground/5 transition-colors text-left"
+                          >
+                            <span className="size-6 rounded-full bg-foreground/10 flex items-center justify-center text-[10px] font-semibold uppercase shrink-0">
+                              {(name || 'U')[0]}
+                            </span>
+                            <span className="text-xs truncate">{name}</span>
+                          </button>
+                        ))
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Visibility */}
