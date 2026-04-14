@@ -20,70 +20,16 @@ export default function Auth() {
   const { toast } = useToast();
   const navigate = useNavigate();
 
-  // When user becomes authenticated, migrate local data then redirect
+  // When user becomes authenticated, show migration toast and redirect
   useEffect(() => {
     if (!user) return;
-
-    const migrateAndRedirect = async () => {
-      const { events, childProfiles } = getLocalDataForMigration();
-
-      if (childProfiles.length > 0 || events.length > 0) {
-        try {
-          // Migrate child profiles first, mapping old IDs to new ones
-          const childIdMap: Record<string, string> = {};
-
-          for (const cp of childProfiles) {
-            const { data } = await supabase
-              .from('child_profiles')
-              .insert({
-                parent_user_id: user.id,
-                display_name: cp.displayName,
-                preferred_color: cp.preferredColor,
-              })
-              .select()
-              .single();
-            if (data) {
-              childIdMap[cp.id] = data.id;
-            }
-          }
-
-          // Migrate events, remapping child profile IDs
-          for (const event of events) {
-            await supabase.from('events').insert({
-              title: event.title,
-              description: event.description ?? null,
-              start_date: event.startDate,
-              end_date: event.endDate,
-              start_time: event.startTime,
-              end_time: event.endTime,
-              visibility: event.visibility,
-              user_id: user.id,
-              user_color: event.userColor,
-              child_profile_id: event.childProfileId ? (childIdMap[event.childProfileId] ?? null) : null,
-              reminder_type: event.reminder?.type ?? null,
-              reminder_timing: event.reminder?.timing ?? null,
-            });
-          }
-
-          clearLocalData();
-          toast({
-            title: 'Data migrated',
-            description: `${events.length} event(s) and ${childProfiles.length} profile(s) synced to your account.`,
-          });
-        } catch (err) {
-          console.error('Migration error:', err);
-          toast({
-            title: 'Migration warning',
-            description: 'Some local data could not be migrated. You can re-create it manually.',
-            variant: 'destructive',
-          });
-        }
-      }
-
-      navigate('/', { replace: true });
-    };
-
-    migrateAndRedirect();
+    if (migrationResult) {
+      toast({
+        title: 'Data migrated',
+        description: `${migrationResult.events} event(s) and ${migrationResult.profiles} profile(s) synced to your account.`,
+      });
+    }
+    navigate('/', { replace: true });
   }, [user]);
 
   const handleForgotPassword = async (e: React.FormEvent) => {
