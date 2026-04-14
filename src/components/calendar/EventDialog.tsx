@@ -93,6 +93,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
         setReminderTiming(editingEvent.reminder.timing);
       }
       setPendingAttendees([]);
+      setSelectedChildProfileId(editingEvent.childProfileId ?? null);
     } else if (!editingEvent && open) {
       const [y, m, d] = initialDate.split('-');
       setTitle(''); setDescription('');
@@ -105,6 +106,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       setVisibility('public');
       setReminderEnabled(false);
       setPendingAttendees([]);
+      setSelectedChildProfileId(null);
     }
     setAttendeeSearch('');
     setShowAttendeePicker(false);
