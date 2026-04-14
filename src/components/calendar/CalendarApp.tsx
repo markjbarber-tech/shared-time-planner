@@ -324,7 +324,25 @@ export function CalendarApp() {
           </div>
         </nav>
 
-        {/* Views */}
+        {view === 'today' && (() => {
+          const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+          return (
+            <TodayView
+              date={todayStr}
+              events={getEventsForDate(todayStr)}
+              onEventClick={(event) => {
+                setEditingEvent(event);
+                setDialogDate(event.startDate);
+                setDialogOpen(true);
+              }}
+              getDisplayName={mergedGetDisplayName}
+              getChildProfileName={getChildProfileName}
+              getAttendees={getAttendees}
+              profileList={profileList}
+            />
+          );
+        })()}
+
         {view === 'month' && (
           <MonthView
             year={currentYear}
