@@ -200,6 +200,7 @@ export function CalendarApp() {
             }}
             onDeleteEvent={deleteEvent}
             getDisplayName={getDisplayName}
+            getAttendees={getAttendees}
           />
         )}
       </div>
