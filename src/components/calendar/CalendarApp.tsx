@@ -215,6 +215,8 @@ export function CalendarApp() {
               <h1 className="text-2xl sm:text-4xl font-serif font-light italic tracking-tight truncate">
                 {view === 'year'
                   ? currentYear
+                  : view === 'today'
+                  ? 'Today'
                   : view === 'day' && selectedDate
                   ? new Date(selectedDate + 'T00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric' })
                   : `${MONTH_NAMES[currentMonth]} ${currentYear}`}
