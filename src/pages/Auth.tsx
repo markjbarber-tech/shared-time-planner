@@ -31,6 +31,8 @@ export default function Auth() {
   // When user becomes authenticated, show migration toast and redirect
   useEffect(() => {
     if (!user) return;
+    // Clear invite flag once signed in
+    localStorage.removeItem('invited_user');
     if (migrationResult) {
       toast({
         title: 'Data migrated',
