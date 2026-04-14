@@ -116,6 +116,8 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
   const startDays = useMemo(() => generateDays(parseInt(startYear), parseInt(startMonth)), [startYear, startMonth]);
   const endDays = useMemo(() => generateDays(parseInt(endYear), parseInt(endMonth)), [endYear, endMonth]);
 
+  const selectedChildProfile = childProfiles.find(cp => cp.id === selectedChildProfileId);
+
   const buildEventData = () => ({
     title: title.trim(),
     description: description.trim() || undefined,
@@ -125,7 +127,8 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
     endTime: `${endHour}:${endMinute}`,
     visibility,
     userId: user?.id ?? '',
-    userColor: editingEvent?.userColor ?? 0,
+    userColor: selectedChildProfile ? selectedChildProfile.preferredColor : (editingEvent?.userColor ?? 0),
+    childProfileId: selectedChildProfileId,
     reminder: reminderEnabled ? { type: reminderType, timing: reminderTiming } : undefined,
   });
 
