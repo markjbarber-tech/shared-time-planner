@@ -63,6 +63,7 @@ export function useCalendarEvents(activeGroupId?: string | null) {
     recurrenceType: e.recurrence_type ?? null,
     recurrenceInterval: e.recurrence_interval ?? 1,
     recurrenceEndDate: e.recurrence_end_date ?? null,
+    calendarGroupId: e.calendar_group_id ?? null,
     createdAt: e.created_at,
   });
   const addEvent = useCallback(async (event: Omit<CalendarEvent, 'id' | 'createdAt'>) => {
@@ -89,6 +90,7 @@ export function useCalendarEvents(activeGroupId?: string | null) {
       recurrence_type: event.recurrenceType ?? null,
       recurrence_interval: event.recurrenceInterval ?? 1,
       recurrence_end_date: event.recurrenceEndDate ?? null,
+      calendar_group_id: event.calendarGroupId ?? activeGroupId ?? null,
     }).select().single();
 
     if (error) throw error;
