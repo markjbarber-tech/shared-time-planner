@@ -430,7 +430,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                   onClick={() => setEditingStartTime(true)}
                   className="w-full text-left px-2.5 py-2 rounded-md border border-foreground/5 bg-background/50 text-sm hover:border-foreground/15 transition-colors"
                 >
-                  {startHour}:{startMinute}
+                  {format12h(startHour, startMinute)}
                 </button>
               )}
             </div>
