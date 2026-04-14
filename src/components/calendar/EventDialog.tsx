@@ -495,10 +495,43 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
             </div>
           </div>
 
-          {/* Assign to (self or child profile) */}
+          {/* Assign to user */}
+          {!isAnonymous && profileList.length > 1 && (
+            <div className="space-y-2">
+              <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Assigned User</Label>
+              <div className="flex gap-2 flex-wrap">
+                {profileList.map(p => {
+                  const isSelected = (assignedUserId || user?.id) === p.userId;
+                  return (
+                    <button
+                      key={p.userId}
+                      onClick={() => canEdit && setAssignedUserId(p.userId)}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all border ${
+                        isSelected
+                          ? 'bg-foreground text-background border-foreground'
+                          : 'bg-background/50 border-foreground/10 hover:border-foreground/20'
+                      } ${!canEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      disabled={!canEdit}
+                    >
+                      <span
+                        className="size-5 rounded-full flex items-center justify-center text-[10px] font-semibold text-white shrink-0"
+                        style={{ backgroundColor: USER_COLORS[p.preferredColor % USER_COLORS.length] }}
+                      >
+                        {p.displayName[0]?.toUpperCase() || '?'}
+                      </span>
+                      {p.displayName}
+                      {p.userId === user?.id && ' (me)'}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Assign to child profile */}
           {childProfiles.length > 0 && (
             <div className="space-y-2">
-              <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Assign To</Label>
+              <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Child Profile</Label>
               <div className="flex gap-2 flex-wrap">
                 <button
                   onClick={() => canEdit && setSelectedChildProfileId(null)}
@@ -509,7 +542,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                   } ${!canEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
                   disabled={!canEdit}
                 >
-                  Me
+                  None
                 </button>
                 {childProfiles.map(cp => (
                   <button
