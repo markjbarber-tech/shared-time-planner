@@ -32,11 +32,15 @@ export function CalendarApp() {
   const isAnonymous = !user;
   const migrationToastShown = useRef(false);
   const { toast } = useToast();
-  const { events, addEvent, updateEvent, deleteEvent, getEventsForDate } = useCalendarEvents();
+  const { events, addEvent, updateEvent, deleteEvent, getEventsForDate, refresh } = useCalendarEvents();
   const { profiles, getDisplayName } = useProfiles();
   const { fetchAttendees, fetchAllAttendees, addAttendee, removeAttendee, getAttendees } = useEventAttendees();
   const { childProfiles, addChildProfile, updateChildProfile, deleteChildProfile, getChildProfileName } = useChildProfiles();
   const [showChildManager, setShowChildManager] = useState(false);
+
+  const { containerRef, pullDistance, refreshing } = usePullToRefresh({
+    onRefresh: refresh,
+  });
 
   // Show migration toast when data is migrated (works for OAuth redirects too)
   useEffect(() => {
