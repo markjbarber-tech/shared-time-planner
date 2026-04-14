@@ -373,6 +373,17 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                   </span>
                 </div>
               )}
+
+              {editingEvent?.recurrenceType && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Repeat className="w-4 h-4 text-muted-foreground" />
+                  <span>
+                    Every {editingEvent.recurrenceInterval && editingEvent.recurrenceInterval > 1 ? `${editingEvent.recurrenceInterval} ` : ''}
+                    {editingEvent.recurrenceType === 'weekly' ? (editingEvent.recurrenceInterval && editingEvent.recurrenceInterval > 1 ? 'weeks' : 'week') : (editingEvent.recurrenceInterval && editingEvent.recurrenceInterval > 1 ? 'months' : 'month')}
+                    {editingEvent.recurrenceEndDate && ` until ${editingEvent.recurrenceEndDate}`}
+                  </span>
+                </div>
+              )}
             </div>
 
             <div className="flex gap-3 pt-2">
