@@ -6,9 +6,11 @@ import { EventDialog } from './EventDialog';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
 import { useProfiles } from '@/hooks/useProfiles';
 import { useEventAttendees } from '@/hooks/useEventAttendees';
+import { useChildProfiles } from '@/hooks/useChildProfiles';
 import { useAuth } from '@/hooks/useAuth';
 import type { CalendarView, CalendarEvent } from '@/types/calendar';
-import { ChevronLeft, ChevronRight, Plus, LogOut } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, LogOut, Baby } from 'lucide-react';
+import { ChildProfileManager } from './ChildProfileManager';
 
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
@@ -26,6 +28,8 @@ export function CalendarApp() {
   const { events, addEvent, updateEvent, deleteEvent, getEventsForDate } = useCalendarEvents();
   const { profiles, getDisplayName } = useProfiles();
   const { fetchAttendees, fetchAllAttendees, addAttendee, removeAttendee, getAttendees } = useEventAttendees();
+  const { childProfiles, addChildProfile, updateChildProfile, deleteChildProfile, getChildProfileName } = useChildProfiles();
+  const [showChildManager, setShowChildManager] = useState(false);
 
   // Fetch attendees when events change
   useEffect(() => {
@@ -99,6 +103,15 @@ export function CalendarApp() {
           </div>
 
           <div className="flex gap-3 sm:gap-6 items-center flex-wrap">
+            {/* Child Profiles */}
+            <button
+              onClick={() => setShowChildManager(!showChildManager)}
+              className={`flex items-center gap-1.5 text-xs transition-colors ${showChildManager ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+              title="Manage child profiles"
+            >
+              <Baby className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Family</span>
+            </button>
             {/* Sign Out */}
             <button
               onClick={signOut}
@@ -168,6 +181,18 @@ export function CalendarApp() {
           </div>
         </nav>
 
+        {/* Child Profile Manager */}
+        {showChildManager && (
+          <div className="vellum-layer rounded-xl border border-foreground/5 p-4 sm:p-6 shadow-lg">
+            <ChildProfileManager
+              childProfiles={childProfiles}
+              onAdd={addChildProfile}
+              onUpdate={updateChildProfile}
+              onDelete={deleteChildProfile}
+            />
+          </div>
+        )}
+
         {/* Views */}
         {view === 'month' && (
           <MonthView
@@ -177,6 +202,7 @@ export function CalendarApp() {
             onDateClick={handleDateClick}
             onDayView={handleDayView}
             getDisplayName={getDisplayName}
+            getChildProfileName={getChildProfileName}
           />
         )}
 
@@ -200,6 +226,7 @@ export function CalendarApp() {
             }}
             onDeleteEvent={deleteEvent}
             getDisplayName={getDisplayName}
+            getChildProfileName={getChildProfileName}
             getAttendees={getAttendees}
           />
         )}
@@ -233,6 +260,7 @@ export function CalendarApp() {
         attendees={editingEvent ? getAttendees(editingEvent.id) : []}
         onAddAttendee={addAttendee}
         onRemoveAttendee={removeAttendee}
+        childProfiles={childProfiles}
       />
     </div>
   );

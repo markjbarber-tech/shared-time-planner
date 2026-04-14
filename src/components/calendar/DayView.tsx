@@ -12,6 +12,7 @@ interface DayViewProps {
   onEditEvent: (event: CalendarEvent) => void;
   onDeleteEvent: (id: string) => void;
   getDisplayName: (userId: string) => string;
+  getChildProfileName?: (childProfileId: string) => string;
   getAttendees?: (eventId: string) => EventAttendee[];
 }
 
@@ -22,7 +23,7 @@ function timeToMinutes(time: string): number {
   return h * 60 + m;
 }
 
-export function DayView({ date, events, onBack, onEditEvent, onDeleteEvent, getDisplayName, getAttendees }: DayViewProps) {
+export function DayView({ date, events, onBack, onEditEvent, onDeleteEvent, getDisplayName, getChildProfileName, getAttendees }: DayViewProps) {
   const { user } = useAuth();
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const dayEvents = events.filter(e => date >= e.startDate && date <= e.endDate);
@@ -96,7 +97,7 @@ export function DayView({ date, events, onBack, onEditEvent, onDeleteEvent, getD
                     {event.title}
                   </div>
                   <div className="text-[10px] text-muted-foreground/60 truncate">
-                    by {getDisplayName(event.userId)}
+                    by {event.childProfileId && getChildProfileName ? getChildProfileName(event.childProfileId) : getDisplayName(event.userId)}
                   </div>
                   {height > 35 && (
                     <div className="text-[10px] text-muted-foreground mt-0.5">
