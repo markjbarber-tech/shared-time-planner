@@ -72,6 +72,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
   const [attendeeSearch, setAttendeeSearch] = useState('');
   const [showAttendeePicker, setShowAttendeePicker] = useState(false);
   const [selectedChildProfileId, setSelectedChildProfileId] = useState<string | null>(null);
+  const [endTimeManuallySet, setEndTimeManuallySet] = useState(false);
 
   const isEditing = !!editingEvent;
 
