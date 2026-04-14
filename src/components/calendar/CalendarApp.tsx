@@ -4,7 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { MonthView } from './MonthView';
 import { YearView } from './YearView';
 import { DayView } from './DayView';
+import { TodayView } from './TodayView';
 import { EventDialog } from './EventDialog';
+import { MemberSettings } from './MemberSettings';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
 import { useProfiles } from '@/hooks/useProfiles';
 import { useEventAttendees } from '@/hooks/useEventAttendees';
@@ -13,11 +15,10 @@ import { useChildProfiles } from '@/hooks/useChildProfiles';
 import { useAuth } from '@/hooks/useAuth';
 import type { CalendarView, CalendarEvent } from '@/types/calendar';
 import { USER_COLORS } from '@/types/calendar';
-import { ChevronLeft, ChevronRight, Plus, LogOut, Baby, UserPlus, LogIn, Share2 } from 'lucide-react';
-import { ChildProfileManager } from './ChildProfileManager';
+import { ChevronLeft, ChevronRight, Plus, LogOut, LogIn, Menu } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import UserProfileDialog from './UserProfileDialog';
 import type { ProfileData } from '@/hooks/useProfiles';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
