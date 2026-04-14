@@ -2,14 +2,18 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import type { ChildProfile } from '@/types/calendar';
+import {
+  getLocalChildProfiles, addLocalChildProfile, updateLocalChildProfile, deleteLocalChildProfile, saveLocalChildProfiles, getAnonymousUserId,
+} from '@/lib/localStorageEvents';
 
 export function useChildProfiles() {
   const { user } = useAuth();
+  const isAnonymous = !user;
   const [childProfiles, setChildProfiles] = useState<ChildProfile[]>([]);
 
   useEffect(() => {
-    if (!user) {
-      setChildProfiles([]);
+    if (isAnonymous) {
+      setChildProfiles(getLocalChildProfiles());
       return;
     }
 
@@ -43,6 +47,12 @@ export function useChildProfiles() {
   });
 
   const addChildProfile = useCallback(async (displayName: string, preferredColor: number = 0) => {
+    if (isAnonymous) {
+      const profile = addLocalChildProfile(displayName, preferredColor);
+      setChildProfiles(prev => [...prev, profile]);
+      return profile;
+    }
+
     if (!user) return null;
     const { data, error } = await supabase
       .from('child_profiles')
@@ -58,9 +68,15 @@ export function useChildProfiles() {
       setChildProfiles(prev => [...prev, mapRow(data)]);
     }
     return data;
-  }, [user]);
+  }, [user, isAnonymous]);
 
   const updateChildProfile = useCallback(async (id: string, updates: Partial<Pick<ChildProfile, 'displayName' | 'preferredColor'>>) => {
+    if (isAnonymous) {
+      updateLocalChildProfile(id, updates);
+      setChildProfiles(getLocalChildProfiles());
+      return;
+    }
+
     const mapped: any = {};
     if (updates.displayName !== undefined) mapped.display_name = updates.displayName;
     if (updates.preferredColor !== undefined) mapped.preferred_color = updates.preferredColor;
@@ -73,12 +89,18 @@ export function useChildProfiles() {
     if (data) {
       setChildProfiles(prev => prev.map(cp => cp.id === id ? mapRow(data) : cp));
     }
-  }, []);
+  }, [isAnonymous]);
 
   const deleteChildProfile = useCallback(async (id: string) => {
+    if (isAnonymous) {
+      deleteLocalChildProfile(id);
+      setChildProfiles(prev => prev.filter(cp => cp.id !== id));
+      return;
+    }
+
     await supabase.from('child_profiles').delete().eq('id', id);
     setChildProfiles(prev => prev.filter(cp => cp.id !== id));
-  }, []);
+  }, [isAnonymous]);
 
   const getChildProfileName = useCallback((childProfileId: string) => {
     const cp = childProfiles.find(c => c.id === childProfileId);
