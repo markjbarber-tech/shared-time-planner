@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MonthView } from './MonthView';
 import { YearView } from './YearView';
@@ -12,6 +12,7 @@ import { useAuth } from '@/hooks/useAuth';
 import type { CalendarView, CalendarEvent } from '@/types/calendar';
 import { ChevronLeft, ChevronRight, Plus, LogOut, Baby, UserPlus, LogIn } from 'lucide-react';
 import { ChildProfileManager } from './ChildProfileManager';
+import { useToast } from '@/hooks/use-toast';
 
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
@@ -25,16 +26,29 @@ export function CalendarApp() {
   const [dialogDate, setDialogDate] = useState('');
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
 
-  const { user, signOut } = useAuth();
+  const { user, signOut, migrationResult } = useAuth();
   const navigate = useNavigate();
   const isAnonymous = !user;
+  const migrationToastShown = useRef(false);
+  const { toast } = useToast();
   const { events, addEvent, updateEvent, deleteEvent, getEventsForDate } = useCalendarEvents();
   const { profiles, getDisplayName } = useProfiles();
   const { fetchAttendees, fetchAllAttendees, addAttendee, removeAttendee, getAttendees } = useEventAttendees();
   const { childProfiles, addChildProfile, updateChildProfile, deleteChildProfile, getChildProfileName } = useChildProfiles();
   const [showChildManager, setShowChildManager] = useState(false);
 
-  // Fetch attendees when events change (only when logged in)
+  // Show migration toast when data is migrated (works for OAuth redirects too)
+  useEffect(() => {
+    if (migrationResult && !migrationToastShown.current) {
+      migrationToastShown.current = true;
+      toast({
+        title: 'Data migrated',
+        description: `${migrationResult.events} event(s) and ${migrationResult.profiles} profile(s) synced to your account.`,
+      });
+    }
+  }, [migrationResult, toast]);
+
+
   useEffect(() => {
     if (!isAnonymous && events.length > 0) {
       fetchAllAttendees(events.map(e => e.id));
