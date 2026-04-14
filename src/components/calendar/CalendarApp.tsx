@@ -111,6 +111,15 @@ export function CalendarApp() {
           </div>
 
           <div className="flex gap-3 sm:gap-6 items-center flex-wrap">
+            {/* Child Profiles */}
+            <button
+              onClick={() => setShowChildManager(!showChildManager)}
+              className={`flex items-center gap-1.5 text-xs transition-colors ${showChildManager ? 'text-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+              title="Manage child profiles"
+            >
+              <Baby className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Family</span>
+            </button>
             {/* Sign Out */}
             <button
               onClick={signOut}
