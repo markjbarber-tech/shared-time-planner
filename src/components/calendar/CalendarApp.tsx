@@ -32,7 +32,7 @@ export function CalendarApp() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogDate, setDialogDate] = useState('');
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
-  const [selectedProfile, setSelectedProfile] = useState<ProfileData | null>(null);
+  
 
   const { user, signOut, migrationResult } = useAuth();
   const navigate = useNavigate();
