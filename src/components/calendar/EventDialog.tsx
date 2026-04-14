@@ -74,6 +74,10 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
   const [selectedChildProfileId, setSelectedChildProfileId] = useState<string | null>(null);
   const [endTimeManuallySet, setEndTimeManuallySet] = useState(false);
   const [viewMode, setViewMode] = useState(true); // true = read-only detail view for existing events
+  const [editingStartDate, setEditingStartDate] = useState(false);
+  const [editingStartTime, setEditingStartTime] = useState(false);
+  const [editingEndDate, setEditingEndDate] = useState(false);
+  const [editingEndTime, setEditingEndTime] = useState(false);
 
   const isEditing = !!editingEvent;
 
@@ -100,6 +104,8 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       setSelectedChildProfileId(editingEvent.childProfileId ?? null);
       setEndTimeManuallySet(true);
       setViewMode(true); // start in detail view when opening existing event
+      setEditingStartDate(false); setEditingStartTime(false);
+      setEditingEndDate(false); setEditingEndTime(false);
     } else if (!editingEvent && open) {
       const [y, m, d] = initialDate.split('-');
       setTitle(''); setDescription('');
@@ -115,6 +121,8 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       setSelectedChildProfileId(null);
       setEndTimeManuallySet(false);
       setViewMode(false); // new events go straight to edit mode
+      setEditingStartDate(false); setEditingStartTime(false);
+      setEditingEndDate(false); setEditingEndTime(false);
     }
     setAttendeeSearch('');
     setShowAttendeePicker(false);
@@ -366,31 +374,71 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
             {/* Start */}
             <div className="space-y-1.5">
               <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Start</Label>
-              <div className="flex gap-0.5 bg-background/50 rounded-md border border-foreground/5 p-1">
-                <DialPicker items={startDays} value={startDay} onChange={setStartDay} className="w-8" />
-                <DialPicker items={MONTHS} value={MONTHS[parseInt(startMonth)]} onChange={v => setStartMonth(String(MONTHS.indexOf(v)))} className="w-10" />
-                <DialPicker items={years} value={startYear} onChange={setStartYear} className="w-11" />
-              </div>
-              <div className="flex gap-0.5 bg-background/50 rounded-md border border-foreground/5 p-1">
-                <DialPicker items={HOURS} value={startHour} onChange={setStartHour} className="w-10" />
-                <span className="flex items-center text-muted-foreground font-bold self-center text-xs">:</span>
-                <DialPicker items={MINUTES} value={startMinute} onChange={setStartMinute} className="w-10" />
-              </div>
+              {editingStartDate ? (
+                <div className="flex gap-0.5 bg-background/50 rounded-md border border-foreground/5 p-1">
+                  <DialPicker items={startDays} value={startDay} onChange={setStartDay} className="w-8" />
+                  <DialPicker items={MONTHS} value={MONTHS[parseInt(startMonth)]} onChange={v => setStartMonth(String(MONTHS.indexOf(v)))} className="w-10" />
+                  <DialPicker items={years} value={startYear} onChange={setStartYear} className="w-11" />
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setEditingStartDate(true)}
+                  className="w-full text-left px-2.5 py-2 rounded-md border border-foreground/5 bg-background/50 text-sm hover:border-foreground/15 transition-colors"
+                >
+                  {parseInt(startDay)} {MONTHS[parseInt(startMonth)]} {startYear}
+                </button>
+              )}
+              {editingStartTime ? (
+                <div className="flex gap-0.5 bg-background/50 rounded-md border border-foreground/5 p-1">
+                  <DialPicker items={HOURS} value={startHour} onChange={setStartHour} className="w-10" />
+                  <span className="flex items-center text-muted-foreground font-bold self-center text-xs">:</span>
+                  <DialPicker items={MINUTES} value={startMinute} onChange={setStartMinute} className="w-10" />
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setEditingStartTime(true)}
+                  className="w-full text-left px-2.5 py-2 rounded-md border border-foreground/5 bg-background/50 text-sm hover:border-foreground/15 transition-colors"
+                >
+                  {startHour}:{startMinute}
+                </button>
+              )}
             </div>
 
             {/* End */}
             <div className="space-y-1.5">
               <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">End</Label>
-              <div className="flex gap-0.5 bg-background/50 rounded-md border border-foreground/5 p-1">
-                <DialPicker items={endDays} value={endDay} onChange={v => { setEndTimeManuallySet(true); setEndDay(v); }} className="w-8" />
-                <DialPicker items={MONTHS} value={MONTHS[parseInt(endMonth)]} onChange={v => { setEndTimeManuallySet(true); setEndMonth(String(MONTHS.indexOf(v))); }} className="w-10" />
-                <DialPicker items={years} value={endYear} onChange={v => { setEndTimeManuallySet(true); setEndYear(v); }} className="w-11" />
-              </div>
-              <div className="flex gap-0.5 bg-background/50 rounded-md border border-foreground/5 p-1">
-                <DialPicker items={HOURS} value={endHour} onChange={v => { setEndTimeManuallySet(true); setEndHour(v); }} className="w-10" />
-                <span className="flex items-center text-muted-foreground font-bold self-center text-xs">:</span>
-                <DialPicker items={MINUTES} value={endMinute} onChange={v => { setEndTimeManuallySet(true); setEndMinute(v); }} className="w-10" />
-              </div>
+              {editingEndDate ? (
+                <div className="flex gap-0.5 bg-background/50 rounded-md border border-foreground/5 p-1">
+                  <DialPicker items={endDays} value={endDay} onChange={v => { setEndTimeManuallySet(true); setEndDay(v); }} className="w-8" />
+                  <DialPicker items={MONTHS} value={MONTHS[parseInt(endMonth)]} onChange={v => { setEndTimeManuallySet(true); setEndMonth(String(MONTHS.indexOf(v))); }} className="w-10" />
+                  <DialPicker items={years} value={endYear} onChange={v => { setEndTimeManuallySet(true); setEndYear(v); }} className="w-11" />
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setEditingEndDate(true)}
+                  className="w-full text-left px-2.5 py-2 rounded-md border border-foreground/5 bg-background/50 text-sm hover:border-foreground/15 transition-colors"
+                >
+                  {parseInt(endDay)} {MONTHS[parseInt(endMonth)]} {endYear}
+                </button>
+              )}
+              {editingEndTime ? (
+                <div className="flex gap-0.5 bg-background/50 rounded-md border border-foreground/5 p-1">
+                  <DialPicker items={HOURS} value={endHour} onChange={v => { setEndTimeManuallySet(true); setEndHour(v); }} className="w-10" />
+                  <span className="flex items-center text-muted-foreground font-bold self-center text-xs">:</span>
+                  <DialPicker items={MINUTES} value={endMinute} onChange={v => { setEndTimeManuallySet(true); setEndMinute(v); }} className="w-10" />
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setEditingEndTime(true)}
+                  className="w-full text-left px-2.5 py-2 rounded-md border border-foreground/5 bg-background/50 text-sm hover:border-foreground/15 transition-colors"
+                >
+                  {endHour}:{endMinute}
+                </button>
+              )}
             </div>
           </div>
 
