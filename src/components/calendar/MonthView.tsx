@@ -68,7 +68,7 @@ function getEventsForDate(events: CalendarEvent[], date: string) {
   return events.filter(e => date >= e.startDate && date <= e.endDate);
 }
 
-export function MonthView({ year, month, events, onDateClick, onDayView, getDisplayName }: MonthViewProps) {
+export function MonthView({ year, month, events, onDateClick, onDayView, getDisplayName, getChildProfileName }: MonthViewProps) {
   const grid = useMemo(() => getMonthGrid(year, month), [year, month]);
   const today = formatDate(new Date());
 
