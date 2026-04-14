@@ -55,6 +55,23 @@ export function useCalendarEvents() {
     return () => { supabase.removeChannel(channel); };
   }, [user]);
 
+  const mapRow = (e: any): CalendarEvent => ({
+    id: e.id,
+    title: e.title,
+    description: e.description ?? undefined,
+    startDate: e.start_date,
+    endDate: e.end_date,
+    startTime: e.start_time,
+    endTime: e.end_time,
+    visibility: e.visibility as CalendarEvent['visibility'],
+    userId: e.user_id,
+    userColor: e.user_color,
+    reminder: e.reminder_type && e.reminder_timing
+      ? { type: e.reminder_type as 'email' | 'push', timing: e.reminder_timing as '1hour' | '1day' | '1week' }
+      : undefined,
+    createdAt: e.created_at,
+  });
+
   const addEvent = useCallback(async (event: Omit<CalendarEvent, 'id' | 'createdAt'>) => {
     if (!user) return null;
     const { data, error } = await supabase.from('events').insert({
@@ -72,6 +89,9 @@ export function useCalendarEvents() {
     }).select().single();
     
     if (error) throw error;
+    if (data) {
+      setEvents(prev => [...prev, mapRow(data)]);
+    }
     return data;
   }, [user]);
 
@@ -89,11 +109,15 @@ export function useCalendarEvents() {
     if (updates.visibility !== undefined) mapped.visibility = updates.visibility;
     if (updates.userColor !== undefined) mapped.user_color = updates.userColor;
     
-    await supabase.from('events').update(mapped).eq('id', id);
+    const { data } = await supabase.from('events').update(mapped).eq('id', id).select().single();
+    if (data) {
+      setEvents(prev => prev.map(e => e.id === id ? mapRow(data) : e));
+    }
   }, []);
 
   const deleteEvent = useCallback(async (id: string) => {
     await supabase.from('events').delete().eq('id', id);
+    setEvents(prev => prev.filter(e => e.id !== id));
   }, []);
 
   const getEventsForDate = useCallback((date: string) => {
