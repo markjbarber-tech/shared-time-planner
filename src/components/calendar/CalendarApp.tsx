@@ -237,16 +237,18 @@ export function CalendarApp() {
             <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
               <SheetTrigger asChild>
                 <button
-                  className="flex items-center gap-1.5 rounded-full border border-foreground/10 hover:bg-background transition-all pl-2 pr-1 py-1"
+                  className={`flex items-center ${user ? 'gap-1.5 pl-2 pr-1 py-1' : 'justify-center size-9'} rounded-full border border-foreground/10 hover:bg-background transition-all`}
                   title="Member Settings"
                 >
-                  <Menu className="w-4 h-4" />
-                  <span
-                    className="flex items-center justify-center size-7 rounded-full text-white text-xs font-bold shrink-0"
-                    style={{ backgroundColor: currentUserProfile ? USER_COLORS[currentUserProfile.preferredColor] : USER_COLORS[0] }}
-                  >
-                    {(currentUserProfile?.displayName || user?.email || '?')[0].toUpperCase()}
-                  </span>
+                  <Menu className={user ? "w-4 h-4" : "w-5 h-5"} />
+                  {user && (
+                    <span
+                      className="flex items-center justify-center size-7 rounded-full text-white text-xs font-bold shrink-0"
+                      style={{ backgroundColor: currentUserProfile ? USER_COLORS[currentUserProfile.preferredColor] : USER_COLORS[0] }}
+                    >
+                      {(currentUserProfile?.displayName || user?.email || '?')[0].toUpperCase()}
+                    </span>
+                  )}
                 </button>
               </SheetTrigger>
               <SheetContent side="left" className="w-[320px] sm:w-[380px] overflow-y-auto">
