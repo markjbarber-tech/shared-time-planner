@@ -22,22 +22,7 @@ export function useCalendarEvents() {
         .select('*');
       
       if (!error && data) {
-        setEvents(data.map(e => ({
-          id: e.id,
-          title: e.title,
-          description: e.description ?? undefined,
-          startDate: e.start_date,
-          endDate: e.end_date,
-          startTime: e.start_time,
-          endTime: e.end_time,
-          visibility: e.visibility as CalendarEvent['visibility'],
-          userId: e.user_id,
-          userColor: e.user_color,
-          reminder: e.reminder_type && e.reminder_timing
-            ? { type: e.reminder_type as 'email' | 'push', timing: e.reminder_timing as '1hour' | '1day' | '1week' }
-            : undefined,
-          createdAt: e.created_at,
-        })));
+        setEvents(data.map(mapRow));
       }
       setLoading(false);
     };
