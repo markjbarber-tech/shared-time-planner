@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { useNavigate } from 'react-router-dom';
 import { MonthView } from './MonthView';
