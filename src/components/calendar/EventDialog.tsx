@@ -258,10 +258,11 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
 
   // Filter for the search picker (users/children not yet assigned)
   const assignedSet = new Set(assignedUserIds);
+  const getDisplayName = (p: ProfileData) => profiles[p.userId] || p.displayName;
   const filteredUsers = profileList.filter(p => {
     if (assignedSet.has(p.userId)) return false;
     if (attendeeSearch) {
-      return p.displayName.toLowerCase().includes(attendeeSearch.toLowerCase());
+      return getDisplayName(p).toLowerCase().includes(attendeeSearch.toLowerCase());
     }
     return true;
   });
@@ -535,7 +536,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                         >
                           {(p?.displayName || profiles[uid] || 'U')[0]?.toUpperCase()}
                         </span>
-                        {p?.displayName || profiles[uid] || 'Unknown'}
+                        {profiles[uid] || p?.displayName || 'Unknown'}
                         {uid === user?.id && ' (me)'}
                         {canEdit && (
                           <button
@@ -609,10 +610,10 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                                   className="size-6 rounded-full flex items-center justify-center text-[10px] font-semibold text-white shrink-0"
                                   style={{ backgroundColor: USER_COLORS[p.preferredColor % USER_COLORS.length] }}
                                 >
-                                  {p.displayName[0]?.toUpperCase() || '?'}
+                                  {getDisplayName(p)[0]?.toUpperCase() || '?'}
                                 </span>
                                 <span className="text-xs truncate">
-                                  {p.displayName}
+                                  {getDisplayName(p)}
                                   {p.userId === user?.id && ' (me)'}
                                 </span>
                               </button>
