@@ -127,6 +127,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       }
       setPendingAttendees([]);
       setSelectedChildProfileId(editingEvent.childProfileId ?? null);
+      setAssignedUserId(editingEvent.userId);
       setEndTimeManuallySet(true);
       setViewMode(true); // start in detail view when opening existing event
       setEditingStartDate(false); setEditingStartTime(false);
@@ -144,6 +145,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       setReminderEnabled(false);
       setPendingAttendees([]);
       setSelectedChildProfileId(null);
+      setAssignedUserId(null);
       setEndTimeManuallySet(false);
       setViewMode(false); // new events go straight to edit mode
       setEditingStartDate(false); setEditingStartTime(false);
@@ -181,6 +183,8 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
 
   const selectedChildProfile = childProfiles.find(cp => cp.id === selectedChildProfileId);
 
+  const assignedProfile = profileList.find(p => p.userId === assignedUserId);
+
   const buildEventData = () => ({
     title: title.trim(),
     description: description.trim() || undefined,
@@ -189,8 +193,12 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
     startTime: `${startHour}:${startMinute}`,
     endTime: `${endHour}:${endMinute}`,
     visibility,
-    userId: user?.id ?? 'local-user',
-    userColor: selectedChildProfile ? selectedChildProfile.preferredColor : (editingEvent?.userColor ?? 0),
+    userId: assignedUserId || user?.id || 'local-user',
+    userColor: selectedChildProfile
+      ? selectedChildProfile.preferredColor
+      : assignedProfile
+        ? assignedProfile.preferredColor
+        : (editingEvent?.userColor ?? 0),
     childProfileId: selectedChildProfileId,
     reminder: reminderEnabled ? { type: reminderType, timing: reminderTiming } : undefined,
   });
