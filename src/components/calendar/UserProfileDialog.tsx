@@ -15,9 +15,10 @@ interface UserProfileDialogProps {
   nickname?: string;
   onSetNickname?: (targetUserId: string, nickname: string) => Promise<void>;
   onUpdateDisplayName?: (userId: string, newName: string) => Promise<void>;
+  onUpdateColor?: (userId: string, colorIndex: number) => Promise<void>;
 }
 
-export default function UserProfileDialog({ profile, open, onOpenChange, nickname, onSetNickname, onUpdateDisplayName }: UserProfileDialogProps) {
+export default function UserProfileDialog({ profile, open, onOpenChange, nickname, onSetNickname, onUpdateDisplayName, onUpdateColor }: UserProfileDialogProps) {
   const { user } = useAuth();
   const [editing, setEditing] = useState(false);
   const [nicknameValue, setNicknameValue] = useState('');
