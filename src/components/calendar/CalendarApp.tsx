@@ -10,7 +10,7 @@ import { useEventAttendees } from '@/hooks/useEventAttendees';
 import { useChildProfiles } from '@/hooks/useChildProfiles';
 import { useAuth } from '@/hooks/useAuth';
 import type { CalendarView, CalendarEvent } from '@/types/calendar';
-import { ChevronLeft, ChevronRight, Plus, LogOut, Baby, UserPlus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, LogOut, Baby, UserPlus, LogIn } from 'lucide-react';
 import { ChildProfileManager } from './ChildProfileManager';
 
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -117,16 +117,19 @@ export function CalendarApp() {
             </button>
 
             {/* Auth actions */}
-            {isAnonymous ? (
-              <button
-                onClick={() => navigate('/auth')}
-                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-                title="Create account to share with others"
-              >
-                <UserPlus className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Create Account</span>
-              </button>
-            ) : (
+            {isAnonymous ? (() => {
+              const hasLoggedInBefore = localStorage.getItem('has_logged_in_before') === 'true';
+              return (
+                <button
+                  onClick={() => navigate('/auth')}
+                  className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                  title={hasLoggedInBefore ? 'Sign in to your account' : 'Create account to share with others'}
+                >
+                  {hasLoggedInBefore ? <LogIn className="w-3.5 h-3.5" /> : <UserPlus className="w-3.5 h-3.5" />}
+                  <span className="hidden sm:inline">{hasLoggedInBefore ? 'Sign In' : 'Sign Up'}</span>
+                </button>
+              );
+            })() : (
               <button
                 onClick={signOut}
                 className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
