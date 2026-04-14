@@ -22,7 +22,7 @@ function timeToMinutes(time: string): number {
   return h * 60 + m;
 }
 
-export function DayView({ date, events, onBack, onEditEvent, onDeleteEvent, getDisplayName }: DayViewProps) {
+export function DayView({ date, events, onBack, onEditEvent, onDeleteEvent, getDisplayName, getAttendees }: DayViewProps) {
   const { user } = useAuth();
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const dayEvents = events.filter(e => date >= e.startDate && date <= e.endDate);
