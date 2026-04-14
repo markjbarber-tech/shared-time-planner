@@ -237,7 +237,7 @@ export function CalendarApp() {
               <>
                 <button
                   onClick={() => {
-                    const inviteUrl = `${window.location.origin}/auth?invite=true`;
+                    const inviteUrl = `https://markjbarber-tech.github.io/shared-time-planner/auth?invite=true`;
                     navigator.clipboard.writeText(inviteUrl).then(() => {
                       toast({
                         title: 'Invite link copied!',
