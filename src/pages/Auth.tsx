@@ -10,7 +10,9 @@ import { useToast } from '@/hooks/use-toast';
 import { getLocalDataForMigration } from '@/lib/localStorageEvents';
 
 export default function Auth() {
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [searchParams] = useSearchParams();
+  const isInvite = searchParams.get('invite') === 'true';
+  const [isSignUp, setIsSignUp] = useState(isInvite); // default to sign-up for invites
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
