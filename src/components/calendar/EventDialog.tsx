@@ -292,14 +292,14 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
             <div className="space-y-2">
               <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">End</Label>
               <div className="flex gap-1 bg-background/50 rounded-lg border border-foreground/5 p-2">
-                <DialPicker items={endDays} value={endDay} onChange={setEndDay} className="w-10" />
-                <DialPicker items={MONTHS} value={MONTHS[parseInt(endMonth)]} onChange={v => setEndMonth(String(MONTHS.indexOf(v)))} className="w-12" />
-                <DialPicker items={years} value={endYear} onChange={setEndYear} className="w-14" />
+                <DialPicker items={endDays} value={endDay} onChange={v => { setEndTimeManuallySet(true); setEndDay(v); }} className="w-10" />
+                <DialPicker items={MONTHS} value={MONTHS[parseInt(endMonth)]} onChange={v => { setEndTimeManuallySet(true); setEndMonth(String(MONTHS.indexOf(v))); }} className="w-12" />
+                <DialPicker items={years} value={endYear} onChange={v => { setEndTimeManuallySet(true); setEndYear(v); }} className="w-14" />
               </div>
               <div className="flex gap-1 bg-background/50 rounded-lg border border-foreground/5 p-2">
-                <DialPicker items={HOURS} value={endHour} onChange={setEndHour} className="w-12" />
+                <DialPicker items={HOURS} value={endHour} onChange={v => { setEndTimeManuallySet(true); setEndHour(v); }} className="w-12" />
                 <span className="flex items-center text-muted-foreground font-bold self-center">:</span>
-                <DialPicker items={MINUTES} value={endMinute} onChange={setEndMinute} className="w-12" />
+                <DialPicker items={MINUTES} value={endMinute} onChange={v => { setEndTimeManuallySet(true); setEndMinute(v); }} className="w-12" />
               </div>
             </div>
           </div>
