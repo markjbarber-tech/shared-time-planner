@@ -226,6 +226,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
     recurrenceType: recurrenceEnabled ? recurrenceType : null,
     recurrenceInterval: recurrenceEnabled ? recurrenceInterval : 1,
     recurrenceEndDate: recurrenceEnabled && recurrenceEndDate ? recurrenceEndDate : null,
+    calendarGroupId: calendarGroupId,
   });
 
   const handleSave = async () => {
