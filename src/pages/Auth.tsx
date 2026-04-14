@@ -83,7 +83,12 @@ export default function Auth() {
               Enter your email and we'll send you a reset link
             </p>
           )}
-          {!isForgotPassword && hasLocalData && (
+          {!isForgotPassword && isInvite && (
+            <p className="text-sm text-muted-foreground mt-2">
+              You've been invited to join a shared calendar! Create an account to get started.
+            </p>
+          )}
+          {!isForgotPassword && !isInvite && hasLocalData && (
             <p className="text-xs text-muted-foreground mt-2">
               Your {localData.events.length} local event(s) will be synced to your account
             </p>
