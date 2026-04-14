@@ -6,9 +6,11 @@ import { EventDialog } from './EventDialog';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
 import { useProfiles } from '@/hooks/useProfiles';
 import { useEventAttendees } from '@/hooks/useEventAttendees';
+import { useChildProfiles } from '@/hooks/useChildProfiles';
 import { useAuth } from '@/hooks/useAuth';
 import type { CalendarView, CalendarEvent } from '@/types/calendar';
-import { ChevronLeft, ChevronRight, Plus, LogOut } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, LogOut, Baby } from 'lucide-react';
+import { ChildProfileManager } from './ChildProfileManager';
 
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
