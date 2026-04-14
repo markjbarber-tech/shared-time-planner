@@ -38,8 +38,46 @@ export function CalendarApp() {
   const { childProfiles, addChildProfile, updateChildProfile, deleteChildProfile, getChildProfileName } = useChildProfiles();
   const [showChildManager, setShowChildManager] = useState(false);
 
+  const handlePullRefresh = useCallback(async () => {
+    // Refresh calendar data
+    await refresh();
+
+    // Check for app updates by fetching fresh index.html
+    try {
+      const res = await fetch('/', { cache: 'no-store' });
+      const html = await res.text();
+      // Look for a different set of script/asset hashes
+      const currentScripts = Array.from(document.querySelectorAll('script[src]'))
+        .map(s => s.getAttribute('src'))
+        .join(',');
+      const parser = new DOMParser();
+      const doc = parser.parseFromString(html, 'text/html');
+      const newScripts = Array.from(doc.querySelectorAll('script[src]'))
+        .map(s => s.getAttribute('src'))
+        .join(',');
+
+      if (newScripts && currentScripts !== newScripts) {
+        toast({
+          title: 'Update available',
+          description: 'A new version is available. Tap to update.',
+          action: (
+            <button
+              onClick={() => window.location.reload()}
+              className="text-sm font-medium text-blueprint hover:underline"
+            >
+              Update now
+            </button>
+          ),
+          duration: 15000,
+        });
+      }
+    } catch {
+      // Silently ignore version check failures
+    }
+  }, [refresh, toast]);
+
   const { containerRef, pullDistance, refreshing } = usePullToRefresh({
-    onRefresh: refresh,
+    onRefresh: handlePullRefresh,
   });
 
   // Show migration toast when data is migrated (works for OAuth redirects too)
