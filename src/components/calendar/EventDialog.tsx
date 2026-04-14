@@ -70,7 +70,7 @@ function generateYears() {
   return Array.from({ length: 10 }, (_, i) => String(current - 2 + i));
 }
 
-export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initialDate, editingEvent, profiles, profileList, attendees, onAddAttendee, onRemoveAttendee, childProfiles, isAnonymous, onPromptSignup }: EventDialogProps) {
+export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initialDate, editingEvent, profiles, profileList, attendees, onAddAttendee, onRemoveAttendee, childProfiles, isAnonymous, onPromptSignup, groups, activeGroupId }: EventDialogProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [inviteLinkCopied, setInviteLinkCopied] = useState(false);
