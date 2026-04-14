@@ -7,9 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DialPicker } from './DialPicker';
 import { useAuth } from '@/hooks/useAuth';
-import type { CalendarEvent, EventVisibility, ReminderType, ReminderTiming, ChildProfile } from '@/types/calendar';
+import type { CalendarEvent, EventVisibility, ReminderType, ReminderTiming, RecurrenceType, ChildProfile } from '@/types/calendar';
 import { USER_COLORS } from '@/types/calendar';
-import { Eye, EyeOff, Users, Bell, X, UserPlus, Baby, Pencil, Clock, Calendar, MapPin, Link, Check } from 'lucide-react';
+import { Eye, EyeOff, Users, Bell, X, UserPlus, Baby, Pencil, Clock, Calendar, MapPin, Link, Check, Repeat } from 'lucide-react';
 import type { EventAttendee } from '@/hooks/useEventAttendees';
 import { useToast } from '@/hooks/use-toast';
 
