@@ -119,19 +119,23 @@ export function MonthView({ year, month, events, onDateClick, onDayView, onEvent
               key={date}
               className={`calendar-cell min-h-[70px] sm:min-h-[110px] ${isToday ? 'bg-blueprint/10' : ''}`}
               onClick={() => onDateClick(date)}
-              onDoubleClick={() => onDayView(date)}
             >
-              <span
-                className={`text-xs tabular-nums ${
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDayView(date);
+                }}
+                className={`text-xs tabular-nums min-w-[28px] min-h-[28px] rounded-full flex items-center justify-center -ml-1 hover:bg-foreground/10 active:bg-foreground/15 transition-colors ${
                   isToday
-                    ? 'text-blueprint font-bold'
+                    ? 'text-blueprint font-bold bg-blueprint/10'
                     : isCurrentMonth
                     ? 'text-foreground/90'
                     : 'text-foreground/25'
                 }`}
               >
                 {day}
-              </span>
+              </button>
 
               {/* Events */}
               <div className="flex flex-col gap-0.5 mt-1 overflow-hidden flex-1">
