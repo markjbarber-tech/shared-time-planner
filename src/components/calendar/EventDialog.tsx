@@ -607,6 +607,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
             )}
           </div>
         </div>
+        )}
       </DialogContent>
     </Dialog>
   );
