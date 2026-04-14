@@ -1,7 +1,8 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import type { CalendarEvent } from '@/types/calendar';
+import { expandRecurringEvents } from '@/lib/recurrence';
 import {
   getLocalEvents, addLocalEvent, updateLocalEvent, deleteLocalEvent, saveLocalEvents, getAnonymousUserId,
 } from '@/lib/localStorageEvents';
