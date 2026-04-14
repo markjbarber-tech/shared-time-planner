@@ -351,6 +351,25 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                   <span>{selectedChildProfile.displayName}</span>
                 </div>
               )}
+
+              <div className="flex items-center gap-2 text-sm">
+                {visibility === 'public' ? <Eye className="w-4 h-4 text-muted-foreground" /> :
+                 visibility === 'shared' ? <Users className="w-4 h-4 text-muted-foreground" /> :
+                 <EyeOff className="w-4 h-4 text-muted-foreground" />}
+                <span className="capitalize">{visibility}</span>
+              </div>
+
+              {editingEvent?.reminder && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Bell className="w-4 h-4 text-muted-foreground" />
+                  <span className="capitalize">
+                    {editingEvent.reminder.type} — {
+                      editingEvent.reminder.timing === '1hour' ? '1 hour before' :
+                      editingEvent.reminder.timing === '1day' ? '1 day before' : '1 week before'
+                    }
+                  </span>
+                </div>
+              )}
             </div>
 
             <div className="flex gap-3 pt-2">
