@@ -373,7 +373,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
               value={title}
               onChange={e => setTitle(e.target.value)}
               placeholder="Event title..."
-              className="border-foreground/10 bg-background/50"
+              className="border-foreground/10 bg-background/50 text-base"
               disabled={!canEdit}
             />
           </div>
