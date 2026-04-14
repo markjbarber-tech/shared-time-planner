@@ -48,5 +48,14 @@ export function useProfiles() {
     setProfileList(prev => prev.map(p => p.userId === userId ? { ...p, displayName: newName } : p));
   }, []);
 
-  return { profiles, profileList, getDisplayName, updateDisplayName };
+  const updatePreferredColor = useCallback(async (userId: string, colorIndex: number) => {
+    const { error } = await supabase
+      .from('profiles')
+      .update({ preferred_color: colorIndex })
+      .eq('user_id', userId);
+    if (error) throw error;
+    setProfileList(prev => prev.map(p => p.userId === userId ? { ...p, preferredColor: colorIndex } : p));
+  }, []);
+
+  return { profiles, profileList, getDisplayName, updateDisplayName, updatePreferredColor };
 }
