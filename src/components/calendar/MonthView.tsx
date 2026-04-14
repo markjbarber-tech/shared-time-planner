@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useMemo, useRef, useCallback } from 'react';
 import type { CalendarEvent } from '@/types/calendar';
 import { USER_COLORS, USER_COLOR_BGS } from '@/types/calendar';
 
@@ -9,6 +9,7 @@ interface MonthViewProps {
   onDateClick: (date: string) => void;
   onDayView: (date: string) => void;
   onEventClick?: (event: CalendarEvent) => void;
+  onSwipeMonth?: (direction: -1 | 1) => void;
   getDisplayName: (userId: string) => string;
   getChildProfileName?: (childProfileId: string) => string;
 }
