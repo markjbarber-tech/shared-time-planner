@@ -73,11 +73,11 @@ export function MonthView({ year, month, events, onDateClick, onDayView, getDisp
   const today = formatDate(new Date());
 
   return (
-    <div className="vellum-layer rounded-xl border border-foreground/5 p-1 shadow-2xl overflow-hidden">
+    <div className="vellum-layer rounded-xl border border-foreground/5 p-0.5 sm:p-1 shadow-2xl overflow-hidden">
       {/* Day headers */}
       <div className="grid grid-cols-7 border-b border-foreground/5">
         {DAY_NAMES.map((d, i) => (
-          <div key={d} className="py-2 sm:py-4 text-center text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">
+          <div key={d} className="py-1.5 sm:py-3 text-center text-[9px] sm:text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">
             <span className="hidden sm:inline">{d}</span>
             <span className="sm:hidden">{DAY_NAMES_SHORT[i]}</span>
           </div>
@@ -93,7 +93,7 @@ export function MonthView({ year, month, events, onDateClick, onDayView, getDisp
           return (
             <div
               key={date}
-              className="calendar-cell min-h-[80px] sm:min-h-[130px]"
+              className="calendar-cell min-h-[70px] sm:min-h-[110px]"
               onClick={() => onDateClick(date)}
               onDoubleClick={() => onDayView(date)}
             >
