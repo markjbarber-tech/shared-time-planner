@@ -22,12 +22,21 @@ export function ChildProfileManager({ childProfiles, onAdd, onUpdate, onDelete, 
   const [editColor, setEditColor] = useState(0);
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
 
+  const [adding, setAdding] = useState(false);
+
   const handleAdd = async () => {
-    if (!newName.trim()) return;
-    await onAdd(newName.trim(), newColor);
-    setNewName('');
-    setNewColor(0);
-    setShowAdd(false);
+    if (!newName.trim() || adding) return;
+    setAdding(true);
+    try {
+      await onAdd(newName.trim(), newColor);
+      setNewName('');
+      setNewColor(0);
+      setShowAdd(false);
+    } catch (e) {
+      console.error('Failed to add child profile:', e);
+    } finally {
+      setAdding(false);
+    }
   };
 
   const handleStartEdit = (cp: ChildProfile) => {
@@ -159,8 +168,8 @@ export function ChildProfileManager({ childProfiles, onAdd, onUpdate, onDelete, 
               autoFocus
               onKeyDown={e => e.key === 'Enter' && handleAdd()}
             />
-            <Button onClick={handleAdd} size="sm" disabled={!newName.trim()} className="h-8 text-xs bg-foreground text-background hover:bg-foreground/90">
-              Add
+            <Button onClick={handleAdd} size="sm" disabled={!newName.trim() || adding} className="h-8 text-xs bg-foreground text-background hover:bg-foreground/90">
+              {adding ? '...' : 'Add'}
             </Button>
             <Button onClick={() => { setShowAdd(false); setNewName(''); }} size="sm" variant="outline" className="h-8 text-xs border-foreground/10">
               <X className="w-3 h-3" />
