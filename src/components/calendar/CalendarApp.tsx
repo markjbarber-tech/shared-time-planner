@@ -23,6 +23,7 @@ export function CalendarApp() {
 
   const { user, signOut } = useAuth();
   const { events, addEvent, updateEvent, deleteEvent, getEventsForDate } = useCalendarEvents();
+  const { getDisplayName } = useProfiles();
 
   const navigateMonth = (delta: number) => {
     let m = currentMonth + delta;
