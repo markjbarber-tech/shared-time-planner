@@ -146,6 +146,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       setRecurrenceType(editingEvent.recurrenceType || 'weekly');
       setRecurrenceInterval(editingEvent.recurrenceInterval || 1);
       setRecurrenceEndDate(editingEvent.recurrenceEndDate || '');
+      setCalendarGroupId(editingEvent.calendarGroupId ?? activeGroupId ?? null);
     } else if (!editingEvent && open) {
       const [y, m, d] = initialDate.split('-');
       setTitle(''); setDescription('');
@@ -168,6 +169,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       setRecurrenceType('weekly');
       setRecurrenceInterval(1);
       setRecurrenceEndDate('');
+      setCalendarGroupId(activeGroupId ?? null);
     }
     setAttendeeSearch('');
     setShowAssignPicker(false);
