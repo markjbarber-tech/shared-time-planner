@@ -97,6 +97,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       }
       setPendingAttendees([]);
       setSelectedChildProfileId(editingEvent.childProfileId ?? null);
+      setEndTimeManuallySet(true); // don't auto-update end time when editing
     } else if (!editingEvent && open) {
       const [y, m, d] = initialDate.split('-');
       setTitle(''); setDescription('');
@@ -110,6 +111,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       setReminderEnabled(false);
       setPendingAttendees([]);
       setSelectedChildProfileId(null);
+      setEndTimeManuallySet(false);
     }
     setAttendeeSearch('');
     setShowAttendeePicker(false);
