@@ -24,6 +24,8 @@ interface EventDialogProps {
   onAddAttendee?: (eventId: string, userId: string) => Promise<void>;
   onRemoveAttendee?: (eventId: string, attendeeId: string) => Promise<void>;
   childProfiles: ChildProfile[];
+  isAnonymous?: boolean;
+  onPromptSignup?: () => void;
 }
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -44,7 +46,7 @@ function generateYears() {
   return Array.from({ length: 10 }, (_, i) => String(current - 2 + i));
 }
 
-export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initialDate, editingEvent, profiles, attendees, onAddAttendee, onRemoveAttendee, childProfiles }: EventDialogProps) {
+export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initialDate, editingEvent, profiles, attendees, onAddAttendee, onRemoveAttendee, childProfiles, isAnonymous, onPromptSignup }: EventDialogProps) {
   const { user } = useAuth();
   const now = new Date();
   const [year, month, day] = initialDate.split('-');
@@ -126,7 +128,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
     startTime: `${startHour}:${startMinute}`,
     endTime: `${endHour}:${endMinute}`,
     visibility,
-    userId: user?.id ?? '',
+    userId: user?.id ?? 'local-user',
     userColor: selectedChildProfile ? selectedChildProfile.preferredColor : (editingEvent?.userColor ?? 0),
     childProfileId: selectedChildProfileId,
     reminder: reminderEnabled ? { type: reminderType, timing: reminderTiming } : undefined,
@@ -316,6 +318,17 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
           <div className="space-y-3">
             <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Attendees</Label>
             
+            {isAnonymous && (
+              <button
+                onClick={onPromptSignup}
+                className="flex items-center gap-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors border border-dashed border-foreground/15 rounded-lg px-3 py-2.5 w-full justify-center"
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                Create an account to add other users
+              </button>
+            )}
+            
+            {!isAnonymous && <>
             {/* Current attendees */}
             {displayedAttendeeIds.length > 0 && (
               <div className="flex flex-wrap gap-2">
@@ -387,6 +400,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                 )}
               </div>
             )}
+            </>}
           </div>
 
           {/* Visibility */}

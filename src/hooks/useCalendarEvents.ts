@@ -2,25 +2,26 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import type { CalendarEvent } from '@/types/calendar';
+import {
+  getLocalEvents, addLocalEvent, updateLocalEvent, deleteLocalEvent, saveLocalEvents, getAnonymousUserId,
+} from '@/lib/localStorageEvents';
 
 export function useCalendarEvents() {
   const { user } = useAuth();
+  const isAnonymous = !user;
   const [events, setEvents] = useState<CalendarEvent[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch events from Supabase
+  // Fetch events
   useEffect(() => {
-    if (!user) {
-      setEvents([]);
+    if (isAnonymous) {
+      setEvents(getLocalEvents());
       setLoading(false);
       return;
     }
 
     const fetchEvents = async () => {
-      const { data, error } = await supabase
-        .from('events')
-        .select('*');
-      
+      const { data, error } = await supabase.from('events').select('*');
       if (!error && data) {
         setEvents(data.map(mapRow));
       }
@@ -29,7 +30,6 @@ export function useCalendarEvents() {
 
     fetchEvents();
 
-    // Subscribe to realtime changes
     const channel = supabase
       .channel('events-changes')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'events' }, () => {
@@ -59,6 +59,12 @@ export function useCalendarEvents() {
   });
 
   const addEvent = useCallback(async (event: Omit<CalendarEvent, 'id' | 'createdAt'>) => {
+    if (isAnonymous) {
+      const newEvent = addLocalEvent({ ...event, userId: getAnonymousUserId() });
+      setEvents(prev => [...prev, newEvent]);
+      return newEvent;
+    }
+
     if (!user) return null;
     const { data, error } = await supabase.from('events').insert({
       title: event.title,
@@ -74,20 +80,24 @@ export function useCalendarEvents() {
       reminder_type: event.reminder?.type ?? null,
       reminder_timing: event.reminder?.timing ?? null,
     }).select().single();
-    
+
     if (error) throw error;
     if (data) {
       setEvents(prev => [...prev, mapRow(data)]);
     }
     return data;
-  }, [user]);
+  }, [user, isAnonymous]);
 
   const updateEvent = useCallback(async (id: string, updates: Partial<CalendarEvent>) => {
-    const mapped: {
-      title?: string; description?: string | null; start_date?: string; end_date?: string;
-      start_time?: string; end_time?: string; visibility?: string; user_color?: number;
-      child_profile_id?: string | null;
-    } = {};
+    if (isAnonymous) {
+      const updated = updateLocalEvent(id, updates);
+      if (updated) {
+        setEvents(prev => prev.map(e => e.id === id ? updated : e));
+      }
+      return;
+    }
+
+    const mapped: any = {};
     if (updates.title !== undefined) mapped.title = updates.title;
     if (updates.description !== undefined) mapped.description = updates.description ?? null;
     if (updates.startDate !== undefined) mapped.start_date = updates.startDate;
@@ -97,17 +107,23 @@ export function useCalendarEvents() {
     if (updates.visibility !== undefined) mapped.visibility = updates.visibility;
     if (updates.userColor !== undefined) mapped.user_color = updates.userColor;
     if (updates.childProfileId !== undefined) mapped.child_profile_id = updates.childProfileId ?? null;
-    
+
     const { data } = await supabase.from('events').update(mapped).eq('id', id).select().single();
     if (data) {
       setEvents(prev => prev.map(e => e.id === id ? mapRow(data) : e));
     }
-  }, []);
+  }, [isAnonymous]);
 
   const deleteEvent = useCallback(async (id: string) => {
+    if (isAnonymous) {
+      deleteLocalEvent(id);
+      setEvents(prev => prev.filter(e => e.id !== id));
+      return;
+    }
+
     await supabase.from('events').delete().eq('id', id);
     setEvents(prev => prev.filter(e => e.id !== id));
-  }, []);
+  }, [isAnonymous]);
 
   const getEventsForDate = useCallback((date: string) => {
     return events.filter(e => date >= e.startDate && date <= e.endDate);
@@ -124,5 +140,10 @@ export function useCalendarEvents() {
     return events.some(e => date >= e.startDate && date <= e.endDate);
   }, [events]);
 
-  return { events, loading, addEvent, updateEvent, deleteEvent, getEventsForDate, getEventsForMonth, hasEventsOnDate };
+  // Force refresh from localStorage (used after migration)
+  const refreshFromLocal = useCallback(() => {
+    setEvents(getLocalEvents());
+  }, []);
+
+  return { events, loading, addEvent, updateEvent, deleteEvent, getEventsForDate, getEventsForMonth, hasEventsOnDate, refreshFromLocal };
 }

@@ -1,10 +1,13 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { lovable } from '@/integrations/lovable/index';
+import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { getLocalDataForMigration, clearLocalData } from '@/lib/localStorageEvents';
 
 export default function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);
@@ -12,8 +15,75 @@ export default function Auth() {
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
   const [loading, setLoading] = useState(false);
-  const { signIn, signUp } = useAuth();
+  const { user, signIn, signUp } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
+
+  // When user becomes authenticated, migrate local data then redirect
+  useEffect(() => {
+    if (!user) return;
+
+    const migrateAndRedirect = async () => {
+      const { events, childProfiles } = getLocalDataForMigration();
+
+      if (childProfiles.length > 0 || events.length > 0) {
+        try {
+          // Migrate child profiles first, mapping old IDs to new ones
+          const childIdMap: Record<string, string> = {};
+
+          for (const cp of childProfiles) {
+            const { data } = await supabase
+              .from('child_profiles')
+              .insert({
+                parent_user_id: user.id,
+                display_name: cp.displayName,
+                preferred_color: cp.preferredColor,
+              })
+              .select()
+              .single();
+            if (data) {
+              childIdMap[cp.id] = data.id;
+            }
+          }
+
+          // Migrate events, remapping child profile IDs
+          for (const event of events) {
+            await supabase.from('events').insert({
+              title: event.title,
+              description: event.description ?? null,
+              start_date: event.startDate,
+              end_date: event.endDate,
+              start_time: event.startTime,
+              end_time: event.endTime,
+              visibility: event.visibility,
+              user_id: user.id,
+              user_color: event.userColor,
+              child_profile_id: event.childProfileId ? (childIdMap[event.childProfileId] ?? null) : null,
+              reminder_type: event.reminder?.type ?? null,
+              reminder_timing: event.reminder?.timing ?? null,
+            });
+          }
+
+          clearLocalData();
+          toast({
+            title: 'Data migrated',
+            description: `${events.length} event(s) and ${childProfiles.length} profile(s) synced to your account.`,
+          });
+        } catch (err) {
+          console.error('Migration error:', err);
+          toast({
+            title: 'Migration warning',
+            description: 'Some local data could not be migrated. You can re-create it manually.',
+            variant: 'destructive',
+          });
+        }
+      }
+
+      navigate('/', { replace: true });
+    };
+
+    migrateAndRedirect();
+  }, [user]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,6 +101,9 @@ export default function Auth() {
     setLoading(false);
   };
 
+  const localData = getLocalDataForMigration();
+  const hasLocalData = localData.events.length > 0 || localData.childProfiles.length > 0;
+
   return (
     <div className="min-h-dvh light-table-glow flex items-center justify-center p-4">
       <div className="w-full max-w-sm space-y-8">
@@ -41,6 +114,11 @@ export default function Auth() {
           <h1 className="text-4xl font-serif font-light italic tracking-tight">
             {isSignUp ? 'Create Account' : 'Welcome Back'}
           </h1>
+          {hasLocalData && (
+            <p className="text-xs text-muted-foreground mt-2">
+              Your {localData.events.length} local event(s) will be synced to your account
+            </p>
+          )}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -138,15 +216,23 @@ export default function Auth() {
           Continue with Apple
         </Button>
 
-        <p className="text-center text-sm text-muted-foreground">
-          {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
+        <div className="flex flex-col items-center gap-2">
+          <p className="text-center text-sm text-muted-foreground">
+            {isSignUp ? 'Already have an account?' : "Don't have an account?"}{' '}
+            <button
+              onClick={() => setIsSignUp(!isSignUp)}
+              className="underline text-foreground hover:text-foreground/80"
+            >
+              {isSignUp ? 'Sign in' : 'Sign up'}
+            </button>
+          </p>
           <button
-            onClick={() => setIsSignUp(!isSignUp)}
-            className="underline text-foreground hover:text-foreground/80"
+            onClick={() => navigate('/')}
+            className="text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
-            {isSignUp ? 'Sign in' : 'Sign up'}
+            ← Continue without account
           </button>
-        </p>
+        </div>
       </div>
     </div>
   );
