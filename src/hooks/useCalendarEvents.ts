@@ -51,6 +51,7 @@ export function useCalendarEvents() {
     visibility: e.visibility as CalendarEvent['visibility'],
     userId: e.user_id,
     userColor: e.user_color,
+    childProfileId: e.child_profile_id ?? null,
     reminder: e.reminder_type && e.reminder_timing
       ? { type: e.reminder_type as 'email' | 'push', timing: e.reminder_timing as '1hour' | '1day' | '1week' }
       : undefined,
@@ -69,6 +70,7 @@ export function useCalendarEvents() {
       visibility: event.visibility,
       user_id: user.id,
       user_color: event.userColor,
+      child_profile_id: event.childProfileId ?? null,
       reminder_type: event.reminder?.type ?? null,
       reminder_timing: event.reminder?.timing ?? null,
     }).select().single();
