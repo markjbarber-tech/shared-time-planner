@@ -136,18 +136,19 @@ export function useCalendarEvents() {
   }, [isAnonymous]);
 
   const getEventsForDate = useCallback((date: string) => {
-    return events.filter(e => date >= e.startDate && date <= e.endDate);
+    const expanded = expandRecurringEvents(events, date, date);
+    return expanded;
   }, [events]);
 
   const getEventsForMonth = useCallback((year: number, month: number) => {
     const start = `${year}-${String(month + 1).padStart(2, '0')}-01`;
     const lastDay = new Date(year, month + 1, 0).getDate();
     const end = `${year}-${String(month + 1).padStart(2, '0')}-${String(lastDay).padStart(2, '0')}`;
-    return events.filter(e => e.startDate <= end && e.endDate >= start);
+    return expandRecurringEvents(events, start, end);
   }, [events]);
 
   const hasEventsOnDate = useCallback((date: string) => {
-    return events.some(e => date >= e.startDate && date <= e.endDate);
+    return expandRecurringEvents(events, date, date).length > 0;
   }, [events]);
 
   // Force refresh from localStorage (used after migration)
