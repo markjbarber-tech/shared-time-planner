@@ -167,6 +167,7 @@ export function CalendarApp() {
             events={events}
             onDateClick={handleDateClick}
             onDayView={handleDayView}
+            getDisplayName={getDisplayName}
           />
         )}
 
@@ -189,6 +190,7 @@ export function CalendarApp() {
               setDialogOpen(true);
             }}
             onDeleteEvent={deleteEvent}
+            getDisplayName={getDisplayName}
           />
         )}
       </div>
