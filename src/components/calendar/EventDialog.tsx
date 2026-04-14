@@ -96,8 +96,9 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
   const [attendeeSearch, setAttendeeSearch] = useState('');
   const [showAttendeePicker, setShowAttendeePicker] = useState(false);
   const [selectedChildProfileId, setSelectedChildProfileId] = useState<string | null>(null);
+  const [assignedUserId, setAssignedUserId] = useState<string | null>(null);
   const [endTimeManuallySet, setEndTimeManuallySet] = useState(false);
-  const [viewMode, setViewMode] = useState(true); // true = read-only detail view for existing events
+  const [viewMode, setViewMode] = useState(true);
   const [editingStartDate, setEditingStartDate] = useState(false);
   const [editingStartTime, setEditingStartTime] = useState(false);
   const [editingEndDate, setEditingEndDate] = useState(false);
