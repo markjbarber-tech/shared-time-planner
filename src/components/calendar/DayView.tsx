@@ -2,7 +2,8 @@ import { useState } from 'react';
 import type { CalendarEvent } from '@/types/calendar';
 import { USER_COLORS, USER_COLOR_BGS } from '@/types/calendar';
 import { useAuth } from '@/hooks/useAuth';
-import { Pencil, Trash2 } from 'lucide-react';
+import { Pencil, Trash2, Users } from 'lucide-react';
+import type { EventAttendee } from '@/hooks/useEventAttendees';
 
 interface DayViewProps {
   date: string;
@@ -11,6 +12,7 @@ interface DayViewProps {
   onEditEvent: (event: CalendarEvent) => void;
   onDeleteEvent: (id: string) => void;
   getDisplayName: (userId: string) => string;
+  getAttendees?: (eventId: string) => EventAttendee[];
 }
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
