@@ -15,6 +15,8 @@ import { USER_COLORS } from '@/types/calendar';
 import { ChevronLeft, ChevronRight, Plus, LogOut, Baby, UserPlus, LogIn, Share2 } from 'lucide-react';
 import { ChildProfileManager } from './ChildProfileManager';
 import { useToast } from '@/hooks/use-toast';
+import UserProfileDialog from './UserProfileDialog';
+import type { ProfileData } from '@/hooks/useProfiles';
 
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
@@ -27,6 +29,7 @@ export function CalendarApp() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogDate, setDialogDate] = useState('');
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
+  const [selectedProfile, setSelectedProfile] = useState<ProfileData | null>(null);
 
   const { user, signOut, migrationResult } = useAuth();
   const navigate = useNavigate();
@@ -307,14 +310,15 @@ export function CalendarApp() {
           <div className="flex items-center gap-3">
             <div className="flex -space-x-2">
               {profileList.map((p) => (
-                <div
+                <button
                   key={p.userId}
-                  className="size-8 rounded-full border-2 border-background flex items-center justify-center text-[11px] font-semibold text-white shrink-0"
+                  onClick={() => setSelectedProfile(p)}
+                  className="size-8 rounded-full border-2 border-background flex items-center justify-center text-[11px] font-semibold text-white shrink-0 cursor-pointer hover:scale-110 transition-transform"
                   style={{ backgroundColor: USER_COLORS[p.preferredColor % USER_COLORS.length] }}
                   title={p.displayName}
                 >
                   {p.displayName[0]?.toUpperCase() || '?'}
-                </div>
+                </button>
               ))}
             </div>
             <span className="text-xs text-muted-foreground">
