@@ -10,9 +10,10 @@ interface ChildProfileManagerProps {
   onAdd: (name: string, color: number) => Promise<any>;
   onUpdate: (id: string, updates: Partial<Pick<ChildProfile, 'displayName' | 'preferredColor'>>) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
+  onClose?: () => void;
 }
 
-export function ChildProfileManager({ childProfiles, onAdd, onUpdate, onDelete }: ChildProfileManagerProps) {
+export function ChildProfileManager({ childProfiles, onAdd, onUpdate, onDelete, onClose }: ChildProfileManagerProps) {
   const [showAdd, setShowAdd] = useState(false);
   const [newName, setNewName] = useState('');
   const [newColor, setNewColor] = useState(0);
