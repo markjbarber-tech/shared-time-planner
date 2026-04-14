@@ -6,8 +6,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DialPicker } from './DialPicker';
 import { useAuth } from '@/hooks/useAuth';
-import type { CalendarEvent, EventVisibility, ReminderType, ReminderTiming } from '@/types/calendar';
-import { Eye, EyeOff, Users, Bell, X, UserPlus } from 'lucide-react';
+import type { CalendarEvent, EventVisibility, ReminderType, ReminderTiming, ChildProfile } from '@/types/calendar';
+import { USER_COLORS } from '@/types/calendar';
+import { Eye, EyeOff, Users, Bell, X, UserPlus, Baby } from 'lucide-react';
 import type { EventAttendee } from '@/hooks/useEventAttendees';
 
 interface EventDialogProps {
@@ -22,6 +23,7 @@ interface EventDialogProps {
   attendees: EventAttendee[];
   onAddAttendee?: (eventId: string, userId: string) => Promise<void>;
   onRemoveAttendee?: (eventId: string, attendeeId: string) => Promise<void>;
+  childProfiles: ChildProfile[];
 }
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -42,7 +44,7 @@ function generateYears() {
   return Array.from({ length: 10 }, (_, i) => String(current - 2 + i));
 }
 
-export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initialDate, editingEvent, profiles, attendees, onAddAttendee, onRemoveAttendee }: EventDialogProps) {
+export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initialDate, editingEvent, profiles, attendees, onAddAttendee, onRemoveAttendee, childProfiles }: EventDialogProps) {
   const { user } = useAuth();
   const now = new Date();
   const [year, month, day] = initialDate.split('-');
