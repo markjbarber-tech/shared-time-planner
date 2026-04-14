@@ -8,7 +8,7 @@ import { DialPicker } from './DialPicker';
 import { useAuth } from '@/hooks/useAuth';
 import type { CalendarEvent, EventVisibility, ReminderType, ReminderTiming, ChildProfile } from '@/types/calendar';
 import { USER_COLORS } from '@/types/calendar';
-import { Eye, EyeOff, Users, Bell, X, UserPlus, Baby } from 'lucide-react';
+import { Eye, EyeOff, Users, Bell, X, UserPlus, Baby, Pencil, Clock, Calendar, MapPin } from 'lucide-react';
 import type { EventAttendee } from '@/hooks/useEventAttendees';
 
 interface EventDialogProps {
@@ -73,6 +73,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
   const [showAttendeePicker, setShowAttendeePicker] = useState(false);
   const [selectedChildProfileId, setSelectedChildProfileId] = useState<string | null>(null);
   const [endTimeManuallySet, setEndTimeManuallySet] = useState(false);
+  const [viewMode, setViewMode] = useState(true); // true = read-only detail view for existing events
 
   const isEditing = !!editingEvent;
 
@@ -97,7 +98,8 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       }
       setPendingAttendees([]);
       setSelectedChildProfileId(editingEvent.childProfileId ?? null);
-      setEndTimeManuallySet(true); // don't auto-update end time when editing
+      setEndTimeManuallySet(true);
+      setViewMode(true); // start in detail view when opening existing event
     } else if (!editingEvent && open) {
       const [y, m, d] = initialDate.split('-');
       setTitle(''); setDescription('');
@@ -112,6 +114,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       setPendingAttendees([]);
       setSelectedChildProfileId(null);
       setEndTimeManuallySet(false);
+      setViewMode(false); // new events go straight to edit mode
     }
     setAttendeeSearch('');
     setShowAttendeePicker(false);
@@ -241,9 +244,96 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       <DialogContent className="vellum-layer border-foreground/5 max-w-lg max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="font-serif text-2xl font-light italic">
-            {isEditing ? 'Edit Entry' : 'New Entry'}
+            {isEditing && viewMode ? title || 'Event Details' : isEditing ? 'Edit Entry' : 'New Entry'}
           </DialogTitle>
         </DialogHeader>
+
+        {isEditing && viewMode ? (
+          /* Read-only detail view */
+          <div className="space-y-5 pt-2">
+            {description && (
+              <p className="text-sm text-muted-foreground">{description}</p>
+            )}
+
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 text-sm">
+                <Calendar className="w-4 h-4 text-muted-foreground" />
+                <span>
+                  {parseInt(startDay)} {MONTHS[parseInt(startMonth)]} {startYear}
+                  {(startYear !== endYear || startMonth !== endMonth || startDay !== endDay) &&
+                    ` — ${parseInt(endDay)} ${MONTHS[parseInt(endMonth)]} ${endYear}`}
+                </span>
+              </div>
+              <div className="flex items-center gap-2 text-sm">
+                <Clock className="w-4 h-4 text-muted-foreground" />
+                <span>{startHour}:{startMinute} — {endHour}:{endMinute}</span>
+              </div>
+
+              {selectedChildProfile && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Baby className="w-4 h-4 text-muted-foreground" />
+                  <span>{selectedChildProfile.displayName}</span>
+                </div>
+              )}
+
+              <div className="flex items-center gap-2 text-sm">
+                {visibility === 'public' ? <Eye className="w-4 h-4 text-muted-foreground" /> :
+                 visibility === 'shared' ? <Users className="w-4 h-4 text-muted-foreground" /> :
+                 <EyeOff className="w-4 h-4 text-muted-foreground" />}
+                <span className="capitalize">{visibility}</span>
+              </div>
+
+              {editingEvent?.reminder && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Bell className="w-4 h-4 text-muted-foreground" />
+                  <span className="capitalize">
+                    {editingEvent.reminder.type} — {
+                      editingEvent.reminder.timing === '1hour' ? '1 hour before' :
+                      editingEvent.reminder.timing === '1day' ? '1 day before' : '1 week before'
+                    }
+                  </span>
+                </div>
+              )}
+
+              {displayedAttendeeIds.length > 0 && (
+                <div className="flex items-start gap-2 text-sm">
+                  <Users className="w-4 h-4 text-muted-foreground mt-0.5" />
+                  <div className="flex flex-wrap gap-1.5">
+                    {displayedAttendeeIds.map(uid => (
+                      <span key={uid} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-foreground/5 text-xs">
+                        {profiles[uid] || 'Unknown'}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex gap-3 pt-2">
+              {canEdit && (
+                <Button
+                  variant="outline"
+                  onClick={handleDelete}
+                  className="border-destructive/30 text-destructive hover:bg-destructive/10"
+                >
+                  Delete
+                </Button>
+              )}
+              <Button variant="outline" onClick={onClose} className="flex-1 border-foreground/10">
+                Close
+              </Button>
+              {canEdit && (
+                <Button
+                  onClick={() => setViewMode(false)}
+                  className="flex-1 bg-foreground text-background hover:bg-foreground/90"
+                >
+                  <Pencil className="w-3.5 h-3.5 mr-1.5" />
+                  Edit Event
+                </Button>
+              )}
+            </div>
+          </div>
+        ) : (
 
         <div className="space-y-6 pt-2">
           {/* Title */}
@@ -517,6 +607,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
             )}
           </div>
         </div>
+        )}
       </DialogContent>
     </Dialog>
   );
