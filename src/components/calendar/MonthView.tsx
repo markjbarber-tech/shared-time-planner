@@ -117,7 +117,7 @@ export function MonthView({ year, month, events, onDateClick, onDayView, onEvent
           return (
             <div
               key={date}
-              className={`calendar-cell min-h-[70px] sm:min-h-[110px] ${isToday ? 'bg-blueprint/10' : ''}`}
+              className={`calendar-cell min-h-[105px] sm:min-h-[165px] ${isToday ? 'bg-blueprint/10' : ''}`}
               onClick={() => onDateClick(date)}
             >
               <button
