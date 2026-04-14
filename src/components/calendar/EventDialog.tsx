@@ -29,8 +29,27 @@ interface EventDialogProps {
 }
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, '0'));
+const HOURS_12 = Array.from({ length: 12 }, (_, i) => String(i === 0 ? 12 : i));
 const MINUTES = Array.from({ length: 12 }, (_, i) => String(i * 5).padStart(2, '0'));
+
+function to12h(h24: string): { hour12: string; period: 'AM' | 'PM' } {
+  const h = parseInt(h24);
+  const period: 'AM' | 'PM' = h >= 12 ? 'PM' : 'AM';
+  const hour12 = h === 0 ? '12' : h > 12 ? String(h - 12) : String(h);
+  return { hour12, period };
+}
+
+function to24h(hour12: string, period: 'AM' | 'PM'): string {
+  let h = parseInt(hour12);
+  if (period === 'AM') h = h === 12 ? 0 : h;
+  else h = h === 12 ? 12 : h + 12;
+  return String(h).padStart(2, '0');
+}
+
+function format12h(h24: string, min: string): string {
+  const { hour12, period } = to12h(h24);
+  return `${hour12}:${min} ${period}`;
+}
 
 function getDaysInMonth(year: number, month: number) {
   return new Date(year, month + 1, 0).getDate();
@@ -274,7 +293,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Clock className="w-4 h-4 text-muted-foreground" />
-                <span>{startHour}:{startMinute} — {endHour}:{endMinute}</span>
+                <span>{format12h(startHour, startMinute)} — {format12h(endHour, endMinute)}</span>
               </div>
 
               {selectedChildProfile && (
@@ -389,19 +408,29 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                   {parseInt(startDay)} {MONTHS[parseInt(startMonth)]} {startYear}
                 </button>
               )}
-              {editingStartTime ? (
-                <div className="flex gap-0.5 bg-background/50 rounded-md border border-foreground/5 p-1">
-                  <DialPicker items={HOURS} value={startHour} onChange={setStartHour} className="w-10" />
-                  <span className="flex items-center text-muted-foreground font-bold self-center text-xs">:</span>
-                  <DialPicker items={MINUTES} value={startMinute} onChange={setStartMinute} className="w-10" />
-                </div>
-              ) : (
+              {editingStartTime ? (() => {
+                const { hour12: sh12, period: sPeriod } = to12h(startHour);
+                return (
+                  <div className="flex gap-0.5 bg-background/50 rounded-md border border-foreground/5 p-1 items-center">
+                    <DialPicker items={HOURS_12} value={sh12} onChange={v => setStartHour(to24h(v, sPeriod))} className="w-8" />
+                    <span className="text-muted-foreground font-bold text-xs">:</span>
+                    <DialPicker items={MINUTES} value={startMinute} onChange={setStartMinute} className="w-8" />
+                    <div className="flex flex-col gap-0.5 ml-1">
+                      {(['AM', 'PM'] as const).map(p => (
+                        <button key={p} type="button" onClick={() => setStartHour(to24h(sh12, p))}
+                          className={`px-1.5 py-0.5 rounded text-[9px] font-semibold transition-all ${sPeriod === p ? 'bg-foreground text-background' : 'text-muted-foreground hover:text-foreground'}`}
+                        >{p}</button>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })() : (
                 <button
                   type="button"
                   onClick={() => setEditingStartTime(true)}
                   className="w-full text-left px-2.5 py-2 rounded-md border border-foreground/5 bg-background/50 text-sm hover:border-foreground/15 transition-colors"
                 >
-                  {startHour}:{startMinute}
+                  {format12h(startHour, startMinute)}
                 </button>
               )}
             </div>
@@ -424,19 +453,29 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                   {parseInt(endDay)} {MONTHS[parseInt(endMonth)]} {endYear}
                 </button>
               )}
-              {editingEndTime ? (
-                <div className="flex gap-0.5 bg-background/50 rounded-md border border-foreground/5 p-1">
-                  <DialPicker items={HOURS} value={endHour} onChange={v => { setEndTimeManuallySet(true); setEndHour(v); }} className="w-10" />
-                  <span className="flex items-center text-muted-foreground font-bold self-center text-xs">:</span>
-                  <DialPicker items={MINUTES} value={endMinute} onChange={v => { setEndTimeManuallySet(true); setEndMinute(v); }} className="w-10" />
-                </div>
-              ) : (
+              {editingEndTime ? (() => {
+                const { hour12: eh12, period: ePeriod } = to12h(endHour);
+                return (
+                  <div className="flex gap-0.5 bg-background/50 rounded-md border border-foreground/5 p-1 items-center">
+                    <DialPicker items={HOURS_12} value={eh12} onChange={v => { setEndTimeManuallySet(true); setEndHour(to24h(v, ePeriod)); }} className="w-8" />
+                    <span className="text-muted-foreground font-bold text-xs">:</span>
+                    <DialPicker items={MINUTES} value={endMinute} onChange={v => { setEndTimeManuallySet(true); setEndMinute(v); }} className="w-8" />
+                    <div className="flex flex-col gap-0.5 ml-1">
+                      {(['AM', 'PM'] as const).map(p => (
+                        <button key={p} type="button" onClick={() => { setEndTimeManuallySet(true); setEndHour(to24h(eh12, p)); }}
+                          className={`px-1.5 py-0.5 rounded text-[9px] font-semibold transition-all ${ePeriod === p ? 'bg-foreground text-background' : 'text-muted-foreground hover:text-foreground'}`}
+                        >{p}</button>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })() : (
                 <button
                   type="button"
                   onClick={() => setEditingEndTime(true)}
                   className="w-full text-left px-2.5 py-2 rounded-md border border-foreground/5 bg-background/50 text-sm hover:border-foreground/15 transition-colors"
                 >
-                  {endHour}:{endMinute}
+                  {format12h(endHour, endMinute)}
                 </button>
               )}
             </div>
