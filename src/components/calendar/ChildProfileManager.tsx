@@ -130,17 +130,17 @@ export function ChildProfileManager({ childProfiles, onAdd, onUpdate, onDelete, 
               <span className="text-xs font-medium flex-1 truncate">{cp.displayName}</span>
               <button
                 onClick={() => handleStartEdit(cp)}
-                className="size-6 rounded flex items-center justify-center hover:bg-foreground/10 opacity-0 group-hover:opacity-100 transition-opacity"
+                className="size-7 rounded flex items-center justify-center hover:bg-foreground/10 transition-colors"
               >
-                <Pencil className="w-3 h-3 text-muted-foreground" />
+                <Pencil className="w-3.5 h-3.5 text-muted-foreground" />
               </button>
               <button
                 onClick={() => handleDelete(cp.id)}
-                className={`size-6 rounded flex items-center justify-center transition-colors ${
+                className={`size-7 rounded flex items-center justify-center transition-colors ${
                   confirmDelete === cp.id ? 'bg-destructive/20' : 'hover:bg-destructive/10'
                 }`}
               >
-                <Trash2 className={`w-3 h-3 ${confirmDelete === cp.id ? 'text-destructive' : 'text-muted-foreground'}`} />
+                <Trash2 className={`w-3.5 h-3.5 ${confirmDelete === cp.id ? 'text-destructive' : 'text-muted-foreground'}`} />
               </button>
             </>
           )}
