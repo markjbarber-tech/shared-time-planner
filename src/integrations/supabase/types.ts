@@ -14,6 +14,36 @@ export type Database = {
   }
   public: {
     Tables: {
+      child_profiles: {
+        Row: {
+          avatar_url: string | null
+          created_at: string
+          display_name: string
+          id: string
+          parent_user_id: string
+          preferred_color: number
+          updated_at: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name: string
+          id?: string
+          parent_user_id: string
+          preferred_color?: number
+          updated_at?: string
+        }
+        Update: {
+          avatar_url?: string | null
+          created_at?: string
+          display_name?: string
+          id?: string
+          parent_user_id?: string
+          preferred_color?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       event_attendees: {
         Row: {
           created_at: string
@@ -48,6 +78,7 @@ export type Database = {
       }
       events: {
         Row: {
+          child_profile_id: string | null
           created_at: string
           description: string | null
           end_date: string
@@ -64,6 +95,7 @@ export type Database = {
           visibility: string
         }
         Insert: {
+          child_profile_id?: string | null
           created_at?: string
           description?: string | null
           end_date: string
@@ -80,6 +112,7 @@ export type Database = {
           visibility?: string
         }
         Update: {
+          child_profile_id?: string | null
           created_at?: string
           description?: string | null
           end_date?: string
@@ -95,7 +128,15 @@ export type Database = {
           user_id?: string
           visibility?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "events_child_profile_id_fkey"
+            columns: ["child_profile_id"]
+            isOneToOne: false
+            referencedRelation: "child_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
