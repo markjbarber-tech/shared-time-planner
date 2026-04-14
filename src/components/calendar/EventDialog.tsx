@@ -94,9 +94,9 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
   const [reminderTiming, setReminderTiming] = useState<ReminderTiming>('1hour');
   const [pendingAttendees, setPendingAttendees] = useState<string[]>([]);
   const [attendeeSearch, setAttendeeSearch] = useState('');
-  const [showAttendeePicker, setShowAttendeePicker] = useState(false);
+  const [showAssignPicker, setShowAssignPicker] = useState(false);
   const [selectedChildProfileId, setSelectedChildProfileId] = useState<string | null>(null);
-  const [assignedUserId, setAssignedUserId] = useState<string | null>(null);
+  const [assignedUserIds, setAssignedUserIds] = useState<string[]>([]);
   const [endTimeManuallySet, setEndTimeManuallySet] = useState(false);
   const [viewMode, setViewMode] = useState(true);
   const [editingStartDate, setEditingStartDate] = useState(false);
