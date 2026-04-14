@@ -55,9 +55,11 @@ export function useCalendarEvents() {
     reminder: e.reminder_type && e.reminder_timing
       ? { type: e.reminder_type as 'email' | 'push', timing: e.reminder_timing as '1hour' | '1day' | '1week' }
       : undefined,
+    recurrenceType: e.recurrence_type ?? null,
+    recurrenceInterval: e.recurrence_interval ?? 1,
+    recurrenceEndDate: e.recurrence_end_date ?? null,
     createdAt: e.created_at,
   });
-
   const addEvent = useCallback(async (event: Omit<CalendarEvent, 'id' | 'createdAt'>) => {
     if (isAnonymous) {
       const newEvent = addLocalEvent({ ...event, userId: getAnonymousUserId() });
