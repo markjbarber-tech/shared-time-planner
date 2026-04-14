@@ -116,23 +116,28 @@ export function MonthView({ year, month, events, onDateClick, onDayView, getDisp
 
               {/* Events */}
               <div className="flex flex-col gap-0.5 mt-1 overflow-hidden flex-1">
-                {dayEvents.slice(0, 3).map(event => (
-                  <div
-                    key={event.id}
-                    className="event-pill truncate"
-                    style={{
-                      backgroundColor: USER_COLOR_BGS[event.userColor % USER_COLOR_BGS.length],
-                      borderLeftColor: USER_COLORS[event.userColor % USER_COLORS.length],
-                    }}
-                    onClick={e => {
-                      e.stopPropagation();
-                      onDayView(date);
-                    }}
-                  >
-                    <span className="truncate">{event.title}</span>
-                    <span className="text-[9px] opacity-60 ml-1 shrink-0 hidden sm:inline">— {event.childProfileId && getChildProfileName ? getChildProfileName(event.childProfileId) : getDisplayName(event.userId)}</span>
-                  </div>
-                ))}
+                {dayEvents.slice(0, 3).map(event => {
+                  const isChild = !!event.childProfileId;
+                  return (
+                    <div
+                      key={event.id}
+                      className={`event-pill truncate ${isChild ? 'border-l-0 border border-dashed' : ''}`}
+                      style={{
+                        backgroundColor: USER_COLOR_BGS[event.userColor % USER_COLOR_BGS.length],
+                        ...(isChild
+                          ? { borderColor: USER_COLORS[event.userColor % USER_COLORS.length] }
+                          : { borderLeftColor: USER_COLORS[event.userColor % USER_COLORS.length] }),
+                      }}
+                      onClick={e => {
+                        e.stopPropagation();
+                        onDayView(date);
+                      }}
+                    >
+                      <span className="truncate">{event.title}</span>
+                      <span className="text-[9px] opacity-60 ml-1 shrink-0 hidden sm:inline">— {event.childProfileId && getChildProfileName ? getChildProfileName(event.childProfileId) : getDisplayName(event.userId)}</span>
+                    </div>
+                  );
+                })}
                 {dayEvents.length > 3 && (
                   <span className="text-[10px] text-muted-foreground px-2">
                     +{dayEvents.length - 3} more

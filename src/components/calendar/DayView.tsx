@@ -74,19 +74,23 @@ export function DayView({ date, events, onBack, onEditEvent, onDeleteEvent, getD
           const height = (duration / 60) * hourHeight;
           const color = USER_COLORS[event.userColor % USER_COLORS.length];
           const bg = USER_COLOR_BGS[event.userColor % USER_COLOR_BGS.length];
-          const isOwner = event.userId === user?.id;
+          const isOwner = event.userId === user?.id || event.userId === 'local-user';
           const eventAttendees = getAttendees ? getAttendees(event.id) : [];
+          const isChild = !!event.childProfileId;
 
           return (
             <div
               key={event.id}
-              className="absolute left-12 sm:left-20 right-2 sm:right-4 rounded-lg px-2 sm:px-3 py-2 border-l-3 overflow-hidden transition-all hover:shadow-md group cursor-pointer"
+              className={`absolute left-12 sm:left-20 right-2 sm:right-4 rounded-lg px-2 sm:px-3 py-2 overflow-hidden transition-all hover:shadow-md group cursor-pointer ${
+                isChild ? 'border border-dashed' : 'border-l-3'
+              }`}
               style={{
                 top,
                 height: Math.max(height, 28),
                 backgroundColor: bg,
-                borderLeftColor: color,
-                borderLeftWidth: 3,
+                ...(isChild
+                  ? { borderColor: color }
+                  : { borderLeftColor: color, borderLeftWidth: 3 }),
                 zIndex: 10 + i,
               }}
               onClick={() => isOwner && onEditEvent(event)}
