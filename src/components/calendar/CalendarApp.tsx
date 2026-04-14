@@ -37,7 +37,18 @@ export function CalendarApp() {
   const { childProfiles, addChildProfile, updateChildProfile, deleteChildProfile, getChildProfileName } = useChildProfiles();
   const [showChildManager, setShowChildManager] = useState(false);
 
-  // Fetch attendees when events change (only when logged in)
+  // Show migration toast when data is migrated (works for OAuth redirects too)
+  useEffect(() => {
+    if (migrationResult && !migrationToastShown.current) {
+      migrationToastShown.current = true;
+      toast({
+        title: 'Data migrated',
+        description: `${migrationResult.events} event(s) and ${migrationResult.profiles} profile(s) synced to your account.`,
+      });
+    }
+  }, [migrationResult, toast]);
+
+
   useEffect(() => {
     if (!isAnonymous && events.length > 0) {
       fetchAllAttendees(events.map(e => e.id));
