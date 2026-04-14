@@ -168,6 +168,33 @@ export type Database = {
         }
         Relationships: []
       }
+      user_nicknames: {
+        Row: {
+          created_at: string
+          id: string
+          nickname: string
+          owner_user_id: string
+          target_user_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          nickname: string
+          owner_user_id: string
+          target_user_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          nickname?: string
+          owner_user_id?: string
+          target_user_id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
