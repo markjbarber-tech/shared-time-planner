@@ -127,7 +127,9 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       }
       setPendingAttendees([]);
       setSelectedChildProfileId(editingEvent.childProfileId ?? null);
-      setAssignedUserIds([editingEvent.userId]);
+      // Populate assigned users: event owner + attendees
+      const attendeeUserIds = attendees.map(a => a.userId);
+      setAssignedUserIds([editingEvent.userId, ...attendeeUserIds.filter(id => id !== editingEvent.userId)]);
       setEndTimeManuallySet(true);
       setViewMode(true); // start in detail view when opening existing event
       setEditingStartDate(false); setEditingStartTime(false);
