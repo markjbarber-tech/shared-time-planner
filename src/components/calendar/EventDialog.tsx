@@ -273,15 +273,6 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
     return true;
   });
 
-  const handleRemoveAttendee = async (userId: string) => {
-    if (isEditing && editingEvent && onRemoveAttendee) {
-      const attendee = attendees.find(a => a.userId === userId);
-      if (attendee) await onRemoveAttendee(editingEvent.id, attendee.id);
-    } else {
-      setPendingAttendees(prev => prev.filter(id => id !== userId));
-    }
-  };
-
   const visibilityOptions: { value: EventVisibility; label: string; icon: typeof Eye }[] = [
     { value: 'public', label: 'Public', icon: Eye },
     { value: 'shared', label: 'Shared', icon: Users },
@@ -295,11 +286,6 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
   ];
 
   const canEdit = !isEditing || editingEvent.userId === (user?.id ?? 'local-user');
-
-  // Combined list of attendee user IDs to display
-  const displayedAttendeeIds = isEditing
-    ? attendees.map(a => a.userId)
-    : pendingAttendees;
 
   return (
     <Dialog open={open} onOpenChange={() => onClose()}>
