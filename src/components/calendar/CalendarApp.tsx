@@ -220,6 +220,11 @@ export function CalendarApp() {
             events={events}
             onDateClick={handleDateClick}
             onDayView={handleDayView}
+            onEventClick={(event) => {
+              setEditingEvent(event);
+              setDialogDate(event.startDate);
+              setDialogOpen(true);
+            }}
             getDisplayName={getDisplayName}
             getChildProfileName={getChildProfileName}
           />
