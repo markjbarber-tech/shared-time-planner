@@ -145,14 +145,14 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       setReminderEnabled(false);
       setPendingAttendees([]);
       setSelectedChildProfileId(null);
-      setAssignedUserId(null);
+      setAssignedUserIds([]);
       setEndTimeManuallySet(false);
       setViewMode(false); // new events go straight to edit mode
       setEditingStartDate(false); setEditingStartTime(false);
       setEditingEndDate(false); setEditingEndTime(false);
     }
     setAttendeeSearch('');
-    setShowAttendeePicker(false);
+    setShowAssignPicker(false);
   }, [editingEvent, open, initialDate]);
 
   const years = useMemo(() => generateYears(), []);
