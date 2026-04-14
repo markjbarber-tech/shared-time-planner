@@ -129,7 +129,7 @@ export function MonthView({ year, month, events, onDateClick, onDayView, getDisp
                     }}
                   >
                     <span className="truncate">{event.title}</span>
-                    <span className="text-[9px] opacity-60 ml-1 shrink-0">— {getDisplayName(event.userId)}</span>
+                    <span className="text-[9px] opacity-60 ml-1 shrink-0 hidden sm:inline">— {getDisplayName(event.userId)}</span>
                   </div>
                 ))}
                 {dayEvents.length > 3 && (
