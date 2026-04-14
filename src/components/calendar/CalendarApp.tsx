@@ -8,6 +8,7 @@ import { EventDialog } from './EventDialog';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
 import { useProfiles } from '@/hooks/useProfiles';
 import { useEventAttendees } from '@/hooks/useEventAttendees';
+import { useNicknames } from '@/hooks/useNicknames';
 import { useChildProfiles } from '@/hooks/useChildProfiles';
 import { useAuth } from '@/hooks/useAuth';
 import type { CalendarView, CalendarEvent } from '@/types/calendar';
@@ -46,6 +47,7 @@ export function CalendarApp() {
   const { events, addEvent, updateEvent, deleteEvent, getEventsForDate, refresh } = useCalendarEvents();
   const { profiles, profileList, getDisplayName } = useProfiles();
   const { fetchAttendees, fetchAllAttendees, addAttendee, removeAttendee, getAttendees } = useEventAttendees();
+  const { nicknames, setNickname, getDisplayName: getNicknameDisplayName } = useNicknames();
   const { childProfiles, addChildProfile, updateChildProfile, deleteChildProfile, getChildProfileName } = useChildProfiles();
   const [showChildManager, setShowChildManager] = useState(false);
 
@@ -309,17 +311,20 @@ export function CalendarApp() {
         {!isAnonymous && profileList.length > 0 && (
           <div className="flex items-center gap-3">
             <div className="flex -space-x-2">
-              {profileList.map((p) => (
-                <button
-                  key={p.userId}
-                  onClick={() => setSelectedProfile(p)}
-                  className="size-8 rounded-full border-2 border-background flex items-center justify-center text-[11px] font-semibold text-white shrink-0 cursor-pointer hover:scale-110 transition-transform"
-                  style={{ backgroundColor: USER_COLORS[p.preferredColor % USER_COLORS.length] }}
-                  title={p.displayName}
-                >
-                  {p.displayName[0]?.toUpperCase() || '?'}
-                </button>
-              ))}
+              {profileList.map((p) => {
+                const displayName = getNicknameDisplayName(p.userId, p.displayName);
+                return (
+                  <button
+                    key={p.userId}
+                    onClick={() => setSelectedProfile(p)}
+                    className="size-8 rounded-full border-2 border-background flex items-center justify-center text-[11px] font-semibold text-white shrink-0 cursor-pointer hover:scale-110 transition-transform"
+                    style={{ backgroundColor: USER_COLORS[p.preferredColor % USER_COLORS.length] }}
+                    title={displayName}
+                  >
+                    {displayName[0]?.toUpperCase() || '?'}
+                  </button>
+                );
+              })}
             </div>
             <span className="text-xs text-muted-foreground">
               {profileList.length} {profileList.length === 1 ? 'member' : 'members'}
@@ -422,6 +427,8 @@ export function CalendarApp() {
         profile={selectedProfile}
         open={!!selectedProfile}
         onOpenChange={(open) => { if (!open) setSelectedProfile(null); }}
+        nickname={selectedProfile ? nicknames[selectedProfile.userId] : undefined}
+        onSetNickname={setNickname}
       />
     </div>
   );
