@@ -295,8 +295,28 @@ export function CalendarApp() {
             )}
           </div>
         </nav>
+        {/* Members */}
+        {!isAnonymous && profileList.length > 0 && (
+          <div className="flex items-center gap-3">
+            <div className="flex -space-x-2">
+              {profileList.map((p) => (
+                <div
+                  key={p.userId}
+                  className="size-8 rounded-full border-2 border-background flex items-center justify-center text-[11px] font-semibold text-white shrink-0"
+                  style={{ backgroundColor: USER_COLORS[p.preferredColor % USER_COLORS.length] }}
+                  title={p.displayName}
+                >
+                  {p.displayName[0]?.toUpperCase() || '?'}
+                </div>
+              ))}
+            </div>
+            <span className="text-xs text-muted-foreground">
+              {profileList.length} {profileList.length === 1 ? 'member' : 'members'}
+            </span>
+          </div>
+        )}
 
-        {/* Child Profile Manager */}
+
         {showChildManager && (
           <div className="vellum-layer rounded-xl border border-foreground/5 p-4 sm:p-6 shadow-lg">
             <ChildProfileManager
