@@ -293,7 +293,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Clock className="w-4 h-4 text-muted-foreground" />
-                <span>{startHour}:{startMinute} — {endHour}:{endMinute}</span>
+                <span>{format12h(startHour, startMinute)} — {format12h(endHour, endMinute)}</span>
               </div>
 
               {selectedChildProfile && (
