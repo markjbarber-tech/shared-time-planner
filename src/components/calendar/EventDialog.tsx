@@ -24,6 +24,8 @@ interface EventDialogProps {
   onAddAttendee?: (eventId: string, userId: string) => Promise<void>;
   onRemoveAttendee?: (eventId: string, attendeeId: string) => Promise<void>;
   childProfiles: ChildProfile[];
+  isAnonymous?: boolean;
+  onPromptSignup?: () => void;
 }
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
