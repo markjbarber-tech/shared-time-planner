@@ -503,7 +503,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
           </div>
 
           {/* Assign to user */}
-          {!isAnonymous && profileList.length > 1 && (
+          {!isAnonymous && profileList.length > 0 && (
             <div className="space-y-2">
               <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Assigned User</Label>
               <div className="flex gap-2 flex-wrap">
