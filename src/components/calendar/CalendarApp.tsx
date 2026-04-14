@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MonthView } from './MonthView';
 import { YearView } from './YearView';
 import { DayView } from './DayView';
@@ -9,7 +10,7 @@ import { useEventAttendees } from '@/hooks/useEventAttendees';
 import { useChildProfiles } from '@/hooks/useChildProfiles';
 import { useAuth } from '@/hooks/useAuth';
 import type { CalendarView, CalendarEvent } from '@/types/calendar';
-import { ChevronLeft, ChevronRight, Plus, LogOut, Baby } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, LogOut, Baby, UserPlus } from 'lucide-react';
 import { ChildProfileManager } from './ChildProfileManager';
 
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
@@ -25,18 +26,20 @@ export function CalendarApp() {
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
 
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
+  const isAnonymous = !user;
   const { events, addEvent, updateEvent, deleteEvent, getEventsForDate } = useCalendarEvents();
   const { profiles, getDisplayName } = useProfiles();
   const { fetchAttendees, fetchAllAttendees, addAttendee, removeAttendee, getAttendees } = useEventAttendees();
   const { childProfiles, addChildProfile, updateChildProfile, deleteChildProfile, getChildProfileName } = useChildProfiles();
   const [showChildManager, setShowChildManager] = useState(false);
 
-  // Fetch attendees when events change
+  // Fetch attendees when events change (only when logged in)
   useEffect(() => {
-    if (events.length > 0) {
+    if (!isAnonymous && events.length > 0) {
       fetchAllAttendees(events.map(e => e.id));
     }
-  }, [events, fetchAllAttendees]);
+  }, [events, fetchAllAttendees, isAnonymous]);
 
   const navigateMonth = (delta: number) => {
     let m = currentMonth + delta;
@@ -91,7 +94,7 @@ export function CalendarApp() {
         <nav className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3 border-b border-foreground/5 pb-4 sm:pb-6">
           <div className="space-y-1 min-w-0">
             <span className="text-[10px] tracking-[0.2em] uppercase font-medium text-muted-foreground">
-              Shared Calendar
+              {isAnonymous ? 'Personal Calendar' : 'Shared Calendar'}
             </span>
             <h1 className="text-2xl sm:text-4xl font-serif font-light italic tracking-tight truncate">
               {view === 'year'
@@ -112,15 +115,28 @@ export function CalendarApp() {
               <Baby className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Family</span>
             </button>
-            {/* Sign Out */}
-            <button
-              onClick={signOut}
-              className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
-              title="Sign out"
-            >
-              <LogOut className="w-3.5 h-3.5" />
-              <span className="hidden sm:inline">Sign out</span>
-            </button>
+
+            {/* Auth actions */}
+            {isAnonymous ? (
+              <button
+                onClick={() => navigate('/auth')}
+                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                title="Create account to share with others"
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Create Account</span>
+              </button>
+            ) : (
+              <button
+                onClick={signOut}
+                className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                title="Sign out"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Sign out</span>
+              </button>
+            )}
+
             {/* View Switcher */}
             <div className="flex bg-foreground/5 p-1 rounded-full">
               {viewButtons.map(btn => (
@@ -258,9 +274,11 @@ export function CalendarApp() {
         editingEvent={editingEvent}
         profiles={profiles}
         attendees={editingEvent ? getAttendees(editingEvent.id) : []}
-        onAddAttendee={addAttendee}
-        onRemoveAttendee={removeAttendee}
+        onAddAttendee={isAnonymous ? undefined : addAttendee}
+        onRemoveAttendee={isAnonymous ? undefined : removeAttendee}
         childProfiles={childProfiles}
+        isAnonymous={isAnonymous}
+        onPromptSignup={() => navigate('/auth')}
       />
     </div>
   );
