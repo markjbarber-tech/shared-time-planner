@@ -331,10 +331,17 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                 <span>{format12h(startHour, startMinute)} — {format12h(endHour, endMinute)}</span>
               </div>
 
-              {editingEvent && editingEvent.userId !== user?.id && (
-                <div className="flex items-center gap-2 text-sm">
-                  <Users className="w-4 h-4 text-muted-foreground" />
-                  <span>Assigned to {profiles[editingEvent.userId] || 'Unknown'}</span>
+              {assignedUserIds.length > 0 && (
+                <div className="flex items-start gap-2 text-sm">
+                  <Users className="w-4 h-4 text-muted-foreground mt-0.5" />
+                  <div className="flex flex-wrap gap-1.5">
+                    {assignedUserIds.map(uid => (
+                      <span key={uid} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-foreground/5 text-xs">
+                        {profiles[uid] || 'Unknown'}
+                        {uid === user?.id && ' (me)'}
+                      </span>
+                    ))}
+                  </div>
                 </div>
               )}
 
@@ -342,38 +349,6 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                 <div className="flex items-center gap-2 text-sm">
                   <Baby className="w-4 h-4 text-muted-foreground" />
                   <span>{selectedChildProfile.displayName}</span>
-                </div>
-              )}
-
-              <div className="flex items-center gap-2 text-sm">
-                {visibility === 'public' ? <Eye className="w-4 h-4 text-muted-foreground" /> :
-                 visibility === 'shared' ? <Users className="w-4 h-4 text-muted-foreground" /> :
-                 <EyeOff className="w-4 h-4 text-muted-foreground" />}
-                <span className="capitalize">{visibility}</span>
-              </div>
-
-              {editingEvent?.reminder && (
-                <div className="flex items-center gap-2 text-sm">
-                  <Bell className="w-4 h-4 text-muted-foreground" />
-                  <span className="capitalize">
-                    {editingEvent.reminder.type} — {
-                      editingEvent.reminder.timing === '1hour' ? '1 hour before' :
-                      editingEvent.reminder.timing === '1day' ? '1 day before' : '1 week before'
-                    }
-                  </span>
-                </div>
-              )}
-
-              {displayedAttendeeIds.length > 0 && (
-                <div className="flex items-start gap-2 text-sm">
-                  <Users className="w-4 h-4 text-muted-foreground mt-0.5" />
-                  <div className="flex flex-wrap gap-1.5">
-                    {displayedAttendeeIds.map(uid => (
-                      <span key={uid} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-foreground/5 text-xs">
-                        {profiles[uid] || 'Unknown'}
-                      </span>
-                    ))}
-                  </div>
                 </div>
               )}
             </div>
