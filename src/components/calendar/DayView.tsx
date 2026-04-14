@@ -97,7 +97,7 @@ export function DayView({ date, events, onBack, onEditEvent, onDeleteEvent, getD
                     {event.title}
                   </div>
                   <div className="text-[10px] text-muted-foreground/60 truncate">
-                    by {getDisplayName(event.userId)}
+                    by {event.childProfileId && getChildProfileName ? getChildProfileName(event.childProfileId) : getDisplayName(event.userId)}
                   </div>
                   {height > 35 && (
                     <div className="text-[10px] text-muted-foreground mt-0.5">
