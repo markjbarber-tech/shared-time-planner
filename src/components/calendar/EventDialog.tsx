@@ -605,7 +605,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                     <div className="border-t border-foreground/5 p-2">
                       <button
                         onClick={() => {
-                          const baseUrl = window.location.origin;
+                          const baseUrl = 'https://markjbarber-tech.github.io/shared-time-planner';
                           const eventRef = isEditing && editingEvent ? editingEvent.id : 'new';
                           const inviteUrl = `${baseUrl}/auth?invite=true&event=${eventRef}`;
                           navigator.clipboard.writeText(inviteUrl).then(() => {
