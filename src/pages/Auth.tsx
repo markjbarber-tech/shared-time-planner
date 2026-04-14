@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect, useMemo } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { lovable } from '@/integrations/lovable/index';
 import { supabase } from '@/integrations/supabase/client';
@@ -10,7 +10,9 @@ import { useToast } from '@/hooks/use-toast';
 import { getLocalDataForMigration } from '@/lib/localStorageEvents';
 
 export default function Auth() {
-  const [isSignUp, setIsSignUp] = useState(false);
+  const [searchParams] = useSearchParams();
+  const isInvite = searchParams.get('invite') === 'true';
+  const [isSignUp, setIsSignUp] = useState(isInvite); // default to sign-up for invites
   const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -81,7 +83,12 @@ export default function Auth() {
               Enter your email and we'll send you a reset link
             </p>
           )}
-          {!isForgotPassword && hasLocalData && (
+          {!isForgotPassword && isInvite && (
+            <p className="text-sm text-muted-foreground mt-2">
+              You've been invited to join a shared calendar! Create an account to get started.
+            </p>
+          )}
+          {!isForgotPassword && !isInvite && hasLocalData && (
             <p className="text-xs text-muted-foreground mt-2">
               Your {localData.events.length} local event(s) will be synced to your account
             </p>
