@@ -10,9 +10,10 @@ interface ChildProfileManagerProps {
   onAdd: (name: string, color: number) => Promise<any>;
   onUpdate: (id: string, updates: Partial<Pick<ChildProfile, 'displayName' | 'preferredColor'>>) => Promise<void>;
   onDelete: (id: string) => Promise<void>;
+  onClose?: () => void;
 }
 
-export function ChildProfileManager({ childProfiles, onAdd, onUpdate, onDelete }: ChildProfileManagerProps) {
+export function ChildProfileManager({ childProfiles, onAdd, onUpdate, onDelete, onClose }: ChildProfileManagerProps) {
   const [showAdd, setShowAdd] = useState(false);
   const [newName, setNewName] = useState('');
   const [newColor, setNewColor] = useState(0);
@@ -60,15 +61,26 @@ export function ChildProfileManager({ childProfiles, onAdd, onUpdate, onDelete }
             Child Profiles
           </span>
         </div>
-        {!showAdd && (
-          <button
-            onClick={() => setShowAdd(true)}
-            className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <Plus className="w-3 h-3" />
-            Add
-          </button>
-        )}
+        <div className="flex items-center gap-2">
+          {!showAdd && (
+            <button
+              onClick={() => setShowAdd(true)}
+              className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+            >
+              <Plus className="w-3 h-3" />
+              Add
+            </button>
+          )}
+          {onClose && (
+            <button
+              onClick={onClose}
+              className="flex items-center text-muted-foreground hover:text-foreground transition-colors"
+              title="Close"
+            >
+              <X className="w-3.5 h-3.5" />
+            </button>
+          )}
+        </div>
       </div>
 
       {childProfiles.map(cp => (
