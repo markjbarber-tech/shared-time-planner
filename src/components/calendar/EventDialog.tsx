@@ -161,6 +161,10 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       setViewMode(false); // new events go straight to edit mode
       setEditingStartDate(false); setEditingStartTime(false);
       setEditingEndDate(false); setEditingEndTime(false);
+      setRecurrenceEnabled(false);
+      setRecurrenceType('weekly');
+      setRecurrenceInterval(1);
+      setRecurrenceEndDate('');
     }
     setAttendeeSearch('');
     setShowAssignPicker(false);
