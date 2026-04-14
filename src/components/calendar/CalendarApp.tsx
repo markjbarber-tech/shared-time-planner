@@ -30,6 +30,7 @@ export function CalendarApp() {
   const navigate = useNavigate();
   const isAnonymous = !user;
   const migrationToastShown = useRef(false);
+  const { toast } = useToast();
   const { events, addEvent, updateEvent, deleteEvent, getEventsForDate } = useCalendarEvents();
   const { profiles, getDisplayName } = useProfiles();
   const { fetchAttendees, fetchAllAttendees, addAttendee, removeAttendee, getAttendees } = useEventAttendees();
