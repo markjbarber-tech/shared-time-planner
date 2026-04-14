@@ -108,6 +108,27 @@ export function DayView({ date, events, onBack, onEditEvent, onDeleteEvent, getD
                       {event.description}
                     </div>
                   )}
+                  {height > 45 && eventAttendees.length > 0 && (
+                    <div className="flex items-center gap-1 mt-1">
+                      <Users className="w-2.5 h-2.5 text-muted-foreground/50 shrink-0" />
+                      <div className="flex -space-x-1.5">
+                        {eventAttendees.slice(0, 5).map(a => (
+                          <span
+                            key={a.id}
+                            className="size-4 rounded-full bg-foreground/15 flex items-center justify-center text-[7px] font-semibold uppercase ring-1 ring-background"
+                            title={getDisplayName(a.userId)}
+                          >
+                            {(getDisplayName(a.userId) || 'U')[0]}
+                          </span>
+                        ))}
+                        {eventAttendees.length > 5 && (
+                          <span className="text-[8px] text-muted-foreground/60 ml-1">
+                            +{eventAttendees.length - 5}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
                 {isOwner && (
                   <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity shrink-0">
