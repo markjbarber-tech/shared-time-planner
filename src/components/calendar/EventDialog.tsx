@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
+import type { ProfileData } from '@/hooks/useProfiles';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -21,6 +22,7 @@ interface EventDialogProps {
   initialDate: string;
   editingEvent?: CalendarEvent | null;
   profiles: Record<string, string>;
+  profileList: ProfileData[];
   attendees: EventAttendee[];
   onAddAttendee?: (eventId: string, userId: string) => Promise<void>;
   onRemoveAttendee?: (eventId: string, attendeeId: string) => Promise<void>;
@@ -66,7 +68,7 @@ function generateYears() {
   return Array.from({ length: 10 }, (_, i) => String(current - 2 + i));
 }
 
-export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initialDate, editingEvent, profiles, attendees, onAddAttendee, onRemoveAttendee, childProfiles, isAnonymous, onPromptSignup }: EventDialogProps) {
+export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initialDate, editingEvent, profiles, profileList, attendees, onAddAttendee, onRemoveAttendee, childProfiles, isAnonymous, onPromptSignup }: EventDialogProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [inviteLinkCopied, setInviteLinkCopied] = useState(false);
@@ -94,8 +96,9 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
   const [attendeeSearch, setAttendeeSearch] = useState('');
   const [showAttendeePicker, setShowAttendeePicker] = useState(false);
   const [selectedChildProfileId, setSelectedChildProfileId] = useState<string | null>(null);
+  const [assignedUserId, setAssignedUserId] = useState<string | null>(null);
   const [endTimeManuallySet, setEndTimeManuallySet] = useState(false);
-  const [viewMode, setViewMode] = useState(true); // true = read-only detail view for existing events
+  const [viewMode, setViewMode] = useState(true);
   const [editingStartDate, setEditingStartDate] = useState(false);
   const [editingStartTime, setEditingStartTime] = useState(false);
   const [editingEndDate, setEditingEndDate] = useState(false);
@@ -124,6 +127,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       }
       setPendingAttendees([]);
       setSelectedChildProfileId(editingEvent.childProfileId ?? null);
+      setAssignedUserId(editingEvent.userId);
       setEndTimeManuallySet(true);
       setViewMode(true); // start in detail view when opening existing event
       setEditingStartDate(false); setEditingStartTime(false);
@@ -141,6 +145,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       setReminderEnabled(false);
       setPendingAttendees([]);
       setSelectedChildProfileId(null);
+      setAssignedUserId(null);
       setEndTimeManuallySet(false);
       setViewMode(false); // new events go straight to edit mode
       setEditingStartDate(false); setEditingStartTime(false);
@@ -178,6 +183,8 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
 
   const selectedChildProfile = childProfiles.find(cp => cp.id === selectedChildProfileId);
 
+  const assignedProfile = profileList.find(p => p.userId === assignedUserId);
+
   const buildEventData = () => ({
     title: title.trim(),
     description: description.trim() || undefined,
@@ -186,8 +193,12 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
     startTime: `${startHour}:${startMinute}`,
     endTime: `${endHour}:${endMinute}`,
     visibility,
-    userId: user?.id ?? 'local-user',
-    userColor: selectedChildProfile ? selectedChildProfile.preferredColor : (editingEvent?.userColor ?? 0),
+    userId: assignedUserId || user?.id || 'local-user',
+    userColor: selectedChildProfile
+      ? selectedChildProfile.preferredColor
+      : assignedProfile
+        ? assignedProfile.preferredColor
+        : (editingEvent?.userColor ?? 0),
     childProfileId: selectedChildProfileId,
     reminder: reminderEnabled ? { type: reminderType, timing: reminderTiming } : undefined,
   });
@@ -298,6 +309,13 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                 <Clock className="w-4 h-4 text-muted-foreground" />
                 <span>{format12h(startHour, startMinute)} — {format12h(endHour, endMinute)}</span>
               </div>
+
+              {editingEvent && editingEvent.userId !== user?.id && (
+                <div className="flex items-center gap-2 text-sm">
+                  <Users className="w-4 h-4 text-muted-foreground" />
+                  <span>Assigned to {profiles[editingEvent.userId] || 'Unknown'}</span>
+                </div>
+              )}
 
               {selectedChildProfile && (
                 <div className="flex items-center gap-2 text-sm">
@@ -484,10 +502,43 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
             </div>
           </div>
 
-          {/* Assign to (self or child profile) */}
+          {/* Assign to user */}
+          {!isAnonymous && profileList.length > 1 && (
+            <div className="space-y-2">
+              <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Assigned User</Label>
+              <div className="flex gap-2 flex-wrap">
+                {profileList.map(p => {
+                  const isSelected = (assignedUserId || user?.id) === p.userId;
+                  return (
+                    <button
+                      key={p.userId}
+                      onClick={() => canEdit && setAssignedUserId(p.userId)}
+                      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all border ${
+                        isSelected
+                          ? 'bg-foreground text-background border-foreground'
+                          : 'bg-background/50 border-foreground/10 hover:border-foreground/20'
+                      } ${!canEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
+                      disabled={!canEdit}
+                    >
+                      <span
+                        className="size-5 rounded-full flex items-center justify-center text-[10px] font-semibold text-white shrink-0"
+                        style={{ backgroundColor: USER_COLORS[p.preferredColor % USER_COLORS.length] }}
+                      >
+                        {p.displayName[0]?.toUpperCase() || '?'}
+                      </span>
+                      {p.displayName}
+                      {p.userId === user?.id && ' (me)'}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Assign to child profile */}
           {childProfiles.length > 0 && (
             <div className="space-y-2">
-              <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Assign To</Label>
+              <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Child Profile</Label>
               <div className="flex gap-2 flex-wrap">
                 <button
                   onClick={() => canEdit && setSelectedChildProfileId(null)}
@@ -498,7 +549,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                   } ${!canEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
                   disabled={!canEdit}
                 >
-                  Me
+                  None
                 </button>
                 {childProfiles.map(cp => (
                   <button

@@ -410,6 +410,7 @@ export function CalendarApp() {
         initialDate={dialogDate}
         editingEvent={editingEvent}
         profiles={profiles}
+        profileList={profileList}
         attendees={editingEvent ? getAttendees(editingEvent.id) : []}
         onAddAttendee={isAnonymous ? undefined : addAttendee}
         onRemoveAttendee={isAnonymous ? undefined : removeAttendee}
