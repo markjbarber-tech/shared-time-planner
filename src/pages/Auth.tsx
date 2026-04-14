@@ -11,6 +11,7 @@ import { getLocalDataForMigration, clearLocalData } from '@/lib/localStorageEven
 
 export default function Auth() {
   const [isSignUp, setIsSignUp] = useState(false);
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [displayName, setDisplayName] = useState('');
@@ -85,6 +86,21 @@ export default function Auth() {
     migrateAndRedirect();
   }, [user]);
 
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    if (error) {
+      toast({ title: 'Error', description: error.message, variant: 'destructive' });
+    } else {
+      toast({ title: 'Check your email', description: 'We sent you a password reset link.' });
+      setIsForgotPassword(false);
+    }
+    setLoading(false);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -112,59 +128,105 @@ export default function Auth() {
             Shared Calendar
           </span>
           <h1 className="text-4xl font-serif font-light italic tracking-tight">
-            {isSignUp ? 'Create Account' : 'Welcome Back'}
+            {isForgotPassword ? 'Reset Password' : isSignUp ? 'Create Account' : 'Welcome Back'}
           </h1>
-          {hasLocalData && (
+          {isForgotPassword && (
+            <p className="text-xs text-muted-foreground mt-2">
+              Enter your email and we'll send you a reset link
+            </p>
+          )}
+          {!isForgotPassword && hasLocalData && (
             <p className="text-xs text-muted-foreground mt-2">
               Your {localData.events.length} local event(s) will be synced to your account
             </p>
           )}
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          {isSignUp && (
+        {isForgotPassword ? (
+          <form onSubmit={handleForgotPassword} className="space-y-4">
             <div className="space-y-2">
-              <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Display Name</Label>
+              <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Email</Label>
               <Input
-                value={displayName}
-                onChange={e => setDisplayName(e.target.value)}
-                placeholder="Your name"
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="you@example.com"
                 required
                 className="border-foreground/10 bg-background/50"
               />
             </div>
-          )}
-          <div className="space-y-2">
-            <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Email</Label>
-            <Input
-              type="email"
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              required
-              className="border-foreground/10 bg-background/50"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Password</Label>
-            <Input
-              type="password"
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              placeholder="••••••••"
-              required
-              minLength={6}
-              className="border-foreground/10 bg-background/50"
-            />
-          </div>
-          <Button
-            type="submit"
-            disabled={loading}
-            className="w-full bg-foreground text-background hover:bg-foreground/90"
-          >
-            {loading ? 'Please wait...' : isSignUp ? 'Sign Up' : 'Sign In'}
-          </Button>
-        </form>
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-foreground text-background hover:bg-foreground/90"
+            >
+              {loading ? 'Please wait...' : 'Send Reset Link'}
+            </Button>
+            <button
+              type="button"
+              onClick={() => setIsForgotPassword(false)}
+              className="w-full text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              ← Back to sign in
+            </button>
+          </form>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {isSignUp && (
+              <div className="space-y-2">
+                <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Display Name</Label>
+                <Input
+                  value={displayName}
+                  onChange={e => setDisplayName(e.target.value)}
+                  placeholder="Your name"
+                  required
+                  className="border-foreground/10 bg-background/50"
+                />
+              </div>
+            )}
+            <div className="space-y-2">
+              <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Email</Label>
+              <Input
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                required
+                className="border-foreground/10 bg-background/50"
+              />
+            </div>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Password</Label>
+                {!isSignUp && (
+                  <button
+                    type="button"
+                    onClick={() => setIsForgotPassword(true)}
+                    className="text-[10px] text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    Forgot password?
+                  </button>
+                )}
+              </div>
+              <Input
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                placeholder="••••••••"
+                required
+                minLength={6}
+                className="border-foreground/10 bg-background/50"
+              />
+            </div>
+            <Button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-foreground text-background hover:bg-foreground/90"
+            >
+              {loading ? 'Please wait...' : isSignUp ? 'Sign Up' : 'Sign In'}
+            </Button>
+          </form>
+        )}
 
         <div className="relative">
           <div className="absolute inset-0 flex items-center">
