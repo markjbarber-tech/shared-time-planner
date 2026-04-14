@@ -127,7 +127,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       }
       setPendingAttendees([]);
       setSelectedChildProfileId(editingEvent.childProfileId ?? null);
-      setAssignedUserId(editingEvent.userId);
+      setAssignedUserIds([editingEvent.userId]);
       setEndTimeManuallySet(true);
       setViewMode(true); // start in detail view when opening existing event
       setEditingStartDate(false); setEditingStartTime(false);
