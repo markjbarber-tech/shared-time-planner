@@ -110,13 +110,31 @@ export function CalendarApp() {
             <span className="text-[10px] tracking-[0.2em] uppercase font-medium text-muted-foreground">
               {isAnonymous ? 'Personal Calendar' : 'Shared Calendar'}
             </span>
-            <h1 className="text-2xl sm:text-4xl font-serif font-light italic tracking-tight truncate">
-              {view === 'year'
-                ? currentYear
-                : view === 'day' && selectedDate
-                ? new Date(selectedDate + 'T00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric' })
-                : `${MONTH_NAMES[currentMonth]} ${currentYear}`}
-            </h1>
+            <div className="flex items-center gap-2">
+              {view === 'month' && (
+                <button
+                  onClick={() => navigateMonth(-1)}
+                  className="size-9 rounded-full border border-foreground/10 flex items-center justify-center hover:bg-background transition-all"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                </button>
+              )}
+              <h1 className="text-2xl sm:text-4xl font-serif font-light italic tracking-tight truncate">
+                {view === 'year'
+                  ? currentYear
+                  : view === 'day' && selectedDate
+                  ? new Date(selectedDate + 'T00:00').toLocaleDateString('en-US', { month: 'long', day: 'numeric' })
+                  : `${MONTH_NAMES[currentMonth]} ${currentYear}`}
+              </h1>
+              {view === 'month' && (
+                <button
+                  onClick={() => navigateMonth(1)}
+                  className="size-9 rounded-full border border-foreground/10 flex items-center justify-center hover:bg-background transition-all"
+                >
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="flex gap-3 sm:gap-6 items-center flex-wrap">
@@ -177,23 +195,7 @@ export function CalendarApp() {
               ))}
             </div>
 
-            {/* Nav arrows (month view) */}
-            {view === 'month' && (
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => navigateMonth(-1)}
-                  className="size-9 rounded-full border border-foreground/10 flex items-center justify-center hover:bg-background transition-all"
-                >
-                  <ChevronLeft className="w-4 h-4" />
-                </button>
-                <button
-                  onClick={() => navigateMonth(1)}
-                  className="size-9 rounded-full border border-foreground/10 flex items-center justify-center hover:bg-background transition-all"
-                >
-                  <ChevronRight className="w-4 h-4" />
-                </button>
-              </div>
-            )}
+
 
             {view === 'year' && (
               <div className="flex items-center gap-2">
