@@ -94,25 +94,20 @@ export function MonthView({ year, month, events, onDateClick, onDayView, onEvent
           return (
             <div
               key={date}
-              className="calendar-cell min-h-[70px] sm:min-h-[110px]"
+              className={`calendar-cell min-h-[70px] sm:min-h-[110px] ${isToday ? 'bg-blueprint/10' : ''}`}
               onClick={() => onDateClick(date)}
               onDoubleClick={() => onDayView(date)}
             >
               <span
                 className={`text-xs tabular-nums ${
                   isToday
-                    ? 'text-blueprint font-semibold'
+                    ? 'text-blueprint font-bold'
                     : isCurrentMonth
                     ? 'text-foreground/90'
                     : 'text-foreground/25'
                 }`}
               >
                 {day}
-                {isToday && (
-                  <span className="ml-1.5 text-[10px] uppercase tracking-tighter font-medium text-blueprint">
-                    Today
-                  </span>
-                )}
               </span>
 
               {/* Events */}
