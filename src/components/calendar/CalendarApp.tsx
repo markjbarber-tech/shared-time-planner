@@ -24,7 +24,8 @@ const MONTH_NAMES = ['January','February','March','April','May','June','July','A
 
 export function CalendarApp() {
   const today = new Date();
-  const [view, setView] = useState<CalendarView>('month');
+  type AppView = CalendarView | 'today';
+  const [view, setView] = useState<AppView>('month');
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
