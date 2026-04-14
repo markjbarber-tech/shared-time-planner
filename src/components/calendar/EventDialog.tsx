@@ -46,7 +46,7 @@ function generateYears() {
   return Array.from({ length: 10 }, (_, i) => String(current - 2 + i));
 }
 
-export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initialDate, editingEvent, profiles, attendees, onAddAttendee, onRemoveAttendee, childProfiles }: EventDialogProps) {
+export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initialDate, editingEvent, profiles, attendees, onAddAttendee, onRemoveAttendee, childProfiles, isAnonymous, onPromptSignup }: EventDialogProps) {
   const { user } = useAuth();
   const now = new Date();
   const [year, month, day] = initialDate.split('-');
