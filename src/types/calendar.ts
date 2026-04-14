@@ -22,6 +22,22 @@ export interface CalendarEvent {
   recurrenceType?: RecurrenceType | null;
   recurrenceInterval?: number;
   recurrenceEndDate?: string | null; // YYYY-MM-DD
+  calendarGroupId?: string | null;
+  createdAt: string;
+}
+
+export interface CalendarGroup {
+  id: string;
+  name: string;
+  createdBy: string;
+  createdAt: string;
+}
+
+export interface CalendarGroupMember {
+  id: string;
+  groupId: string;
+  userId: string;
+  role: string;
   createdAt: string;
 }
 
