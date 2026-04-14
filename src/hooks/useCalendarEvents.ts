@@ -123,6 +123,7 @@ export function useCalendarEvents(activeGroupId?: string | null) {
     if (updates.recurrenceType !== undefined) mapped.recurrence_type = updates.recurrenceType ?? null;
     if (updates.recurrenceInterval !== undefined) mapped.recurrence_interval = updates.recurrenceInterval;
     if (updates.recurrenceEndDate !== undefined) mapped.recurrence_end_date = updates.recurrenceEndDate ?? null;
+    if (updates.calendarGroupId !== undefined) mapped.calendar_group_id = updates.calendarGroupId ?? null;
 
     const { data } = await supabase.from('events').update(mapped).eq('id', id).select().single();
     if (data) {
@@ -166,12 +167,16 @@ export function useCalendarEvents(activeGroupId?: string | null) {
     if (isAnonymous) {
       setEvents(getLocalEvents());
     } else {
-      const { data, error } = await supabase.from('events').select('*');
+      let query = supabase.from('events').select('*');
+      if (activeGroupId) {
+        query = query.eq('calendar_group_id', activeGroupId);
+      }
+      const { data, error } = await query;
       if (!error && data) {
         setEvents(data.map(mapRow));
       }
     }
-  }, [isAnonymous]);
+  }, [isAnonymous, activeGroupId]);
 
   return { events, loading, addEvent, updateEvent, deleteEvent, getEventsForDate, getEventsForMonth, hasEventsOnDate, refreshFromLocal, refresh };
 }
