@@ -104,6 +104,8 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       setSelectedChildProfileId(editingEvent.childProfileId ?? null);
       setEndTimeManuallySet(true);
       setViewMode(true); // start in detail view when opening existing event
+      setEditingStartDate(false); setEditingStartTime(false);
+      setEditingEndDate(false); setEditingEndTime(false);
     } else if (!editingEvent && open) {
       const [y, m, d] = initialDate.split('-');
       setTitle(''); setDescription('');
@@ -119,6 +121,8 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       setSelectedChildProfileId(null);
       setEndTimeManuallySet(false);
       setViewMode(false); // new events go straight to edit mode
+      setEditingStartDate(false); setEditingStartTime(false);
+      setEditingEndDate(false); setEditingEndTime(false);
     }
     setAttendeeSearch('');
     setShowAttendeePicker(false);
