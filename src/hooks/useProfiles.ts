@@ -1,23 +1,34 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 
-interface Profile {
-  user_id: string;
-  display_name: string | null;
+export interface ProfileData {
+  userId: string;
+  displayName: string;
+  preferredColor: number;
+  avatarUrl: string | null;
 }
 
 export function useProfiles() {
   const [profiles, setProfiles] = useState<Record<string, string>>({});
+  const [profileList, setProfileList] = useState<ProfileData[]>([]);
 
   useEffect(() => {
     const fetch = async () => {
-      const { data } = await supabase.from('profiles').select('user_id, display_name');
+      const { data } = await supabase.from('profiles').select('user_id, display_name, preferred_color, avatar_url');
       if (data) {
         const map: Record<string, string> = {};
-        data.forEach((p: Profile) => {
+        const list: ProfileData[] = [];
+        data.forEach((p: any) => {
           map[p.user_id] = p.display_name || 'Unknown';
+          list.push({
+            userId: p.user_id,
+            displayName: p.display_name || 'Unknown',
+            preferredColor: p.preferred_color ?? 0,
+            avatarUrl: p.avatar_url,
+          });
         });
         setProfiles(map);
+        setProfileList(list);
       }
     };
     fetch();
@@ -27,5 +38,5 @@ export function useProfiles() {
     return profiles[userId] || 'Unknown';
   }, [profiles]);
 
-  return { profiles, getDisplayName };
+  return { profiles, profileList, getDisplayName };
 }
