@@ -277,6 +277,41 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
             </div>
           </div>
 
+          {/* Assign to (self or child profile) */}
+          {childProfiles.length > 0 && (
+            <div className="space-y-2">
+              <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Assign To</Label>
+              <div className="flex gap-2 flex-wrap">
+                <button
+                  onClick={() => canEdit && setSelectedChildProfileId(null)}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all border ${
+                    !selectedChildProfileId
+                      ? 'bg-foreground text-background border-foreground'
+                      : 'bg-background/50 border-foreground/10 hover:border-foreground/20'
+                  } ${!canEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  disabled={!canEdit}
+                >
+                  Me
+                </button>
+                {childProfiles.map(cp => (
+                  <button
+                    key={cp.id}
+                    onClick={() => canEdit && setSelectedChildProfileId(cp.id)}
+                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all border ${
+                      selectedChildProfileId === cp.id
+                        ? 'bg-foreground text-background border-foreground'
+                        : 'bg-background/50 border-foreground/10 hover:border-foreground/20'
+                    } ${!canEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    disabled={!canEdit}
+                  >
+                    <Baby className="w-3.5 h-3.5" />
+                    {cp.displayName}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Attendees */}
           <div className="space-y-3">
             <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Attendees</Label>
