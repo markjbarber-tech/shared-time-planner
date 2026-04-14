@@ -15,10 +15,9 @@ interface UserProfileDialogProps {
   nickname?: string;
   onSetNickname?: (targetUserId: string, nickname: string) => Promise<void>;
   onUpdateDisplayName?: (userId: string, newName: string) => Promise<void>;
-  onUpdateColor?: (userId: string, colorIndex: number) => Promise<void>;
 }
 
-export default function UserProfileDialog({ profile, open, onOpenChange, nickname, onSetNickname, onUpdateDisplayName, onUpdateColor }: UserProfileDialogProps) {
+export default function UserProfileDialog({ profile, open, onOpenChange, nickname, onSetNickname, onUpdateDisplayName }: UserProfileDialogProps) {
   const { user } = useAuth();
   const [editing, setEditing] = useState(false);
   const [nicknameValue, setNicknameValue] = useState('');
@@ -79,23 +78,6 @@ export default function UserProfileDialog({ profile, open, onOpenChange, nicknam
               />
               <span className="text-sm text-muted-foreground">Calendar color</span>
             </div>
-            {onUpdateColor && (
-              <div className="flex gap-2 justify-center pt-1">
-                {USER_COLORS.map((c, i) => (
-                  <button
-                    key={i}
-                    onClick={async () => {
-                      await onUpdateColor(profile.userId, i);
-                    }}
-                    className={`size-7 rounded-full transition-all ${
-                      profile.preferredColor === i ? 'ring-2 ring-offset-2 ring-foreground/30 scale-110' : 'hover:scale-110'
-                    }`}
-                    style={{ backgroundColor: c }}
-                    title={`Color ${i + 1}`}
-                  />
-                ))}
-              </div>
-            )}
           </div>
 
           {/* Own profile name editing */}

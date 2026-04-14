@@ -6,6 +6,7 @@ import { YearView } from './YearView';
 import { DayView } from './DayView';
 import { TodayView } from './TodayView';
 import { EventDialog } from './EventDialog';
+import { MemberSettings } from './MemberSettings';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
 import { useProfiles } from '@/hooks/useProfiles';
 import { useEventAttendees } from '@/hooks/useEventAttendees';
@@ -13,19 +14,17 @@ import { useNicknames } from '@/hooks/useNicknames';
 import { useChildProfiles } from '@/hooks/useChildProfiles';
 import { useAuth } from '@/hooks/useAuth';
 import type { CalendarView, CalendarEvent } from '@/types/calendar';
-// Extend CalendarView to include 'today'
-type AppView = CalendarView | 'today';
 import { USER_COLORS } from '@/types/calendar';
-import { ChevronLeft, ChevronRight, Plus, LogOut, Baby, UserPlus, LogIn, Share2 } from 'lucide-react';
-import { ChildProfileManager } from './ChildProfileManager';
+import { ChevronLeft, ChevronRight, Plus, LogOut, LogIn, Menu } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import UserProfileDialog from './UserProfileDialog';
 import type { ProfileData } from '@/hooks/useProfiles';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
 export function CalendarApp() {
   const today = new Date();
+  type AppView = CalendarView | 'today';
   const [view, setView] = useState<AppView>('month');
   const [currentYear, setCurrentYear] = useState(today.getFullYear());
   const [currentMonth, setCurrentMonth] = useState(today.getMonth());
@@ -33,7 +32,7 @@ export function CalendarApp() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogDate, setDialogDate] = useState('');
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
-  const [selectedProfile, setSelectedProfile] = useState<ProfileData | null>(null);
+  
 
   const { user, signOut, migrationResult } = useAuth();
   const navigate = useNavigate();
@@ -52,7 +51,7 @@ export function CalendarApp() {
   const { fetchAttendees, fetchAllAttendees, addAttendee, removeAttendee, getAttendees } = useEventAttendees();
   const { nicknames, setNickname, getDisplayName: getNicknameDisplayName } = useNicknames();
   const { childProfiles, addChildProfile, updateChildProfile, deleteChildProfile, getChildProfileName } = useChildProfiles();
-  const [showChildManager, setShowChildManager] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
 
   // Merge nicknames into profiles map for display throughout the app
   const mergedProfiles = useMemo(() => {
@@ -156,12 +155,15 @@ export function CalendarApp() {
     setView('month');
   }, []);
 
-  const viewButtons: { value: AppView; label: string }[] = [
+  type AppViewBtn = { value: AppView; label: string };
+  const viewButtons: AppViewBtn[] = [
     { value: 'today', label: 'Today' },
     { value: 'day', label: 'Day' },
     { value: 'month', label: 'Month' },
     { value: 'year', label: 'Year' },
   ];
+
+  const currentUserProfile = profileList.find(p => p.userId === user?.id);
 
   return (
     <div ref={containerRef} className="min-h-dvh light-table-glow text-foreground antialiased selection:bg-blueprint/10">
@@ -230,58 +232,57 @@ export function CalendarApp() {
             </div>
           </div>
 
-          <div className="flex gap-3 sm:gap-6 items-center flex-wrap">
-            {/* Child Profiles */}
-            <button
-              onClick={() => setShowChildManager(!showChildManager)}
-              className={`flex items-center gap-2 min-h-[44px] min-w-[44px] px-3 py-2 text-sm rounded-lg transition-colors ${showChildManager ? 'text-foreground bg-foreground/10' : 'text-muted-foreground hover:text-foreground hover:bg-foreground/5'}`}
-              title="Manage child profiles"
-            >
-              <Baby className="w-5 h-5" />
-              <span className="hidden sm:inline">Family</span>
-            </button>
+          <div className="flex gap-3 sm:gap-4 items-center flex-wrap">
+            {/* Hamburger Menu */}
+            <Sheet open={menuOpen} onOpenChange={setMenuOpen}>
+              <SheetTrigger asChild>
+                <button
+                  className="flex items-center justify-center size-9 rounded-full border border-foreground/10 hover:bg-background transition-all"
+                  title="Member Settings"
+                >
+                  <Menu className="w-5 h-5" />
+                </button>
+              </SheetTrigger>
+              <SheetContent side="left" className="w-[320px] sm:w-[380px] overflow-y-auto">
+                <div className="pt-6 pb-8 px-1">
+                  <MemberSettings
+                    profileList={profileList}
+                    currentUserProfile={currentUserProfile}
+                    nicknames={nicknames}
+                    onUpdateDisplayName={updateDisplayName}
+                    onUpdateColor={updatePreferredColor}
+                    onSetNickname={setNickname}
+                    childProfiles={childProfiles}
+                    onAddChild={addChildProfile}
+                    onUpdateChild={updateChildProfile}
+                    onDeleteChild={deleteChildProfile}
+                    isAnonymous={isAnonymous}
+                    onNavigateAuth={() => { setMenuOpen(false); navigate('/auth'); }}
+                  />
 
-            {/* Auth actions */}
-            {isAnonymous ? (() => {
-              const hasLoggedInBefore = localStorage.getItem('has_logged_in_before') === 'true';
-              return (
-                <button
-                  onClick={() => navigate('/auth')}
-                  className="flex items-center gap-2 min-h-[44px] min-w-[44px] px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-foreground/5 rounded-lg transition-colors"
-                  title={hasLoggedInBefore ? 'Sign in to your account' : 'Create account to share with others'}
-                >
-                  {hasLoggedInBefore ? <LogIn className="w-5 h-5" /> : <UserPlus className="w-5 h-5" />}
-                  <span className="hidden sm:inline">{hasLoggedInBefore ? 'Sign In' : 'Sign Up'}</span>
-                </button>
-              );
-            })() : (
-              <>
-                <button
-                  onClick={() => {
-                    const inviteUrl = `https://time-together-share.lovable.app/auth?invite=true`;
-                    navigator.clipboard.writeText(inviteUrl).then(() => {
-                      toast({
-                        title: 'Invite link copied!',
-                        description: 'Share this link with others so they can join your calendar.',
-                      });
-                    });
-                  }}
-                  className="flex items-center gap-2 min-h-[44px] min-w-[44px] px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-foreground/5 rounded-lg transition-colors"
-                  title="Invite people to join calendar"
-                >
-                  <Share2 className="w-5 h-5" />
-                  <span className="hidden sm:inline">Invite</span>
-                </button>
-                <button
-                  onClick={signOut}
-                  className="flex items-center gap-2 min-h-[44px] min-w-[44px] px-3 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-foreground/5 rounded-lg transition-colors"
-                  title="Sign out"
-                >
-                  <LogOut className="w-5 h-5" />
-                  <span className="hidden sm:inline">Sign out</span>
-                </button>
-              </>
-            )}
+                  {/* Auth actions at bottom */}
+                  <div className="mt-8 pt-4 border-t border-foreground/5">
+                    {isAnonymous ? (
+                      <button
+                        onClick={() => { setMenuOpen(false); navigate('/auth'); }}
+                        className="w-full flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-foreground/5 transition-colors text-left text-sm"
+                      >
+                        <LogIn className="w-5 h-5 text-muted-foreground" />
+                        <span>Sign In / Sign Up</span>
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => { setMenuOpen(false); signOut(); }}
+                        className="w-full flex items-center gap-3 px-3 py-3 rounded-lg hover:bg-foreground/5 transition-colors text-left text-sm text-muted-foreground"
+                      >
+                        <LogOut className="w-5 h-5" />
+                        <span>Sign out</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </SheetContent>
+            </Sheet>
 
             {/* View Switcher */}
             <div className="flex bg-foreground/5 p-1 rounded-full">
@@ -306,8 +307,6 @@ export function CalendarApp() {
               ))}
             </div>
 
-
-
             {view === 'year' && (
               <div className="flex items-center gap-2">
                 <button
@@ -326,45 +325,7 @@ export function CalendarApp() {
             )}
           </div>
         </nav>
-        {/* Members */}
-        {!isAnonymous && profileList.length > 0 && (
-          <div className="flex items-center gap-3">
-            <div className="flex -space-x-2">
-              {profileList.map((p) => {
-                const displayName = getNicknameDisplayName(p.userId, p.displayName);
-                return (
-                  <button
-                    key={p.userId}
-                    onClick={() => setSelectedProfile(p)}
-                    className="size-8 rounded-full border-2 border-background flex items-center justify-center text-[11px] font-semibold text-white shrink-0 cursor-pointer hover:scale-110 transition-transform"
-                    style={{ backgroundColor: USER_COLORS[p.preferredColor % USER_COLORS.length] }}
-                    title={displayName}
-                  >
-                    {displayName[0]?.toUpperCase() || '?'}
-                  </button>
-                );
-              })}
-            </div>
-            <span className="text-xs text-muted-foreground">
-              {profileList.length} {profileList.length === 1 ? 'member' : 'members'}
-            </span>
-          </div>
-        )}
 
-
-        {showChildManager && (
-          <div className="vellum-layer rounded-xl border border-foreground/5 p-4 sm:p-6 shadow-lg">
-            <ChildProfileManager
-              childProfiles={childProfiles}
-              onAdd={addChildProfile}
-              onUpdate={updateChildProfile}
-              onDelete={deleteChildProfile}
-              onClose={() => setShowChildManager(false)}
-            />
-          </div>
-        )}
-
-        {/* Views */}
         {view === 'today' && (() => {
           const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
           return (
@@ -460,15 +421,6 @@ export function CalendarApp() {
         childProfiles={childProfiles}
         isAnonymous={isAnonymous}
         onPromptSignup={() => navigate('/auth')}
-      />
-      <UserProfileDialog
-        profile={selectedProfile}
-        open={!!selectedProfile}
-        onOpenChange={(open) => { if (!open) setSelectedProfile(null); }}
-        nickname={selectedProfile ? nicknames[selectedProfile.userId] : undefined}
-        onSetNickname={setNickname}
-        onUpdateDisplayName={updateDisplayName}
-        onUpdateColor={updatePreferredColor}
       />
     </div>
   );
