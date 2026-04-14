@@ -73,14 +73,14 @@ export function CalendarApp() {
         />
       </div>
 
-      <div className="max-w-7xl mx-auto px-8 py-8 flex flex-col gap-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 py-4 sm:py-8 flex flex-col gap-4 sm:gap-8">
         {/* Navigation */}
-        <nav className="flex justify-between items-end border-b border-foreground/5 pb-6">
-          <div className="space-y-1">
+        <nav className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3 border-b border-foreground/5 pb-4 sm:pb-6">
+          <div className="space-y-1 min-w-0">
             <span className="text-[10px] tracking-[0.2em] uppercase font-medium text-muted-foreground">
               Shared Calendar
             </span>
-            <h1 className="text-4xl font-serif font-light italic tracking-tight">
+            <h1 className="text-2xl sm:text-4xl font-serif font-light italic tracking-tight truncate">
               {view === 'year'
                 ? currentYear
                 : view === 'day' && selectedDate
@@ -89,7 +89,7 @@ export function CalendarApp() {
             </h1>
           </div>
 
-          <div className="flex gap-6 items-center">
+          <div className="flex gap-3 sm:gap-6 items-center flex-wrap">
             {/* Sign Out */}
             <button
               onClick={signOut}
@@ -97,7 +97,7 @@ export function CalendarApp() {
               title="Sign out"
             >
               <LogOut className="w-3.5 h-3.5" />
-              Sign out
+              <span className="hidden sm:inline">Sign out</span>
             </button>
             {/* View Switcher */}
             <div className="flex bg-foreground/5 p-1 rounded-full">
@@ -111,7 +111,7 @@ export function CalendarApp() {
                     }
                     setView(btn.value);
                   }}
-                  className={`px-5 py-1.5 rounded-full text-sm font-medium transition-all ${
+                  className={`px-3 sm:px-5 py-1.5 rounded-full text-xs sm:text-sm font-medium transition-all ${
                     view === btn.value
                       ? 'bg-background shadow-sm'
                       : 'text-muted-foreground hover:text-foreground'
@@ -204,7 +204,7 @@ export function CalendarApp() {
             setDialogDate(todayStr);
             setDialogOpen(true);
           }}
-          className="fixed bottom-8 right-8 size-14 rounded-full bg-foreground text-background shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-transform z-50"
+          className="fixed bottom-6 right-4 sm:bottom-8 sm:right-8 size-12 sm:size-14 rounded-full bg-foreground text-background shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-transform z-50"
         >
           <Plus className="w-6 h-6" />
         </button>
