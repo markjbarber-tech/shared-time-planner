@@ -107,6 +107,7 @@ export function useCalendarEvents() {
     if (updates.visibility !== undefined) mapped.visibility = updates.visibility;
     if (updates.userColor !== undefined) mapped.user_color = updates.userColor;
     if (updates.childProfileId !== undefined) mapped.child_profile_id = updates.childProfileId ?? null;
+    if (updates.userId !== undefined) mapped.user_id = updates.userId;
 
     const { data } = await supabase.from('events').update(mapped).eq('id', id).select().single();
     if (data) {
