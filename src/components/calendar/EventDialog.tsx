@@ -521,188 +521,185 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
             </div>
           </div>
 
-          {/* Assign to user */}
-          {!isAnonymous && profileList.length > 0 && (
-            <div className="space-y-2">
-              <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Assigned User</Label>
-              <div className="flex gap-2 flex-wrap">
-                {profileList.map(p => {
-                  const isSelected = (assignedUserId || user?.id) === p.userId;
-                  return (
-                    <button
-                      key={p.userId}
-                      onClick={() => canEdit && setAssignedUserId(p.userId)}
-                      className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all border ${
-                        isSelected
-                          ? 'bg-foreground text-background border-foreground'
-                          : 'bg-background/50 border-foreground/10 hover:border-foreground/20'
-                      } ${!canEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
-                      disabled={!canEdit}
-                    >
-                      <span
-                        className="size-5 rounded-full flex items-center justify-center text-[10px] font-semibold text-white shrink-0"
-                        style={{ backgroundColor: USER_COLORS[p.preferredColor % USER_COLORS.length] }}
-                      >
-                        {p.displayName[0]?.toUpperCase() || '?'}
-                      </span>
-                      {p.displayName}
-                      {p.userId === user?.id && ' (me)'}
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Assign to child profile */}
-          {childProfiles.length > 0 && (
-            <div className="space-y-2">
-              <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Child Profile</Label>
-              <div className="flex gap-2 flex-wrap">
-                <button
-                  onClick={() => canEdit && setSelectedChildProfileId(null)}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all border ${
-                    !selectedChildProfileId
-                      ? 'bg-foreground text-background border-foreground'
-                      : 'bg-background/50 border-foreground/10 hover:border-foreground/20'
-                  } ${!canEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
-                  disabled={!canEdit}
-                >
-                  None
-                </button>
-                {childProfiles.map(cp => (
-                  <button
-                    key={cp.id}
-                    onClick={() => canEdit && setSelectedChildProfileId(cp.id)}
-                    className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all border ${
-                      selectedChildProfileId === cp.id
-                        ? 'bg-foreground text-background border-foreground'
-                        : 'bg-background/50 border-foreground/10 hover:border-foreground/20'
-                    } ${!canEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
-                    disabled={!canEdit}
-                  >
-                    <Baby className="w-3.5 h-3.5" />
-                    {cp.displayName}
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Attendees */}
+          {/* Assign To — unified section */}
           <div className="space-y-3">
-            <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Attendees</Label>
-            
+            <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Assign To</Label>
+
             {isAnonymous && (
               <button
                 onClick={onPromptSignup}
                 className="flex items-center gap-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors border border-dashed border-foreground/15 rounded-lg px-3 py-2.5 w-full justify-center"
               >
                 <UserPlus className="w-3.5 h-3.5" />
-                Create an account to add other users
+                Create an account to assign events
               </button>
             )}
-            
+
             {!isAnonymous && <>
-            {/* Current attendees */}
-            {displayedAttendeeIds.length > 0 && (
-              <div className="flex flex-wrap gap-2">
-                {displayedAttendeeIds.map(uid => (
-                  <span
-                    key={uid}
-                    className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-foreground/5 text-xs font-medium"
-                  >
-                    <span className="size-5 rounded-full bg-foreground/10 flex items-center justify-center text-[10px] font-semibold uppercase">
-                      {(profiles[uid] || 'U')[0]}
-                    </span>
-                    {profiles[uid] || 'Unknown'}
-                    {canEdit && (
-                      <button
-                        onClick={() => handleRemoveAttendee(uid)}
-                        className="ml-0.5 size-4 rounded-full hover:bg-foreground/10 flex items-center justify-center transition-colors"
+              {/* Currently assigned chips */}
+              {(assignedUserIds.length > 0 || selectedChildProfileId) && (
+                <div className="flex flex-wrap gap-2">
+                  {assignedUserIds.map(uid => {
+                    const p = profileList.find(pr => pr.userId === uid);
+                    const color = p ? USER_COLORS[p.preferredColor % USER_COLORS.length] : undefined;
+                    return (
+                      <span
+                        key={uid}
+                        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-foreground/5 text-xs font-medium border border-foreground/10"
                       >
-                        <X className="w-2.5 h-2.5" />
-                      </button>
-                    )}
-                  </span>
-                ))}
-              </div>
-            )}
-
-            {/* Add attendee */}
-            {canEdit && (
-              <div className="relative">
-                <button
-                  onClick={() => setShowAttendeePicker(!showAttendeePicker)}
-                  className="flex items-center gap-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
-                >
-                  <UserPlus className="w-3.5 h-3.5" />
-                  Add attendee
-                </button>
-
-                {showAttendeePicker && (
-                  <div className="mt-2 border border-foreground/10 rounded-lg bg-background shadow-lg overflow-hidden">
-                    <div className="p-2 border-b border-foreground/5">
-                      <Input
-                        value={attendeeSearch}
-                        onChange={e => setAttendeeSearch(e.target.value)}
-                        placeholder="Search users..."
-                        className="h-8 text-xs border-foreground/10 bg-background/50"
-                        autoFocus
-                      />
-                    </div>
-                    <div className="max-h-[150px] overflow-y-auto">
-                      {availableUsers.length === 0 ? (
-                        <div className="p-3 text-xs text-muted-foreground text-center">
-                          No users found
-                        </div>
-                      ) : (
-                        availableUsers.map(([uid, name]) => (
-                          <button
-                            key={uid}
-                            onClick={() => handleAddExistingAttendee(uid)}
-                            className="w-full flex items-center gap-2 px-3 py-2 hover:bg-foreground/5 transition-colors text-left"
-                          >
-                            <span className="size-6 rounded-full bg-foreground/10 flex items-center justify-center text-[10px] font-semibold uppercase shrink-0">
-                              {(name || 'U')[0]}
-                            </span>
-                            <span className="text-xs truncate">{name}</span>
-                          </button>
-                        ))
-                      )}
-                    </div>
-                    {/* Invite new user via link */}
-                    <div className="border-t border-foreground/5 p-2">
-                      <button
-                        onClick={() => {
-                          const baseUrl = 'https://time-together-share.lovable.app';
-                          const eventRef = isEditing && editingEvent ? editingEvent.id : 'new';
-                          const inviteUrl = `${baseUrl}/auth?invite=true&event=${eventRef}`;
-                          navigator.clipboard.writeText(inviteUrl).then(() => {
-                            setInviteLinkCopied(true);
-                            toast({
-                              title: 'Invite link copied',
-                              description: 'Share this link with someone to invite them to join and view this event.',
-                            });
-                            setTimeout(() => setInviteLinkCopied(false), 3000);
-                          });
-                        }}
-                        className="w-full flex items-center gap-2 px-3 py-2 hover:bg-foreground/5 transition-colors text-left rounded-md"
-                      >
-                        {inviteLinkCopied ? (
-                          <Check className="w-4 h-4 text-green-500 shrink-0" />
-                        ) : (
-                          <Link className="w-4 h-4 text-muted-foreground shrink-0" />
-                        )}
-                        <span className="text-xs font-medium">
-                          {inviteLinkCopied ? 'Link copied!' : 'Copy invite link for new user'}
+                        <span
+                          className="size-5 rounded-full flex items-center justify-center text-[10px] font-semibold text-white shrink-0"
+                          style={{ backgroundColor: color || 'hsl(var(--muted-foreground))' }}
+                        >
+                          {(p?.displayName || profiles[uid] || 'U')[0]?.toUpperCase()}
                         </span>
-                      </button>
+                        {p?.displayName || profiles[uid] || 'Unknown'}
+                        {uid === user?.id && ' (me)'}
+                        {canEdit && (
+                          <button
+                            onClick={() => toggleAssignUser(uid)}
+                            className="ml-0.5 size-4 rounded-full hover:bg-foreground/10 flex items-center justify-center transition-colors"
+                          >
+                            <X className="w-2.5 h-2.5" />
+                          </button>
+                        )}
+                      </span>
+                    );
+                  })}
+                  {selectedChildProfileId && (() => {
+                    const cp = childProfiles.find(c => c.id === selectedChildProfileId);
+                    if (!cp) return null;
+                    return (
+                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-foreground/5 text-xs font-medium border border-dashed border-foreground/10">
+                        <Baby className="w-3.5 h-3.5" />
+                        {cp.displayName}
+                        {canEdit && (
+                          <button
+                            onClick={() => setSelectedChildProfileId(null)}
+                            className="ml-0.5 size-4 rounded-full hover:bg-foreground/10 flex items-center justify-center transition-colors"
+                          >
+                            <X className="w-2.5 h-2.5" />
+                          </button>
+                        )}
+                      </span>
+                    );
+                  })()}
+                </div>
+              )}
+
+              {/* Add person button + picker */}
+              {canEdit && (
+                <div className="relative">
+                  <button
+                    onClick={() => setShowAssignPicker(!showAssignPicker)}
+                    className="flex items-center gap-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <UserPlus className="w-3.5 h-3.5" />
+                    Add person
+                  </button>
+
+                  {showAssignPicker && (
+                    <div className="mt-2 border border-foreground/10 rounded-lg bg-background shadow-lg overflow-hidden">
+                      <div className="p-2 border-b border-foreground/5">
+                        <Input
+                          value={attendeeSearch}
+                          onChange={e => setAttendeeSearch(e.target.value)}
+                          placeholder="Search users or children..."
+                          className="h-8 text-xs border-foreground/10 bg-background/50"
+                          style={{ fontSize: '16px' }}
+                          autoFocus
+                        />
+                      </div>
+                      <div className="max-h-[200px] overflow-y-auto">
+                        {/* Users */}
+                        {filteredUsers.length > 0 && (
+                          <>
+                            {filteredUsers.map(p => (
+                              <button
+                                key={p.userId}
+                                onClick={() => {
+                                  toggleAssignUser(p.userId);
+                                  setAttendeeSearch('');
+                                }}
+                                className="w-full flex items-center gap-2 px-3 py-2 hover:bg-foreground/5 transition-colors text-left"
+                              >
+                                <span
+                                  className="size-6 rounded-full flex items-center justify-center text-[10px] font-semibold text-white shrink-0"
+                                  style={{ backgroundColor: USER_COLORS[p.preferredColor % USER_COLORS.length] }}
+                                >
+                                  {p.displayName[0]?.toUpperCase() || '?'}
+                                </span>
+                                <span className="text-xs truncate">
+                                  {p.displayName}
+                                  {p.userId === user?.id && ' (me)'}
+                                </span>
+                              </button>
+                            ))}
+                          </>
+                        )}
+                        {/* Children */}
+                        {filteredChildren.length > 0 && (
+                          <>
+                            {filteredUsers.length > 0 && (
+                              <div className="px-3 py-1.5 text-[10px] uppercase tracking-widest text-muted-foreground border-t border-foreground/5">
+                                Children
+                              </div>
+                            )}
+                            {filteredChildren.map(cp => (
+                              <button
+                                key={cp.id}
+                                onClick={() => {
+                                  toggleAssignChild(cp.id);
+                                  setAttendeeSearch('');
+                                }}
+                                className="w-full flex items-center gap-2 px-3 py-2 hover:bg-foreground/5 transition-colors text-left"
+                              >
+                                <span className="size-6 rounded-full bg-foreground/10 flex items-center justify-center shrink-0">
+                                  <Baby className="w-3 h-3" />
+                                </span>
+                                <span className="text-xs truncate">{cp.displayName}</span>
+                              </button>
+                            ))}
+                          </>
+                        )}
+                        {filteredUsers.length === 0 && filteredChildren.length === 0 && (
+                          <div className="p-3 text-xs text-muted-foreground text-center">
+                            No results found
+                          </div>
+                        )}
+                      </div>
+                      {/* Invite new user via link */}
+                      <div className="border-t border-foreground/5 p-2">
+                        <button
+                          onClick={() => {
+                            const baseUrl = 'https://time-together-share.lovable.app';
+                            const eventRef = isEditing && editingEvent ? editingEvent.id : 'new';
+                            const inviteUrl = `${baseUrl}/auth?invite=true&event=${eventRef}`;
+                            navigator.clipboard.writeText(inviteUrl).then(() => {
+                              setInviteLinkCopied(true);
+                              toast({
+                                title: 'Invite link copied',
+                                description: 'Share this link with someone to invite them to join and view this event.',
+                              });
+                              setTimeout(() => setInviteLinkCopied(false), 3000);
+                            });
+                          }}
+                          className="w-full flex items-center gap-2 px-3 py-2 hover:bg-foreground/5 transition-colors text-left rounded-md"
+                        >
+                          {inviteLinkCopied ? (
+                            <Check className="w-4 h-4 text-emerald-500 shrink-0" />
+                          ) : (
+                            <Link className="w-4 h-4 text-muted-foreground shrink-0" />
+                          )}
+                          <span className="text-xs font-medium">
+                            {inviteLinkCopied ? 'Link copied!' : 'Invite new user'}
+                          </span>
+                        </button>
+                      </div>
                     </div>
-                  </div>
-                )}
-              </div>
-            )}
+                  )}
+                </div>
+              )}
             </>}
           </div>
 
