@@ -11,7 +11,7 @@ import { useEventAttendees } from '@/hooks/useEventAttendees';
 import { useChildProfiles } from '@/hooks/useChildProfiles';
 import { useAuth } from '@/hooks/useAuth';
 import type { CalendarView, CalendarEvent } from '@/types/calendar';
-import { ChevronLeft, ChevronRight, Plus, LogOut, Baby, UserPlus, LogIn } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Plus, LogOut, Baby, UserPlus, LogIn, Share2 } from 'lucide-react';
 import { ChildProfileManager } from './ChildProfileManager';
 import { useToast } from '@/hooks/use-toast';
 
