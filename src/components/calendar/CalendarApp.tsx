@@ -11,6 +11,7 @@ import { useEventAttendees } from '@/hooks/useEventAttendees';
 import { useChildProfiles } from '@/hooks/useChildProfiles';
 import { useAuth } from '@/hooks/useAuth';
 import type { CalendarView, CalendarEvent } from '@/types/calendar';
+import { USER_COLORS } from '@/types/calendar';
 import { ChevronLeft, ChevronRight, Plus, LogOut, Baby, UserPlus, LogIn, Share2 } from 'lucide-react';
 import { ChildProfileManager } from './ChildProfileManager';
 import { useToast } from '@/hooks/use-toast';
@@ -33,7 +34,7 @@ export function CalendarApp() {
   const migrationToastShown = useRef(false);
   const { toast } = useToast();
   const { events, addEvent, updateEvent, deleteEvent, getEventsForDate, refresh } = useCalendarEvents();
-  const { profiles, getDisplayName } = useProfiles();
+  const { profiles, profileList, getDisplayName } = useProfiles();
   const { fetchAttendees, fetchAllAttendees, addAttendee, removeAttendee, getAttendees } = useEventAttendees();
   const { childProfiles, addChildProfile, updateChildProfile, deleteChildProfile, getChildProfileName } = useChildProfiles();
   const [showChildManager, setShowChildManager] = useState(false);
@@ -294,8 +295,28 @@ export function CalendarApp() {
             )}
           </div>
         </nav>
+        {/* Members */}
+        {!isAnonymous && profileList.length > 0 && (
+          <div className="flex items-center gap-3">
+            <div className="flex -space-x-2">
+              {profileList.map((p) => (
+                <div
+                  key={p.userId}
+                  className="size-8 rounded-full border-2 border-background flex items-center justify-center text-[11px] font-semibold text-white shrink-0"
+                  style={{ backgroundColor: USER_COLORS[p.preferredColor % USER_COLORS.length] }}
+                  title={p.displayName}
+                >
+                  {p.displayName[0]?.toUpperCase() || '?'}
+                </div>
+              ))}
+            </div>
+            <span className="text-xs text-muted-foreground">
+              {profileList.length} {profileList.length === 1 ? 'member' : 'members'}
+            </span>
+          </div>
+        )}
 
-        {/* Child Profile Manager */}
+
         {showChildManager && (
           <div className="vellum-layer rounded-xl border border-foreground/5 p-4 sm:p-6 shadow-lg">
             <ChildProfileManager
