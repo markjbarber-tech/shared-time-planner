@@ -7,7 +7,7 @@ import {
   getLocalEvents, addLocalEvent, updateLocalEvent, deleteLocalEvent, saveLocalEvents, getAnonymousUserId,
 } from '@/lib/localStorageEvents';
 
-export function useCalendarEvents() {
+export function useCalendarEvents(activeGroupId?: string | null) {
   const { user } = useAuth();
   const isAnonymous = !user;
   const [events, setEvents] = useState<CalendarEvent[]>([]);
@@ -22,7 +22,11 @@ export function useCalendarEvents() {
     }
 
     const fetchEvents = async () => {
-      const { data, error } = await supabase.from('events').select('*');
+      let query = supabase.from('events').select('*');
+      if (activeGroupId) {
+        query = query.eq('calendar_group_id', activeGroupId);
+      }
+      const { data, error } = await query;
       if (!error && data) {
         setEvents(data.map(mapRow));
       }
@@ -39,7 +43,7 @@ export function useCalendarEvents() {
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [user]);
+  }, [user, activeGroupId]);
 
   const mapRow = (e: any): CalendarEvent => ({
     id: e.id,
