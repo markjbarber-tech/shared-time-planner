@@ -12,6 +12,7 @@ import { useAuth } from '@/hooks/useAuth';
 import type { CalendarView, CalendarEvent } from '@/types/calendar';
 import { ChevronLeft, ChevronRight, Plus, LogOut, Baby, UserPlus, LogIn } from 'lucide-react';
 import { ChildProfileManager } from './ChildProfileManager';
+import { useToast } from '@/hooks/use-toast';
 
 const MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
