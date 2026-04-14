@@ -12,6 +12,7 @@ interface MonthViewProps {
 }
 
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+const DAY_NAMES_SHORT = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
 function getMonthGrid(year: number, month: number) {
   const firstDay = new Date(year, month, 1);
@@ -74,9 +75,10 @@ export function MonthView({ year, month, events, onDateClick, onDayView, getDisp
     <div className="vellum-layer rounded-xl border border-foreground/5 p-1 shadow-2xl overflow-hidden">
       {/* Day headers */}
       <div className="grid grid-cols-7 border-b border-foreground/5">
-        {DAY_NAMES.map(d => (
-          <div key={d} className="py-4 text-center text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">
-            {d}
+        {DAY_NAMES.map((d, i) => (
+          <div key={d} className="py-2 sm:py-4 text-center text-[10px] uppercase tracking-widest text-muted-foreground font-semibold">
+            <span className="hidden sm:inline">{d}</span>
+            <span className="sm:hidden">{DAY_NAMES_SHORT[i]}</span>
           </div>
         ))}
       </div>
@@ -90,7 +92,7 @@ export function MonthView({ year, month, events, onDateClick, onDayView, getDisp
           return (
             <div
               key={date}
-              className="calendar-cell min-h-[130px]"
+              className="calendar-cell min-h-[80px] sm:min-h-[130px]"
               onClick={() => onDateClick(date)}
               onDoubleClick={() => onDayView(date)}
             >
@@ -127,7 +129,7 @@ export function MonthView({ year, month, events, onDateClick, onDayView, getDisp
                     }}
                   >
                     <span className="truncate">{event.title}</span>
-                    <span className="text-[9px] opacity-60 ml-1 shrink-0">— {getDisplayName(event.userId)}</span>
+                    <span className="text-[9px] opacity-60 ml-1 shrink-0 hidden sm:inline">— {getDisplayName(event.userId)}</span>
                   </div>
                 ))}
                 {dayEvents.length > 3 && (

@@ -34,7 +34,7 @@ export function DayView({ date, events, onBack, onEditEvent, onDeleteEvent, getD
   return (
     <div className="vellum-layer rounded-xl border border-foreground/5 shadow-2xl overflow-hidden">
       {/* Header */}
-      <div className="flex items-center justify-between p-6 border-b border-foreground/5">
+      <div className="flex items-center justify-between p-4 sm:p-6 border-b border-foreground/5">
         <div>
           <button
             onClick={onBack}
@@ -42,7 +42,7 @@ export function DayView({ date, events, onBack, onEditEvent, onDeleteEvent, getD
           >
             ← Back to month
           </button>
-          <h2 className="font-serif text-2xl italic">{formatted}</h2>
+          <h2 className="font-serif text-xl sm:text-2xl italic">{formatted}</h2>
         </div>
         <span className="text-sm text-muted-foreground">{dayEvents.length} event{dayEvents.length !== 1 ? 's' : ''}</span>
       </div>
@@ -56,7 +56,7 @@ export function DayView({ date, events, onBack, onEditEvent, onDeleteEvent, getD
             className="absolute left-0 right-0 border-t border-foreground/5 flex"
             style={{ top: hour * hourHeight }}
           >
-            <span className="w-16 text-right pr-3 text-[10px] text-muted-foreground tabular-nums -translate-y-2 select-none">
+            <span className="w-10 sm:w-16 text-right pr-2 sm:pr-3 text-[10px] text-muted-foreground tabular-nums -translate-y-2 select-none">
               {String(hour).padStart(2, '0')}:00
             </span>
           </div>
@@ -76,7 +76,7 @@ export function DayView({ date, events, onBack, onEditEvent, onDeleteEvent, getD
           return (
             <div
               key={event.id}
-              className="absolute left-20 right-4 rounded-lg px-3 py-2 border-l-3 overflow-hidden transition-all hover:shadow-md group cursor-pointer"
+              className="absolute left-12 sm:left-20 right-2 sm:right-4 rounded-lg px-2 sm:px-3 py-2 border-l-3 overflow-hidden transition-all hover:shadow-md group cursor-pointer"
               style={{
                 top,
                 height: Math.max(height, 28),
