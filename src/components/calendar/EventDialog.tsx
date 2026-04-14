@@ -318,6 +318,16 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
           <div className="space-y-3">
             <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Attendees</Label>
             
+            {isAnonymous && (
+              <button
+                onClick={onPromptSignup}
+                className="flex items-center gap-2 text-xs font-medium text-muted-foreground hover:text-foreground transition-colors border border-dashed border-foreground/15 rounded-lg px-3 py-2.5 w-full justify-center"
+              >
+                <UserPlus className="w-3.5 h-3.5" />
+                Create an account to add other users
+              </button>
+            )}
+            
             {/* Current attendees */}
             {displayedAttendeeIds.length > 0 && (
               <div className="flex flex-wrap gap-2">
