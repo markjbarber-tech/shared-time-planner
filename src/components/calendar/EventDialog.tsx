@@ -183,7 +183,9 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
 
   const selectedChildProfile = childProfiles.find(cp => cp.id === selectedChildProfileId);
 
-  const assignedProfile = profileList.find(p => p.userId === assignedUserId);
+  // Primary assigned user is first in the list, fallback to current user
+  const primaryAssignedUserId = assignedUserIds[0] || user?.id || 'local-user';
+  const assignedProfile = profileList.find(p => p.userId === primaryAssignedUserId);
 
   const buildEventData = () => ({
     title: title.trim(),
@@ -193,7 +195,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
     startTime: `${startHour}:${startMinute}`,
     endTime: `${endHour}:${endMinute}`,
     visibility,
-    userId: assignedUserId || user?.id || 'local-user',
+    userId: primaryAssignedUserId,
     userColor: selectedChildProfile
       ? selectedChildProfile.preferredColor
       : assignedProfile
@@ -210,9 +212,10 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       onUpdate(editingEvent.id, data);
     } else {
       const result = await onSave(data);
-      // Add pending attendees to newly created event
-      if (result?.id && onAddAttendee && pendingAttendees.length > 0) {
-        for (const userId of pendingAttendees) {
+      // Add additional assigned users as attendees
+      const additionalUserIds = assignedUserIds.slice(1);
+      if (result?.id && onAddAttendee) {
+        for (const userId of additionalUserIds) {
           await onAddAttendee(result.id, userId);
         }
       }
@@ -227,30 +230,46 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
     }
   };
 
-  // Attendee helpers
+  // Build combined assigned set: primary + attendees
   const currentAttendeeUserIds = new Set(attendees.map(a => a.userId));
-  const pendingSet = new Set(pendingAttendees);
-  const allTaggedUserIds = new Set([...currentAttendeeUserIds, ...pendingSet]);
 
-  const availableUsers = Object.entries(profiles).filter(([uid]) => {
-    if (uid === user?.id) return false; // don't show self
-    if (allTaggedUserIds.has(uid)) return false;
+  const toggleAssignUser = async (userId: string) => {
+    if (assignedUserIds.includes(userId)) {
+      // Remove: if it's an existing attendee, remove from DB too
+      if (isEditing && editingEvent && onRemoveAttendee) {
+        const attendee = attendees.find(a => a.userId === userId);
+        if (attendee) await onRemoveAttendee(editingEvent.id, attendee.id);
+      }
+      setAssignedUserIds(prev => prev.filter(id => id !== userId));
+    } else {
+      // Add: if editing, also add as attendee in DB
+      if (isEditing && editingEvent && onAddAttendee && userId !== editingEvent.userId) {
+        await onAddAttendee(editingEvent.id, userId);
+      }
+      setAssignedUserIds(prev => [...prev, userId]);
+    }
+  };
+
+  const toggleAssignChild = (childId: string) => {
+    setSelectedChildProfileId(prev => prev === childId ? null : childId);
+  };
+
+  // Filter for the search picker (users/children not yet assigned)
+  const assignedSet = new Set(assignedUserIds);
+  const filteredUsers = profileList.filter(p => {
+    if (assignedSet.has(p.userId)) return false;
     if (attendeeSearch) {
-      const name = profiles[uid]?.toLowerCase() || '';
-      return name.includes(attendeeSearch.toLowerCase());
+      return p.displayName.toLowerCase().includes(attendeeSearch.toLowerCase());
     }
     return true;
   });
-
-  const handleAddExistingAttendee = async (userId: string) => {
-    if (isEditing && editingEvent && onAddAttendee) {
-      await onAddAttendee(editingEvent.id, userId);
-    } else {
-      setPendingAttendees(prev => [...prev, userId]);
+  const filteredChildren = childProfiles.filter(cp => {
+    if (cp.id === selectedChildProfileId) return false;
+    if (attendeeSearch) {
+      return cp.displayName.toLowerCase().includes(attendeeSearch.toLowerCase());
     }
-    setAttendeeSearch('');
-    setShowAttendeePicker(false);
-  };
+    return true;
+  });
 
   const handleRemoveAttendee = async (userId: string) => {
     if (isEditing && editingEvent && onRemoveAttendee) {
