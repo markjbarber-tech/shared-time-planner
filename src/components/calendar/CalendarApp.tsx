@@ -31,6 +31,13 @@ export function CalendarApp() {
   const { user, signOut, migrationResult } = useAuth();
   const navigate = useNavigate();
   const isAnonymous = !user;
+
+  // Invited users must sign in — redirect if not authenticated
+  useEffect(() => {
+    if (isAnonymous && localStorage.getItem('invited_user') === 'true') {
+      navigate('/auth?invite=true', { replace: true });
+    }
+  }, [isAnonymous, navigate]);
   const migrationToastShown = useRef(false);
   const { toast } = useToast();
   const { events, addEvent, updateEvent, deleteEvent, getEventsForDate, refresh } = useCalendarEvents();
