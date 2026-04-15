@@ -61,8 +61,16 @@ export function DayView({ date, events, onBack, onAddEvent, onEditEvent, onDelet
           </button>
           <h2 className="font-serif text-xl sm:text-2xl italic">{formatted}</h2>
         </div>
-        <span className="text-sm text-muted-foreground">{dayEvents.length} event{dayEvents.length !== 1 ? 's' : ''}</span>
-      </div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">{dayEvents.length} event{dayEvents.length !== 1 ? 's' : ''}</span>
+          <button
+            onClick={onAddEvent}
+            className="size-9 rounded-full bg-foreground text-background flex items-center justify-center hover:scale-105 active:scale-95 transition-transform"
+            title="Add event"
+          >
+            <Plus className="w-4 h-4" />
+          </button>
+        </div>
 
       {/* Timeline */}
       <div ref={timelineRef} className="relative overflow-y-auto max-h-[600px]" style={{ height: totalHeight + 40 }}>
