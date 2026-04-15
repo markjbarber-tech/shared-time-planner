@@ -21,8 +21,8 @@ export function resolveEventColor(
 ): { color: string; bg: string; colorIndex: number } {
   const getProfile = (userId: string) => profileList.find(p => p.userId === userId);
 
-  // Build the set of assigned user IDs: event owner + attendees
-  const assignedUserIds = [event.userId, ...attendees.map(a => a.userId)];
+  // Build the set of assigned user IDs from attendees only
+  const assignedUserIds = attendees.map(a => a.userId);
   const uniqueAssigned = [...new Set(assignedUserIds)];
 
   if (uniqueAssigned.length === 0) {
