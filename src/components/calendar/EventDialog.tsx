@@ -100,6 +100,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
   const [selectedChildProfileId, setSelectedChildProfileId] = useState<string | null>(null);
   const [assignedUserIds, setAssignedUserIds] = useState<string[]>([]);
   const [endTimeManuallySet, setEndTimeManuallySet] = useState(false);
+  const [allDay, setAllDay] = useState(false);
   const [viewMode, setViewMode] = useState(true);
   const [editingStartDate, setEditingStartDate] = useState(false);
   const [editingStartTime, setEditingStartTime] = useState(false);
