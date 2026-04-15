@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import type { CalendarEvent } from '@/types/calendar';
 import { USER_COLORS, USER_COLOR_BGS } from '@/types/calendar';
 import { useAuth } from '@/hooks/useAuth';
-import { Pencil, Trash2, Users } from 'lucide-react';
+import { Pencil, Trash2, Users, Plus } from 'lucide-react';
 import type { EventAttendee } from '@/hooks/useEventAttendees';
 import type { ProfileData } from '@/hooks/useProfiles';
 import { resolveEventColor } from '@/lib/eventColorResolver';
@@ -11,6 +11,7 @@ interface DayViewProps {
   date: string;
   events: CalendarEvent[];
   onBack: () => void;
+  onAddEvent: () => void;
   onEditEvent: (event: CalendarEvent) => void;
   onDeleteEvent: (id: string) => void;
   getDisplayName: (userId: string) => string;
@@ -26,7 +27,7 @@ function timeToMinutes(time: string): number {
   return h * 60 + m;
 }
 
-export function DayView({ date, events, onBack, onEditEvent, onDeleteEvent, getDisplayName, getChildProfileName, getAttendees, profileList }: DayViewProps) {
+export function DayView({ date, events, onBack, onAddEvent, onEditEvent, onDeleteEvent, getDisplayName, getChildProfileName, getAttendees, profileList }: DayViewProps) {
   const { user } = useAuth();
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
@@ -60,7 +61,16 @@ export function DayView({ date, events, onBack, onEditEvent, onDeleteEvent, getD
           </button>
           <h2 className="font-serif text-xl sm:text-2xl italic">{formatted}</h2>
         </div>
-        <span className="text-sm text-muted-foreground">{dayEvents.length} event{dayEvents.length !== 1 ? 's' : ''}</span>
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-muted-foreground">{dayEvents.length} event{dayEvents.length !== 1 ? 's' : ''}</span>
+          <button
+            onClick={onAddEvent}
+            className="size-9 rounded-full bg-foreground text-background flex items-center justify-center hover:scale-105 active:scale-95 transition-transform"
+            title="Add event"
+          >
+            <Plus className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* Timeline */}

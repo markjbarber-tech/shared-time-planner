@@ -406,6 +406,11 @@ export function CalendarApp() {
             date={selectedDate}
             events={getEventsForDate(selectedDate)}
             onBack={handleBackToMonth}
+            onAddEvent={() => {
+              setEditingEvent(null);
+              setDialogDate(selectedDate);
+              setDialogOpen(true);
+            }}
             onEditEvent={(event) => {
               setEditingEvent(event);
               setDialogDate(event.startDate);
