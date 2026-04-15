@@ -461,6 +461,19 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
             />
           </div>
 
+          {/* All Day Toggle */}
+          <div className="flex items-center justify-between">
+            <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">All Day</Label>
+            <button
+              type="button"
+              onClick={() => setAllDay(!allDay)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${allDay ? 'bg-foreground' : 'bg-foreground/20'}`}
+              disabled={!canEdit}
+            >
+              <span className={`inline-block h-4 w-4 transform rounded-full bg-background transition-transform ${allDay ? 'translate-x-6' : 'translate-x-1'}`} />
+            </button>
+          </div>
+
           {/* Date & Time Pickers */}
           <div className="grid grid-cols-2 gap-4">
             {/* Start */}
@@ -481,7 +494,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                   {parseInt(startDay)} {MONTHS[parseInt(startMonth)]} {startYear}
                 </button>
               )}
-              {editingStartTime ? (() => {
+              {!allDay && (editingStartTime ? (() => {
                 const { hour12: sh12, period: sPeriod } = to12h(startHour);
                 return (
                   <div className="flex gap-0.5 bg-background/50 rounded-md border border-foreground/5 p-1 items-center">
@@ -505,7 +518,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                 >
                   {format12h(startHour, startMinute)}
                 </button>
-              )}
+              ))}
             </div>
 
             {/* End */}
@@ -526,7 +539,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                   {parseInt(endDay)} {MONTHS[parseInt(endMonth)]} {endYear}
                 </button>
               )}
-              {editingEndTime ? (() => {
+              {!allDay && (editingEndTime ? (() => {
                 const { hour12: eh12, period: ePeriod } = to12h(endHour);
                 return (
                   <div className="flex gap-0.5 bg-background/50 rounded-md border border-foreground/5 p-1 items-center">
@@ -550,7 +563,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                 >
                   {format12h(endHour, endMinute)}
                 </button>
-              )}
+              ))}
             </div>
           </div>
 
