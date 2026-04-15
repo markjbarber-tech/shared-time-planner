@@ -75,9 +75,13 @@ export function DayView({ date, events, onBack, onAddEvent, onEditEvent, onDelet
 
       {/* All-day / multi-day events */}
       {(() => {
-        const allDayEvents = dayEvents.filter(ev =>
-          ev.startDate !== ev.endDate || (ev.startTime === '00:00' && ev.endTime === '00:00')
-        );
+        const isAllDay = (ev: CalendarEvent) => {
+          if (ev.startTime === '00:00' && ev.endTime === '00:00') return true;
+          // Multi-day event on a "middle" day (not start or end day)
+          if (ev.startDate !== ev.endDate && date !== ev.startDate && date !== ev.endDate) return true;
+          return false;
+        };
+        const allDayEvents = dayEvents.filter(isAllDay);
         if (allDayEvents.length === 0) return null;
         return (
           <div className="px-4 sm:px-6 py-2 border-b border-foreground/5 flex flex-col gap-1">
