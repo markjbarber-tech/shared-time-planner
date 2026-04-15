@@ -127,6 +127,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       const [eh, emin] = editingEvent.endTime.split(':');
       setStartHour(sh); setStartMinute(smin);
       setEndHour(eh); setEndMinute(emin);
+      setAllDay(sh === '00' && smin === '00' && eh === '23' && emin === '59');
       setVisibility(editingEvent.visibility);
       setReminderEnabled(!!editingEvent.reminder);
       if (editingEvent.reminder) {
