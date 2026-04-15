@@ -282,13 +282,15 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       // Remove: if it's an existing attendee, remove from DB too
       if (isEditing && editingEvent && onRemoveAttendee) {
         const attendee = attendees.find(a => a.userId === userId);
-        if (attendee) await onRemoveAttendee(editingEvent.id, attendee.id);
+        if (attendee) {
+          try { await onRemoveAttendee(editingEvent.id, attendee.id); } catch (e) { console.error('Failed to remove attendee', e); }
+        }
       }
       setAssignedUserIds(prev => prev.filter(id => id !== userId));
     } else {
       // Add: if editing, also add as attendee in DB
-      if (isEditing && editingEvent && onAddAttendee && userId !== editingEvent.userId) {
-        await onAddAttendee(editingEvent.id, userId);
+      if (isEditing && editingEvent && onAddAttendee) {
+        try { await onAddAttendee(editingEvent.id, userId); } catch (e) { console.error('Failed to add attendee', e); }
       }
       setAssignedUserIds(prev => [...prev, userId]);
     }
