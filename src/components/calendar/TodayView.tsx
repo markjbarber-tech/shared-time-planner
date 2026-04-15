@@ -5,6 +5,8 @@ import { Clock, Calendar, Users, Repeat } from 'lucide-react';
 import type { EventAttendee } from '@/hooks/useEventAttendees';
 import { resolveEventColor } from '@/lib/eventColorResolver';
 
+import type { ProfileData } from '@/hooks/useProfiles';
+
 interface TodayViewProps {
   date: string;
   events: CalendarEvent[];
@@ -12,7 +14,7 @@ interface TodayViewProps {
   getDisplayName: (userId: string) => string;
   getChildProfileName?: (childProfileId: string) => string;
   getAttendees?: (eventId: string) => EventAttendee[];
-  profileList: { userId: string; displayName: string; preferredColor: number }[];
+  profileList: ProfileData[];
 }
 
 function format12h(time: string): string {
