@@ -18,6 +18,7 @@ interface DayViewProps {
   getChildProfileName?: (childProfileId: string) => string;
   getAttendees?: (eventId: string) => EventAttendee[];
   profileList: ProfileData[];
+  onDateChange?: (newDate: string) => void;
 }
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
@@ -27,10 +28,46 @@ function timeToMinutes(time: string): number {
   return h * 60 + m;
 }
 
-export function DayView({ date, events, onBack, onAddEvent, onEditEvent, onDeleteEvent, getDisplayName, getChildProfileName, getAttendees, profileList }: DayViewProps) {
+function shiftDate(dateStr: string, days: number): string {
+  const [y, m, d] = dateStr.split('-').map(Number);
+  const dt = new Date(y, m - 1, d + days);
+  return `${dt.getFullYear()}-${String(dt.getMonth() + 1).padStart(2, '0')}-${String(dt.getDate()).padStart(2, '0')}`;
+}
+
+export function DayView({ date, events, onBack, onAddEvent, onEditEvent, onDeleteEvent, getDisplayName, getChildProfileName, getAttendees, profileList, onDateChange }: DayViewProps) {
   const { user } = useAuth();
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const timelineRef = useRef<HTMLDivElement>(null);
+  const swipeStartX = useRef<number | null>(null);
+  const swipeStartY = useRef<number | null>(null);
+  const swiping = useRef(false);
+
+  useEffect(() => {
+    if (!onDateChange) return;
+    const handleTouchStart = (e: TouchEvent) => {
+      swipeStartX.current = e.touches[0].clientX;
+      swipeStartY.current = e.touches[0].clientY;
+      swiping.current = false;
+    };
+    const handleTouchEnd = (e: TouchEvent) => {
+      if (swipeStartX.current === null || swipeStartY.current === null) return;
+      const dx = e.changedTouches[0].clientX - swipeStartX.current;
+      const dy = e.changedTouches[0].clientY - swipeStartY.current;
+      swipeStartX.current = null;
+      swipeStartY.current = null;
+      // Only trigger if horizontal swipe is dominant and exceeds threshold
+      if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) {
+        if (dx < 0) onDateChange(shiftDate(date, 1));   // swipe left → next day
+        else onDateChange(shiftDate(date, -1));           // swipe right → prev day
+      }
+    };
+    document.addEventListener('touchstart', handleTouchStart, { passive: true });
+    document.addEventListener('touchend', handleTouchEnd);
+    return () => {
+      document.removeEventListener('touchstart', handleTouchStart);
+      document.removeEventListener('touchend', handleTouchEnd);
+    };
+  }, [date, onDateChange]);
   const dayEvents = events.filter(e => date >= e.startDate && date <= e.endDate);
   const [year, month, day] = date.split('-');
   const d = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
