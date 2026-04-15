@@ -64,7 +64,7 @@ export function DayView({ date, events, onBack, onEditEvent, onDeleteEvent, getD
       </div>
 
       {/* Timeline */}
-      <div className="relative overflow-y-auto max-h-[600px]" style={{ height: totalHeight + 40 }}>
+      <div ref={timelineRef} className="relative overflow-y-auto max-h-[600px]" style={{ height: totalHeight + 40 }}>
         {/* Hour lines */}
         {HOURS.map(hour => (
           <div
