@@ -1,4 +1,4 @@
-export type EventVisibility = 'public' | 'shared' | 'private';
+export type EventVisibility = 'public' | 'private';
 export type ReminderType = 'email' | 'push';
 export type ReminderTiming = '1hour' | '1day' | '1week';
 export type RecurrenceType = 'weekly' | 'monthly';
