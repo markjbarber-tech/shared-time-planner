@@ -72,6 +72,10 @@ export function CalendarApp() {
     return nicknames[userId] || profiles[userId] || 'Unknown';
   }, [profiles, nicknames]);
 
+  const expandedYearEvents = useMemo(() => {
+    return expandRecurringEvents(events, `${currentYear}-01-01`, `${currentYear}-12-31`);
+  }, [events, currentYear]);
+
   const handlePullRefresh = useCallback(async () => {
     // Refresh calendar data
     await refresh();
