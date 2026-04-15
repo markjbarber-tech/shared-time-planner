@@ -444,6 +444,8 @@ export function CalendarApp() {
         childProfiles={childProfiles}
         isAnonymous={isAnonymous}
         onPromptSignup={() => navigate('/auth')}
+        groups={groups}
+        activeGroupId={activeGroupId}
       />
     </div>
   );
