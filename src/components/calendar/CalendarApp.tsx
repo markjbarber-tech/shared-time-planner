@@ -1,4 +1,5 @@
 import { useState, useCallback, useEffect, useRef, useMemo } from 'react';
+import { expandRecurringEvents } from '@/lib/recurrence';
 import { usePullToRefresh } from '@/hooks/usePullToRefresh';
 import { useNavigate } from 'react-router-dom';
 import { MonthView } from './MonthView';
@@ -51,7 +52,7 @@ export function CalendarApp() {
     groups, activeGroupId, switchGroup, createGroup, addMemberToGroup,
     removeMemberFromGroup, updateGroupName, deleteGroup, getGroupMembers, isAdmin,
   } = useCalendarGroups();
-  const { events, addEvent, updateEvent, deleteEvent, getEventsForDate, refresh } = useCalendarEvents(activeGroupId);
+  const { events, addEvent, updateEvent, deleteEvent, getEventsForDate, getEventsForMonth, refresh } = useCalendarEvents(activeGroupId);
   const { profiles, profileList, getDisplayName, updateDisplayName, updatePreferredColor } = useProfiles();
   const { fetchAttendees, fetchAllAttendees, addAttendee, removeAttendee, getAttendees } = useEventAttendees();
   const { nicknames, setNickname, getDisplayName: getNicknameDisplayName } = useNicknames();
@@ -70,6 +71,10 @@ export function CalendarApp() {
   const mergedGetDisplayName = useCallback((userId: string) => {
     return nicknames[userId] || profiles[userId] || 'Unknown';
   }, [profiles, nicknames]);
+
+  const expandedYearEvents = useMemo(() => {
+    return expandRecurringEvents(events, `${currentYear}-01-01`, `${currentYear}-12-31`);
+  }, [events, currentYear]);
 
   const handlePullRefresh = useCallback(async () => {
     // Refresh calendar data
@@ -372,7 +377,7 @@ export function CalendarApp() {
           <MonthView
             year={currentYear}
             month={currentMonth}
-            events={events}
+            events={getEventsForMonth(currentYear, currentMonth)}
             onDateClick={handleDateClick}
             onDayView={handleDayView}
             onEventClick={(event) => {
@@ -391,7 +396,7 @@ export function CalendarApp() {
         {view === 'year' && (
           <YearView
             year={currentYear}
-            events={events}
+            events={expandedYearEvents}
             onMonthClick={handleMonthClick}
           />
         )}
