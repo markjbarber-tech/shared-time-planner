@@ -29,6 +29,7 @@ function timeToMinutes(time: string): number {
 export function DayView({ date, events, onBack, onEditEvent, onDeleteEvent, getDisplayName, getChildProfileName, getAttendees, profileList }: DayViewProps) {
   const { user } = useAuth();
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
+  const timelineRef = useRef<HTMLDivElement>(null);
   const dayEvents = events.filter(e => date >= e.startDate && date <= e.endDate);
   const [year, month, day] = date.split('-');
   const d = new Date(parseInt(year), parseInt(month) - 1, parseInt(day));
@@ -36,6 +37,15 @@ export function DayView({ date, events, onBack, onEditEvent, onDeleteEvent, getD
 
   const hourHeight = 60;
   const totalHeight = 24 * hourHeight;
+
+  useEffect(() => {
+    if (timelineRef.current && dayEvents.length > 0) {
+      const earliestMin = Math.min(...dayEvents.map(e => timeToMinutes(e.startTime)));
+      const scrollToMin = Math.max(earliestMin - 60, 0);
+      const scrollTop = (scrollToMin / 60) * hourHeight;
+      timelineRef.current.scrollTop = scrollTop;
+    }
+  }, [date]);
 
   return (
     <div className="vellum-layer rounded-xl border border-foreground/5 shadow-2xl overflow-hidden">
