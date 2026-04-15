@@ -100,6 +100,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
   const [selectedChildProfileId, setSelectedChildProfileId] = useState<string | null>(null);
   const [assignedUserIds, setAssignedUserIds] = useState<string[]>([]);
   const [endTimeManuallySet, setEndTimeManuallySet] = useState(false);
+  const [allDay, setAllDay] = useState(false);
   const [viewMode, setViewMode] = useState(true);
   const [editingStartDate, setEditingStartDate] = useState(false);
   const [editingStartTime, setEditingStartTime] = useState(false);
@@ -126,6 +127,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       const [eh, emin] = editingEvent.endTime.split(':');
       setStartHour(sh); setStartMinute(smin);
       setEndHour(eh); setEndMinute(emin);
+      setAllDay(sh === '00' && smin === '00' && eh === '23' && emin === '59');
       setVisibility(editingEvent.visibility);
       setReminderEnabled(!!editingEvent.reminder);
       if (editingEvent.reminder) {
@@ -161,6 +163,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       setPendingAttendees([]);
       setSelectedChildProfileId(null);
       setAssignedUserIds([]);
+      setAllDay(false);
       setEndTimeManuallySet(false);
       setViewMode(false); // new events go straight to edit mode
       setEditingStartDate(false); setEditingStartTime(false);
@@ -221,8 +224,8 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
     description: description.trim() || undefined,
     startDate: `${startYear}-${String(parseInt(startMonth) + 1).padStart(2, '0')}-${startDay}`,
     endDate: `${endYear}-${String(parseInt(endMonth) + 1).padStart(2, '0')}-${endDay}`,
-    startTime: `${startHour}:${startMinute}`,
-    endTime: `${endHour}:${endMinute}`,
+    startTime: allDay ? '00:00' : `${startHour}:${startMinute}`,
+    endTime: allDay ? '23:59' : `${endHour}:${endMinute}`,
     visibility,
     userId: primaryAssignedUserId,
     userColor: selectedChildProfile
@@ -343,10 +346,17 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                     ` — ${parseInt(endDay)} ${MONTHS[parseInt(endMonth)]} ${endYear}`}
                 </span>
               </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Clock className="w-4 h-4 text-muted-foreground" />
-                <span>{format12h(startHour, startMinute)} — {format12h(endHour, endMinute)}</span>
-              </div>
+              {allDay ? (
+                <div className="flex items-center gap-2 text-sm">
+                  <Clock className="w-4 h-4 text-muted-foreground" />
+                  <span>All Day</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 text-sm">
+                  <Clock className="w-4 h-4 text-muted-foreground" />
+                  <span>{format12h(startHour, startMinute)} — {format12h(endHour, endMinute)}</span>
+                </div>
+              )}
 
               {assignedUserIds.length > 0 && (
                 <div className="flex items-start gap-2 text-sm">
@@ -451,6 +461,19 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
             />
           </div>
 
+          {/* All Day Toggle */}
+          <div className="flex items-center justify-between">
+            <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">All Day</Label>
+            <button
+              type="button"
+              onClick={() => setAllDay(!allDay)}
+              className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors ${allDay ? 'bg-foreground' : 'bg-foreground/20'}`}
+              disabled={!canEdit}
+            >
+              <span className={`inline-block h-4 w-4 transform rounded-full bg-background transition-transform ${allDay ? 'translate-x-6' : 'translate-x-1'}`} />
+            </button>
+          </div>
+
           {/* Date & Time Pickers */}
           <div className="grid grid-cols-2 gap-4">
             {/* Start */}
@@ -471,7 +494,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                   {parseInt(startDay)} {MONTHS[parseInt(startMonth)]} {startYear}
                 </button>
               )}
-              {editingStartTime ? (() => {
+              {!allDay && (editingStartTime ? (() => {
                 const { hour12: sh12, period: sPeriod } = to12h(startHour);
                 return (
                   <div className="flex gap-0.5 bg-background/50 rounded-md border border-foreground/5 p-1 items-center">
@@ -495,7 +518,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                 >
                   {format12h(startHour, startMinute)}
                 </button>
-              )}
+              ))}
             </div>
 
             {/* End */}
@@ -516,7 +539,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                   {parseInt(endDay)} {MONTHS[parseInt(endMonth)]} {endYear}
                 </button>
               )}
-              {editingEndTime ? (() => {
+              {!allDay && (editingEndTime ? (() => {
                 const { hour12: eh12, period: ePeriod } = to12h(endHour);
                 return (
                   <div className="flex gap-0.5 bg-background/50 rounded-md border border-foreground/5 p-1 items-center">
@@ -540,7 +563,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                 >
                   {format12h(endHour, endMinute)}
                 </button>
-              )}
+              ))}
             </div>
           </div>
 
