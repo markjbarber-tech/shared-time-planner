@@ -421,6 +421,7 @@ export function CalendarApp() {
             getChildProfileName={getChildProfileName}
             getAttendees={getAttendees}
             profileList={profileList}
+            onDateChange={(newDate) => setSelectedDate(newDate)}
           />
         )}
       </div>
