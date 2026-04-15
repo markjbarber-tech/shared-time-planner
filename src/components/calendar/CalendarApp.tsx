@@ -383,6 +383,8 @@ export function CalendarApp() {
             onSwipeMonth={navigateMonth}
             getDisplayName={mergedGetDisplayName}
             getChildProfileName={getChildProfileName}
+            profileList={profileList}
+            getAttendees={getAttendees}
           />
         )}
 
