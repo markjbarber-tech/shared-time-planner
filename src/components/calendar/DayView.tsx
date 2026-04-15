@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import type { CalendarEvent } from '@/types/calendar';
 import { USER_COLORS, USER_COLOR_BGS } from '@/types/calendar';
 import { useAuth } from '@/hooks/useAuth';
