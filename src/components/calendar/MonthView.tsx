@@ -1,6 +1,10 @@
 import { useMemo, useRef, useCallback } from 'react';
 import type { CalendarEvent } from '@/types/calendar';
 import { USER_COLORS, USER_COLOR_BGS } from '@/types/calendar';
+import { useAuth } from '@/hooks/useAuth';
+import { resolveEventColor } from '@/lib/eventColorResolver';
+import type { ProfileData } from '@/hooks/useProfiles';
+import type { EventAttendee } from '@/hooks/useEventAttendees';
 
 interface MonthViewProps {
   year: number;
@@ -12,6 +16,8 @@ interface MonthViewProps {
   onSwipeMonth?: (direction: -1 | 1) => void;
   getDisplayName: (userId: string) => string;
   getChildProfileName?: (childProfileId: string) => string;
+  profileList: ProfileData[];
+  getAttendees: (eventId: string) => EventAttendee[];
 }
 
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -70,7 +76,8 @@ function getEventsForDate(events: CalendarEvent[], date: string) {
   return events.filter(e => date >= e.startDate && date <= e.endDate);
 }
 
-export function MonthView({ year, month, events, onDateClick, onDayView, onEventClick, onSwipeMonth, getDisplayName, getChildProfileName }: MonthViewProps) {
+export function MonthView({ year, month, events, onDateClick, onDayView, onEventClick, onSwipeMonth, getDisplayName, getChildProfileName, profileList, getAttendees }: MonthViewProps) {
+  const { user } = useAuth();
   const grid = useMemo(() => getMonthGrid(year, month), [year, month]);
   const today = formatDate(new Date());
 
@@ -141,15 +148,17 @@ export function MonthView({ year, month, events, onDateClick, onDayView, onEvent
               <div className="flex flex-col gap-0.5 mt-1 overflow-hidden flex-1">
                 {dayEvents.slice(0, 3).map(event => {
                   const isChild = !!event.childProfileId;
+                  const eventAttendees = getAttendees(event.id);
+                  const { color, bg } = resolveEventColor(event, user?.id, eventAttendees, profileList);
                   return (
                     <div
                       key={event.id}
                       className={`event-pill truncate cursor-pointer ${isChild ? 'border-l-0 border border-dashed' : ''}`}
                       style={{
-                        backgroundColor: USER_COLOR_BGS[event.userColor % USER_COLOR_BGS.length],
+                        backgroundColor: bg,
                         ...(isChild
-                          ? { borderColor: USER_COLORS[event.userColor % USER_COLORS.length] }
-                          : { borderLeftColor: USER_COLORS[event.userColor % USER_COLORS.length] }),
+                          ? { borderColor: color }
+                          : { borderLeftColor: color }),
                       }}
                       onClick={e => {
                         e.stopPropagation();

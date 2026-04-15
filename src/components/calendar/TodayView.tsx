@@ -3,6 +3,9 @@ import { USER_COLORS, USER_COLOR_BGS } from '@/types/calendar';
 import { useAuth } from '@/hooks/useAuth';
 import { Clock, Calendar, Users, Repeat } from 'lucide-react';
 import type { EventAttendee } from '@/hooks/useEventAttendees';
+import { resolveEventColor } from '@/lib/eventColorResolver';
+
+import type { ProfileData } from '@/hooks/useProfiles';
 
 interface TodayViewProps {
   date: string;
@@ -11,7 +14,7 @@ interface TodayViewProps {
   getDisplayName: (userId: string) => string;
   getChildProfileName?: (childProfileId: string) => string;
   getAttendees?: (eventId: string) => EventAttendee[];
-  profileList: { userId: string; displayName: string; preferredColor: number }[];
+  profileList: ProfileData[];
 }
 
 function format12h(time: string): string {
@@ -57,9 +60,9 @@ export function TodayView({ date, events, onEventClick, getDisplayName, getChild
       ) : (
         <div className="space-y-3">
           {sorted.map(event => {
-            const color = USER_COLORS[event.userColor % USER_COLORS.length];
-            const spansMultipleDays = event.startDate !== event.endDate;
             const eventAttendees = getAttendees ? getAttendees(event.id) : [];
+            const { color } = resolveEventColor(event, user?.id, eventAttendees, profileList);
+            const spansMultipleDays = event.startDate !== event.endDate;
 
             const assignedPeople: { id: string; name: string; color: string }[] = [];
             const ownerProfile = profileList.find(p => p.userId === event.userId);
