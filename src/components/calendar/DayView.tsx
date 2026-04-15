@@ -75,9 +75,13 @@ export function DayView({ date, events, onBack, onAddEvent, onEditEvent, onDelet
 
       {/* All-day / multi-day events */}
       {(() => {
-        const allDayEvents = dayEvents.filter(ev =>
-          ev.startDate !== ev.endDate || (ev.startTime === '00:00' && ev.endTime === '00:00')
-        );
+        const isAllDay = (ev: CalendarEvent) => {
+          if (ev.startTime === '00:00' && ev.endTime === '00:00') return true;
+          // Multi-day event on a "middle" day (not start or end day)
+          if (ev.startDate !== ev.endDate && date !== ev.startDate && date !== ev.endDate) return true;
+          return false;
+        };
+        const allDayEvents = dayEvents.filter(isAllDay);
         if (allDayEvents.length === 0) return null;
         return (
           <div className="px-4 sm:px-6 py-2 border-b border-foreground/5 flex flex-col gap-1">
@@ -130,9 +134,12 @@ export function DayView({ date, events, onBack, onAddEvent, onEditEvent, onDelet
         ))}
 
         {/* Events (timed only) */}
-        {dayEvents.filter(ev => ev.startDate === ev.endDate && !(ev.startTime === '00:00' && ev.endTime === '00:00')).map((event, i) => {
-          const startMin = timeToMinutes(event.startTime);
-          const endMin = timeToMinutes(event.endTime);
+        {dayEvents.filter(ev => !(ev.startTime === '00:00' && ev.endTime === '00:00') && !(ev.startDate !== ev.endDate && date !== ev.startDate && date !== ev.endDate)).map((event, i) => {
+          // For multi-day events, adjust displayed time range to the current day
+          const displayStartTime = (event.startDate !== event.endDate && date !== event.startDate) ? '00:00' : event.startTime;
+          const displayEndTime = (event.startDate !== event.endDate && date !== event.endDate) ? '23:59' : event.endTime;
+          const startMin = timeToMinutes(displayStartTime);
+          const endMin = timeToMinutes(displayEndTime);
           const duration = Math.max(endMin - startMin, 30);
           const top = (startMin / 60) * hourHeight;
           const height = (duration / 60) * hourHeight;
