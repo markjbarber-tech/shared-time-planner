@@ -346,10 +346,17 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                     ` — ${parseInt(endDay)} ${MONTHS[parseInt(endMonth)]} ${endYear}`}
                 </span>
               </div>
-              <div className="flex items-center gap-2 text-sm">
-                <Clock className="w-4 h-4 text-muted-foreground" />
-                <span>{format12h(startHour, startMinute)} — {format12h(endHour, endMinute)}</span>
-              </div>
+              {allDay ? (
+                <div className="flex items-center gap-2 text-sm">
+                  <Clock className="w-4 h-4 text-muted-foreground" />
+                  <span>All Day</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-2 text-sm">
+                  <Clock className="w-4 h-4 text-muted-foreground" />
+                  <span>{format12h(startHour, startMinute)} — {format12h(endHour, endMinute)}</span>
+                </div>
+              )}
 
               {assignedUserIds.length > 0 && (
                 <div className="flex items-start gap-2 text-sm">
