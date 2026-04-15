@@ -51,7 +51,7 @@ export function CalendarApp() {
     groups, activeGroupId, switchGroup, createGroup, addMemberToGroup,
     removeMemberFromGroup, updateGroupName, deleteGroup, getGroupMembers, isAdmin,
   } = useCalendarGroups();
-  const { events, addEvent, updateEvent, deleteEvent, getEventsForDate, refresh } = useCalendarEvents(activeGroupId);
+  const { events, addEvent, updateEvent, deleteEvent, getEventsForDate, getEventsForMonth, refresh } = useCalendarEvents(activeGroupId);
   const { profiles, profileList, getDisplayName, updateDisplayName, updatePreferredColor } = useProfiles();
   const { fetchAttendees, fetchAllAttendees, addAttendee, removeAttendee, getAttendees } = useEventAttendees();
   const { nicknames, setNickname, getDisplayName: getNicknameDisplayName } = useNicknames();
