@@ -22,16 +22,32 @@ export function useCalendarGroups() {
 
     const fetchGroups = async () => {
       // Get groups via membership
-      const { data: memberData } = await supabase
+      let { data: memberData } = await supabase
         .from('calendar_group_members')
         .select('group_id, role')
         .eq('user_id', user.id);
 
+      // Auto-create a default group if user has none
       if (!memberData || memberData.length === 0) {
-        setGroups([]);
-        setMembers([]);
-        setLoading(false);
-        return;
+        try {
+          const { data: group } = await supabase
+            .from('calendar_groups')
+            .insert({ name: 'My Calendar', created_by: user.id })
+            .select()
+            .single();
+
+          if (group) {
+            await supabase
+              .from('calendar_group_members')
+              .insert({ group_id: group.id, user_id: user.id, role: 'admin' });
+
+            memberData = [{ group_id: group.id, role: 'admin' }];
+          }
+        } catch (e) {
+          console.error('Failed to create default group', e);
+          setLoading(false);
+          return;
+        }
       }
 
       const groupIds = memberData.map(m => m.group_id);
