@@ -231,7 +231,7 @@ export function MonthView({ year, month, events, onDateClick, onDayView, onEvent
                         color: color,
                       }}
                     >
-                      {isStart && <span className="truncate">{event.title}</span>}
+                      <span className="truncate">{event.title}</span>
                     </div>
                   </div>
                 );
