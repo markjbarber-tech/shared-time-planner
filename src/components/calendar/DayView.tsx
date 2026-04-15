@@ -4,6 +4,8 @@ import { USER_COLORS, USER_COLOR_BGS } from '@/types/calendar';
 import { useAuth } from '@/hooks/useAuth';
 import { Pencil, Trash2, Users } from 'lucide-react';
 import type { EventAttendee } from '@/hooks/useEventAttendees';
+import type { ProfileData } from '@/hooks/useProfiles';
+import { resolveEventColor } from '@/lib/eventColorResolver';
 
 interface DayViewProps {
   date: string;
@@ -14,6 +16,7 @@ interface DayViewProps {
   getDisplayName: (userId: string) => string;
   getChildProfileName?: (childProfileId: string) => string;
   getAttendees?: (eventId: string) => EventAttendee[];
+  profileList: ProfileData[];
 }
 
 const HOURS = Array.from({ length: 24 }, (_, i) => i);
@@ -23,7 +26,7 @@ function timeToMinutes(time: string): number {
   return h * 60 + m;
 }
 
-export function DayView({ date, events, onBack, onEditEvent, onDeleteEvent, getDisplayName, getChildProfileName, getAttendees }: DayViewProps) {
+export function DayView({ date, events, onBack, onEditEvent, onDeleteEvent, getDisplayName, getChildProfileName, getAttendees, profileList }: DayViewProps) {
   const { user } = useAuth();
   const [confirmDelete, setConfirmDelete] = useState<string | null>(null);
   const dayEvents = events.filter(e => date >= e.startDate && date <= e.endDate);
@@ -72,10 +75,9 @@ export function DayView({ date, events, onBack, onEditEvent, onDeleteEvent, getD
           const duration = Math.max(endMin - startMin, 30);
           const top = (startMin / 60) * hourHeight;
           const height = (duration / 60) * hourHeight;
-          const color = USER_COLORS[event.userColor % USER_COLORS.length];
-          const bg = USER_COLOR_BGS[event.userColor % USER_COLOR_BGS.length];
-          const isOwner = event.userId === user?.id || event.userId === 'local-user';
           const eventAttendees = getAttendees ? getAttendees(event.id) : [];
+          const { color, bg } = resolveEventColor(event, user?.id, eventAttendees, profileList);
+          const isOwner = event.userId === user?.id || event.userId === 'local-user';
           const isChild = !!event.childProfileId;
 
           return (
