@@ -73,6 +73,47 @@ export function DayView({ date, events, onBack, onAddEvent, onEditEvent, onDelet
         </div>
       </div>
 
+      {/* All-day / multi-day events */}
+      {(() => {
+        const allDayEvents = dayEvents.filter(ev =>
+          ev.startDate !== ev.endDate || (ev.startTime === '00:00' && ev.endTime === '00:00')
+        );
+        if (allDayEvents.length === 0) return null;
+        return (
+          <div className="px-4 sm:px-6 py-2 border-b border-foreground/5 flex flex-col gap-1">
+            <span className="text-[10px] uppercase tracking-widest text-muted-foreground mb-0.5">All day</span>
+            {allDayEvents.map(ev => {
+              const evAttendees = getAttendees ? getAttendees(ev.id) : [];
+              const { color, bg } = resolveEventColor(ev, user?.id, evAttendees, profileList);
+              const isOwner = ev.userId === user?.id || ev.userId === 'local-user';
+              const isChild = !!ev.childProfileId;
+              return (
+                <div
+                  key={ev.id}
+                  className={`rounded-lg px-2.5 py-1.5 cursor-pointer transition-all hover:shadow-md ${
+                    isChild ? 'border border-dashed' : 'border-l-3'
+                  }`}
+                  style={{
+                    backgroundColor: bg,
+                    ...(isChild
+                      ? { borderColor: color }
+                      : { borderLeftColor: color, borderLeftWidth: 3 }),
+                  }}
+                  onClick={() => isOwner && onEditEvent(ev)}
+                >
+                  <div className="text-xs font-medium truncate" style={{ color }}>{ev.title}</div>
+                  <div className="text-[10px] text-muted-foreground/60 truncate">
+                    {ev.startDate !== ev.endDate
+                      ? `${ev.startDate} — ${ev.endDate}`
+                      : 'All day'}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        );
+      })()}
+
       {/* Timeline */}
       <div ref={timelineRef} className="relative overflow-y-auto max-h-[600px]" style={{ height: totalHeight + 40 }}>
         {/* Hour lines */}
@@ -88,8 +129,8 @@ export function DayView({ date, events, onBack, onAddEvent, onEditEvent, onDelet
           </div>
         ))}
 
-        {/* Events */}
-        {dayEvents.map((event, i) => {
+        {/* Events (timed only) */}
+        {dayEvents.filter(ev => ev.startDate === ev.endDate && !(ev.startTime === '00:00' && ev.endTime === '00:00')).map((event, i) => {
           const startMin = timeToMinutes(event.startTime);
           const endMin = timeToMinutes(event.endTime);
           const duration = Math.max(endMin - startMin, 30);
