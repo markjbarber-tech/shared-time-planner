@@ -224,8 +224,8 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
     description: description.trim() || undefined,
     startDate: `${startYear}-${String(parseInt(startMonth) + 1).padStart(2, '0')}-${startDay}`,
     endDate: `${endYear}-${String(parseInt(endMonth) + 1).padStart(2, '0')}-${endDay}`,
-    startTime: `${startHour}:${startMinute}`,
-    endTime: `${endHour}:${endMinute}`,
+    startTime: allDay ? '00:00' : `${startHour}:${startMinute}`,
+    endTime: allDay ? '23:59' : `${endHour}:${endMinute}`,
     visibility,
     userId: primaryAssignedUserId,
     userColor: selectedChildProfile
