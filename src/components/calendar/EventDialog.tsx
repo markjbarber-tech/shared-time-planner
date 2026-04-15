@@ -175,6 +175,15 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
     setShowAssignPicker(false);
   }, [editingEvent, open, initialDate]);
 
+  // When switching to private, reset assignees to just the creator
+  useEffect(() => {
+    if (visibility === 'private') {
+      const creatorId = user?.id ?? 'local-user';
+      setAssignedUserIds([creatorId]);
+      setSelectedChildProfileId(null);
+    }
+  }, [visibility, user?.id]);
+
   const years = useMemo(() => generateYears(), []);
   const startDays = useMemo(() => generateDays(parseInt(startYear), parseInt(startMonth)), [startYear, startMonth]);
   const endDays = useMemo(() => generateDays(parseInt(endYear), parseInt(endMonth)), [endYear, endMonth]);
