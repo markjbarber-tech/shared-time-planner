@@ -19,7 +19,9 @@ function AuthRoute() {
   return <Auth />;
 }
 
-const App = () => (
+const App = () => {
+  useVersionCheck();
+  return (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
