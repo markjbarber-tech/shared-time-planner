@@ -163,6 +163,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       setPendingAttendees([]);
       setSelectedChildProfileId(null);
       setAssignedUserIds([]);
+      setAllDay(false);
       setEndTimeManuallySet(false);
       setViewMode(false); // new events go straight to edit mode
       setEditingStartDate(false); setEditingStartTime(false);
