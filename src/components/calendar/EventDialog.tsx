@@ -222,8 +222,10 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
 
   const selectedChildProfile = childProfiles.find(cp => cp.id === selectedChildProfileId);
 
-  // Primary assigned user is first in the list, fallback to current user
-  const primaryAssignedUserId = assignedUserIds[0] || user?.id || 'local-user';
+  // The creator is always the current user
+  const creatorUserId = user?.id || 'local-user';
+  // Primary assigned user is first in the list, fallback to creator
+  const primaryAssignedUserId = assignedUserIds[0] || creatorUserId;
   const assignedProfile = profileList.find(p => p.userId === primaryAssignedUserId);
 
   const buildEventData = () => ({
@@ -234,7 +236,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
     startTime: allDay ? '00:00' : `${startHour}:${startMinute}`,
     endTime: allDay ? '23:59' : `${endHour}:${endMinute}`,
     visibility,
-    userId: primaryAssignedUserId,
+    userId: creatorUserId,
     userColor: selectedChildProfile
       ? selectedChildProfile.preferredColor
       : assignedProfile
@@ -255,10 +257,9 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       onUpdate(editingEvent.id, data);
     } else {
       const result = await onSave(data);
-      // Add additional assigned users as attendees
-      const additionalUserIds = assignedUserIds.slice(1);
+      // Add all assigned users as attendees (including creator if assigned)
       if (result?.id && onAddAttendee) {
-        for (const userId of additionalUserIds) {
+        for (const userId of assignedUserIds) {
           await onAddAttendee(result.id, userId);
         }
       }
