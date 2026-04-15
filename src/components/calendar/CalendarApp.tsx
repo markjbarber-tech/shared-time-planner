@@ -372,7 +372,7 @@ export function CalendarApp() {
           <MonthView
             year={currentYear}
             month={currentMonth}
-            events={events}
+            events={getEventsForMonth(currentYear, currentMonth)}
             onDateClick={handleDateClick}
             onDayView={handleDayView}
             onEventClick={(event) => {
@@ -391,7 +391,7 @@ export function CalendarApp() {
         {view === 'year' && (
           <YearView
             year={currentYear}
-            events={events}
+            events={expandedYearEvents}
             onMonthClick={handleMonthClick}
           />
         )}
