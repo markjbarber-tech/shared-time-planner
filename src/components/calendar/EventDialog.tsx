@@ -191,9 +191,9 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
   const startDays = useMemo(() => generateDays(parseInt(startYear), parseInt(startMonth)), [startYear, startMonth]);
   const endDays = useMemo(() => generateDays(parseInt(endYear), parseInt(endMonth)), [endYear, endMonth]);
 
-  // Auto-update end time to 1 hour after start time when start changes (new events only)
+  // Auto-update end time to 1 hour after start time when start time changes
   useEffect(() => {
-    if (endTimeManuallySet) return;
+    if (allDay) return;
     const h = parseInt(startHour);
     const m = parseInt(startMinute);
     const newEndH = (h + 1) % 24;
@@ -206,12 +206,19 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       setEndYear(String(startDateObj.getFullYear()));
       setEndMonth(String(startDateObj.getMonth()));
       setEndDay(String(startDateObj.getDate()).padStart(2, '0'));
-    } else {
+    }
+  }, [startHour, startMinute]);
+
+  // Auto-update end date when start date changes and end date is before start date
+  useEffect(() => {
+    const startDateStr = `${startYear}-${String(parseInt(startMonth) + 1).padStart(2, '0')}-${startDay}`;
+    const endDateStr = `${endYear}-${String(parseInt(endMonth) + 1).padStart(2, '0')}-${endDay}`;
+    if (endDateStr < startDateStr) {
       setEndYear(startYear);
       setEndMonth(startMonth);
       setEndDay(startDay);
     }
-  }, [startHour, startMinute, startYear, startMonth, startDay, endTimeManuallySet]);
+  }, [startYear, startMonth, startDay]);
 
   const selectedChildProfile = childProfiles.find(cp => cp.id === selectedChildProfileId);
 
