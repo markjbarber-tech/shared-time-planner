@@ -14,6 +14,62 @@ export type Database = {
   }
   public: {
     Tables: {
+      calendar_group_members: {
+        Row: {
+          created_at: string
+          group_id: string
+          id: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          group_id: string
+          id?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          group_id?: string
+          id?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_groups: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       child_profiles: {
         Row: {
           avatar_url: string | null
@@ -78,6 +134,7 @@ export type Database = {
       }
       events: {
         Row: {
+          calendar_group_id: string | null
           child_profile_id: string | null
           created_at: string
           description: string | null
@@ -98,6 +155,7 @@ export type Database = {
           visibility: string
         }
         Insert: {
+          calendar_group_id?: string | null
           child_profile_id?: string | null
           created_at?: string
           description?: string | null
@@ -118,6 +176,7 @@ export type Database = {
           visibility?: string
         }
         Update: {
+          calendar_group_id?: string | null
           child_profile_id?: string | null
           created_at?: string
           description?: string | null
@@ -138,6 +197,13 @@ export type Database = {
           visibility?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "events_calendar_group_id_fkey"
+            columns: ["calendar_group_id"]
+            isOneToOne: false
+            referencedRelation: "calendar_groups"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "events_child_profile_id_fkey"
             columns: ["child_profile_id"]

@@ -8,6 +8,7 @@ import { TodayView } from './TodayView';
 import { EventDialog } from './EventDialog';
 import { MemberSettings } from './MemberSettings';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
+import { useCalendarGroups } from '@/hooks/useCalendarGroups';
 import { useProfiles } from '@/hooks/useProfiles';
 import { useEventAttendees } from '@/hooks/useEventAttendees';
 import { useNicknames } from '@/hooks/useNicknames';
@@ -46,7 +47,11 @@ export function CalendarApp() {
   }, [isAnonymous, navigate]);
   const migrationToastShown = useRef(false);
   const { toast } = useToast();
-  const { events, addEvent, updateEvent, deleteEvent, getEventsForDate, refresh } = useCalendarEvents();
+  const {
+    groups, activeGroupId, switchGroup, createGroup, addMemberToGroup,
+    removeMemberFromGroup, updateGroupName, deleteGroup, getGroupMembers, isAdmin,
+  } = useCalendarGroups();
+  const { events, addEvent, updateEvent, deleteEvent, getEventsForDate, refresh } = useCalendarEvents(activeGroupId);
   const { profiles, profileList, getDisplayName, updateDisplayName, updatePreferredColor } = useProfiles();
   const { fetchAttendees, fetchAllAttendees, addAttendee, removeAttendee, getAttendees } = useEventAttendees();
   const { nicknames, setNickname, getDisplayName: getNicknameDisplayName } = useNicknames();
@@ -201,7 +206,7 @@ export function CalendarApp() {
         <nav className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3 border-b border-foreground/5 pb-4 sm:pb-6">
           <div className="space-y-1 min-w-0">
             <span className="text-[10px] tracking-[0.2em] uppercase font-medium text-muted-foreground">
-              {isAnonymous ? 'Personal Calendar' : 'Shared Calendar'}
+              {isAnonymous ? 'Personal Calendar' : (groups.find(g => g.id === activeGroupId)?.name || 'Shared Calendar')}
             </span>
             <div className="flex items-center gap-2">
               {view === 'month' && (
@@ -266,6 +271,16 @@ export function CalendarApp() {
                     onDeleteChild={deleteChildProfile}
                     isAnonymous={isAnonymous}
                     onNavigateAuth={() => { setMenuOpen(false); navigate('/auth'); }}
+                    groups={groups}
+                    activeGroupId={activeGroupId}
+                    onSwitchGroup={switchGroup}
+                    onCreateGroup={createGroup}
+                    onUpdateGroupName={updateGroupName}
+                    onDeleteGroup={deleteGroup}
+                    onAddMemberToGroup={addMemberToGroup}
+                    onRemoveMemberFromGroup={removeMemberFromGroup}
+                    getGroupMembers={getGroupMembers}
+                    isGroupAdmin={isAdmin}
                   />
 
                   {/* Auth actions at bottom */}
@@ -429,6 +444,8 @@ export function CalendarApp() {
         childProfiles={childProfiles}
         isAnonymous={isAnonymous}
         onPromptSignup={() => navigate('/auth')}
+        groups={groups}
+        activeGroupId={activeGroupId}
       />
     </div>
   );

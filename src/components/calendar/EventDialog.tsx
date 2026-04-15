@@ -7,9 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { DialPicker } from './DialPicker';
 import { useAuth } from '@/hooks/useAuth';
-import type { CalendarEvent, EventVisibility, ReminderType, ReminderTiming, RecurrenceType, ChildProfile } from '@/types/calendar';
+import type { CalendarEvent, EventVisibility, ReminderType, ReminderTiming, RecurrenceType, ChildProfile, CalendarGroup } from '@/types/calendar';
 import { USER_COLORS } from '@/types/calendar';
-import { Eye, EyeOff, Users, Bell, X, UserPlus, Baby, Pencil, Clock, Calendar, MapPin, Link, Check, Repeat } from 'lucide-react';
+import { Eye, EyeOff, Users, Bell, X, UserPlus, Baby, Pencil, Clock, Calendar, MapPin, Link, Check, Repeat, FolderOpen } from 'lucide-react';
 import type { EventAttendee } from '@/hooks/useEventAttendees';
 import { useToast } from '@/hooks/use-toast';
 
@@ -29,6 +29,8 @@ interface EventDialogProps {
   childProfiles: ChildProfile[];
   isAnonymous?: boolean;
   onPromptSignup?: () => void;
+  groups?: CalendarGroup[];
+  activeGroupId?: string | null;
 }
 
 const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -68,7 +70,7 @@ function generateYears() {
   return Array.from({ length: 10 }, (_, i) => String(current - 2 + i));
 }
 
-export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initialDate, editingEvent, profiles, profileList, attendees, onAddAttendee, onRemoveAttendee, childProfiles, isAnonymous, onPromptSignup }: EventDialogProps) {
+export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initialDate, editingEvent, profiles, profileList, attendees, onAddAttendee, onRemoveAttendee, childProfiles, isAnonymous, onPromptSignup, groups, activeGroupId }: EventDialogProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [inviteLinkCopied, setInviteLinkCopied] = useState(false);
@@ -107,6 +109,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
   const [recurrenceType, setRecurrenceType] = useState<RecurrenceType>('weekly');
   const [recurrenceInterval, setRecurrenceInterval] = useState(1);
   const [recurrenceEndDate, setRecurrenceEndDate] = useState('');
+  const [calendarGroupId, setCalendarGroupId] = useState<string | null>(activeGroupId ?? null);
 
   const isEditing = !!editingEvent;
 
@@ -143,6 +146,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       setRecurrenceType(editingEvent.recurrenceType || 'weekly');
       setRecurrenceInterval(editingEvent.recurrenceInterval || 1);
       setRecurrenceEndDate(editingEvent.recurrenceEndDate || '');
+      setCalendarGroupId(editingEvent.calendarGroupId ?? activeGroupId ?? null);
     } else if (!editingEvent && open) {
       const [y, m, d] = initialDate.split('-');
       setTitle(''); setDescription('');
@@ -165,6 +169,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       setRecurrenceType('weekly');
       setRecurrenceInterval(1);
       setRecurrenceEndDate('');
+      setCalendarGroupId(activeGroupId ?? null);
     }
     setAttendeeSearch('');
     setShowAssignPicker(false);
@@ -221,6 +226,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
     recurrenceType: recurrenceEnabled ? recurrenceType : null,
     recurrenceInterval: recurrenceEnabled ? recurrenceInterval : 1,
     recurrenceEndDate: recurrenceEnabled && recurrenceEndDate ? recurrenceEndDate : null,
+    calendarGroupId: calendarGroupId,
   });
 
   const handleSave = async () => {
@@ -734,6 +740,30 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
               ))}
             </div>
           </div>
+
+          {/* Calendar Group */}
+          {groups && groups.length > 0 && (
+            <div className="space-y-2">
+              <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Calendar Group</Label>
+              <div className="flex gap-2 flex-wrap">
+                {groups.map(g => (
+                  <button
+                    key={g.id}
+                    onClick={() => canEdit && setCalendarGroupId(g.id)}
+                    className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-medium transition-all border ${
+                      calendarGroupId === g.id
+                        ? 'bg-foreground text-background border-foreground'
+                        : 'bg-background/50 border-foreground/10 hover:border-foreground/20'
+                    } ${!canEdit ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    disabled={!canEdit}
+                  >
+                    <FolderOpen className="w-3.5 h-3.5" />
+                    {g.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Reminder */}
           <div className="space-y-3">

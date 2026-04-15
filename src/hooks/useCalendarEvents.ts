@@ -7,7 +7,7 @@ import {
   getLocalEvents, addLocalEvent, updateLocalEvent, deleteLocalEvent, saveLocalEvents, getAnonymousUserId,
 } from '@/lib/localStorageEvents';
 
-export function useCalendarEvents() {
+export function useCalendarEvents(activeGroupId?: string | null) {
   const { user } = useAuth();
   const isAnonymous = !user;
   const [events, setEvents] = useState<CalendarEvent[]>([]);
@@ -22,7 +22,11 @@ export function useCalendarEvents() {
     }
 
     const fetchEvents = async () => {
-      const { data, error } = await supabase.from('events').select('*');
+      let query = supabase.from('events').select('*');
+      if (activeGroupId) {
+        query = query.eq('calendar_group_id', activeGroupId);
+      }
+      const { data, error } = await query;
       if (!error && data) {
         setEvents(data.map(mapRow));
       }
@@ -39,7 +43,7 @@ export function useCalendarEvents() {
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [user]);
+  }, [user, activeGroupId]);
 
   const mapRow = (e: any): CalendarEvent => ({
     id: e.id,
@@ -59,6 +63,7 @@ export function useCalendarEvents() {
     recurrenceType: e.recurrence_type ?? null,
     recurrenceInterval: e.recurrence_interval ?? 1,
     recurrenceEndDate: e.recurrence_end_date ?? null,
+    calendarGroupId: e.calendar_group_id ?? null,
     createdAt: e.created_at,
   });
   const addEvent = useCallback(async (event: Omit<CalendarEvent, 'id' | 'createdAt'>) => {
@@ -85,6 +90,7 @@ export function useCalendarEvents() {
       recurrence_type: event.recurrenceType ?? null,
       recurrence_interval: event.recurrenceInterval ?? 1,
       recurrence_end_date: event.recurrenceEndDate ?? null,
+      calendar_group_id: event.calendarGroupId ?? activeGroupId ?? null,
     }).select().single();
 
     if (error) throw error;
@@ -117,6 +123,7 @@ export function useCalendarEvents() {
     if (updates.recurrenceType !== undefined) mapped.recurrence_type = updates.recurrenceType ?? null;
     if (updates.recurrenceInterval !== undefined) mapped.recurrence_interval = updates.recurrenceInterval;
     if (updates.recurrenceEndDate !== undefined) mapped.recurrence_end_date = updates.recurrenceEndDate ?? null;
+    if (updates.calendarGroupId !== undefined) mapped.calendar_group_id = updates.calendarGroupId ?? null;
 
     const { data } = await supabase.from('events').update(mapped).eq('id', id).select().single();
     if (data) {
@@ -160,12 +167,16 @@ export function useCalendarEvents() {
     if (isAnonymous) {
       setEvents(getLocalEvents());
     } else {
-      const { data, error } = await supabase.from('events').select('*');
+      let query = supabase.from('events').select('*');
+      if (activeGroupId) {
+        query = query.eq('calendar_group_id', activeGroupId);
+      }
+      const { data, error } = await query;
       if (!error && data) {
         setEvents(data.map(mapRow));
       }
     }
-  }, [isAnonymous]);
+  }, [isAnonymous, activeGroupId]);
 
   return { events, loading, addEvent, updateEvent, deleteEvent, getEventsForDate, getEventsForMonth, hasEventsOnDate, refreshFromLocal, refresh };
 }
