@@ -1,6 +1,10 @@
 import { useMemo, useRef, useCallback } from 'react';
 import type { CalendarEvent } from '@/types/calendar';
 import { USER_COLORS, USER_COLOR_BGS } from '@/types/calendar';
+import { useAuth } from '@/hooks/useAuth';
+import { resolveEventColor } from '@/lib/eventColorResolver';
+import type { ProfileData } from '@/hooks/useProfiles';
+import type { EventAttendee } from '@/hooks/useEventAttendees';
 
 interface MonthViewProps {
   year: number;
@@ -12,6 +16,8 @@ interface MonthViewProps {
   onSwipeMonth?: (direction: -1 | 1) => void;
   getDisplayName: (userId: string) => string;
   getChildProfileName?: (childProfileId: string) => string;
+  profileList: ProfileData[];
+  getAttendees: (eventId: string) => EventAttendee[];
 }
 
 const DAY_NAMES = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
