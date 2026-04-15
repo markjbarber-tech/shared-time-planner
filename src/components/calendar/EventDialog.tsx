@@ -298,7 +298,6 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
 
   const visibilityOptions: { value: EventVisibility; label: string; icon: typeof Eye }[] = [
     { value: 'public', label: 'Public', icon: Eye },
-    { value: 'shared', label: 'Shared', icon: Users },
     { value: 'private', label: 'Private', icon: EyeOff },
   ];
 
@@ -363,7 +362,6 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
 
               <div className="flex items-center gap-2 text-sm">
                 {visibility === 'public' ? <Eye className="w-4 h-4 text-muted-foreground" /> :
-                 visibility === 'shared' ? <Users className="w-4 h-4 text-muted-foreground" /> :
                  <EyeOff className="w-4 h-4 text-muted-foreground" />}
                 <span className="capitalize">{visibility}</span>
               </div>
@@ -537,8 +535,8 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
             </div>
           </div>
 
-          {/* Assign To — unified section */}
-          <div className="space-y-3">
+          {/* Assign To — unified section (only for public events) */}
+          {visibility === 'private' ? null : <div className="space-y-3">
             <Label className="text-[10px] uppercase tracking-widest text-muted-foreground">Assign To</Label>
 
             {isAnonymous && (
@@ -717,7 +715,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                 </div>
               )}
             </>}
-          </div>
+          </div>}
 
           {/* Visibility */}
           <div className="space-y-2">
