@@ -211,7 +211,7 @@ export function CalendarApp() {
         <nav className="flex flex-col sm:flex-row sm:justify-between sm:items-end gap-3 border-b border-foreground/5 pb-4 sm:pb-6">
           <div className="space-y-1 min-w-0">
             <span className="text-[10px] tracking-[0.2em] uppercase font-medium text-muted-foreground">
-              {isAnonymous ? 'Personal Calendar' : (groups.find(g => g.id === activeGroupId)?.name || 'Shared Calendar')}
+              {isAnonymous ? 'Personal Calendar' : (groups.find(g => g.id === activeGroupId)?.name || 'My Calendar')}
             </span>
             <div className="flex items-center gap-2">
               {view === 'month' && (
