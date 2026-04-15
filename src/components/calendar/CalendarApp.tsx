@@ -410,6 +410,7 @@ export function CalendarApp() {
             getDisplayName={mergedGetDisplayName}
             getChildProfileName={getChildProfileName}
             getAttendees={getAttendees}
+            profileList={profileList}
           />
         )}
       </div>
