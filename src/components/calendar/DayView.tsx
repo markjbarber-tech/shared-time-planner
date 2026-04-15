@@ -71,6 +71,7 @@ export function DayView({ date, events, onBack, onAddEvent, onEditEvent, onDelet
             <Plus className="w-4 h-4" />
           </button>
         </div>
+      </div>
 
       {/* Timeline */}
       <div ref={timelineRef} className="relative overflow-y-auto max-h-[600px]" style={{ height: totalHeight + 40 }}>
