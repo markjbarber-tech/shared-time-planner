@@ -298,7 +298,9 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
   };
 
   const toggleAssignChild = (childId: string) => {
-    setSelectedChildProfileId(prev => prev === childId ? null : childId);
+    setSelectedChildProfileIds(prev =>
+      prev.includes(childId) ? prev.filter(id => id !== childId) : [...prev, childId]
+    );
   };
 
   // Filter for the search picker (users/children not yet assigned)
@@ -312,7 +314,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
     return true;
   });
   const filteredChildren = childProfiles.filter(cp => {
-    if (cp.id === selectedChildProfileId) return false;
+    if (selectedChildProfileIds.includes(cp.id)) return false;
     if (attendeeSearch) {
       return cp.displayName.toLowerCase().includes(attendeeSearch.toLowerCase());
     }
