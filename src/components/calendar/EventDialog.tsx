@@ -410,16 +410,24 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                 </div>
               )}
 
-              {editingEvent?.recurrenceType && (
-                <div className="flex items-center gap-2 text-sm">
-                  <Repeat className="w-4 h-4 text-muted-foreground" />
-                  <span>
-                    Every {editingEvent.recurrenceInterval && editingEvent.recurrenceInterval > 1 ? `${editingEvent.recurrenceInterval} ` : ''}
-                    {editingEvent.recurrenceType === 'weekly' ? (editingEvent.recurrenceInterval && editingEvent.recurrenceInterval > 1 ? 'weeks' : 'week') : (editingEvent.recurrenceInterval && editingEvent.recurrenceInterval > 1 ? 'months' : 'month')}
-                    {editingEvent.recurrenceEndDate && ` until ${editingEvent.recurrenceEndDate}`}
-                  </span>
-                </div>
-              )}
+              {editingEvent?.recurrenceType && (() => {
+                const n = editingEvent.recurrenceInterval && editingEvent.recurrenceInterval > 1 ? editingEvent.recurrenceInterval : 1;
+                const unitMap: Record<string, [string, string]> = {
+                  weekly: ['week', 'weeks'],
+                  monthly: ['month', 'months'],
+                  yearly: ['year', 'years'],
+                };
+                const [singular, plural] = unitMap[editingEvent.recurrenceType] || ['', ''];
+                return (
+                  <div className="flex items-center gap-2 text-sm">
+                    <Repeat className="w-4 h-4 text-muted-foreground" />
+                    <span>
+                      Every {n > 1 ? `${n} ` : ''}{n > 1 ? plural : singular}
+                      {editingEvent.recurrenceEndDate && ` until ${editingEvent.recurrenceEndDate}`}
+                    </span>
+                  </div>
+                );
+              })()}
             </div>
 
             <div className="flex gap-3 pt-2">
