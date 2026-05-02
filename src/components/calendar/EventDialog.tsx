@@ -596,7 +596,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
 
             {!isAnonymous && <>
               {/* Currently assigned chips */}
-              {(assignedUserIds.length > 0 || selectedChildProfileId) && (
+              {(assignedUserIds.length > 0 || selectedChildProfileIds.length > 0) && (
                 <div className="flex flex-wrap gap-2">
                   {assignedUserIds.map(uid => {
                     const p = profileList.find(pr => pr.userId === uid);
@@ -625,16 +625,16 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                       </span>
                     );
                   })}
-                  {selectedChildProfileId && (() => {
-                    const cp = childProfiles.find(c => c.id === selectedChildProfileId);
+                  {selectedChildProfileIds.map(cid => {
+                    const cp = childProfiles.find(c => c.id === cid);
                     if (!cp) return null;
                     return (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-foreground/5 text-xs font-medium border border-dashed border-foreground/10">
+                      <span key={cid} className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-foreground/5 text-xs font-medium border border-dashed border-foreground/10">
                         <Baby className="w-3.5 h-3.5" />
                         {cp.displayName}
                         {canEdit && (
                           <button
-                            onClick={() => setSelectedChildProfileId(null)}
+                            onClick={() => toggleAssignChild(cid)}
                             className="ml-0.5 size-4 rounded-full hover:bg-foreground/10 flex items-center justify-center transition-colors"
                           >
                             <X className="w-2.5 h-2.5" />
@@ -642,7 +642,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                         )}
                       </span>
                     );
-                  })()}
+                  })}
                 </div>
               )}
 
