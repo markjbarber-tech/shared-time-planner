@@ -8,6 +8,7 @@ import { DayView } from './DayView';
 import { TodayView } from './TodayView';
 import { EventDialog } from './EventDialog';
 import { MemberSettings } from './MemberSettings';
+import { VoiceEventWizard } from './VoiceEventWizard';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
 import { useCalendarGroups } from '@/hooks/useCalendarGroups';
 import { useProfiles } from '@/hooks/useProfiles';
@@ -34,6 +35,8 @@ export function CalendarApp() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogDate, setDialogDate] = useState('');
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
+  const [voiceWizardOpen, setVoiceWizardOpen] = useState(false);
+  const [voiceWizardDate, setVoiceWizardDate] = useState('');
   
 
   const { user, signOut, migrationResult } = useAuth();
@@ -146,9 +149,8 @@ export function CalendarApp() {
   };
 
   const handleDateClick = useCallback((date: string) => {
-    setEditingEvent(null);
-    setDialogDate(date);
-    setDialogOpen(true);
+    setVoiceWizardDate(date);
+    setVoiceWizardOpen(true);
   }, []);
 
   const handleDayView = useCallback((date: string) => {
