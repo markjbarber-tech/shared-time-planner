@@ -8,6 +8,7 @@ import { DayView } from './DayView';
 import { TodayView } from './TodayView';
 import { EventDialog } from './EventDialog';
 import { MemberSettings } from './MemberSettings';
+import { VoiceEventWizard } from './VoiceEventWizard';
 import { useCalendarEvents } from '@/hooks/useCalendarEvents';
 import { useCalendarGroups } from '@/hooks/useCalendarGroups';
 import { useProfiles } from '@/hooks/useProfiles';
@@ -34,6 +35,8 @@ export function CalendarApp() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [dialogDate, setDialogDate] = useState('');
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
+  const [voiceWizardOpen, setVoiceWizardOpen] = useState(false);
+  const [voiceWizardDate, setVoiceWizardDate] = useState('');
   
 
   const { user, signOut, migrationResult } = useAuth();
@@ -146,9 +149,8 @@ export function CalendarApp() {
   };
 
   const handleDateClick = useCallback((date: string) => {
-    setEditingEvent(null);
-    setDialogDate(date);
-    setDialogOpen(true);
+    setVoiceWizardDate(date);
+    setVoiceWizardOpen(true);
   }, []);
 
   const handleDayView = useCallback((date: string) => {
@@ -407,9 +409,8 @@ export function CalendarApp() {
             events={getEventsForDate(selectedDate)}
             onBack={handleBackToMonth}
             onAddEvent={() => {
-              setEditingEvent(null);
-              setDialogDate(selectedDate);
-              setDialogOpen(true);
+              setVoiceWizardDate(selectedDate);
+              setVoiceWizardOpen(true);
             }}
             onEditEvent={(event) => {
               setEditingEvent(event);
@@ -431,9 +432,8 @@ export function CalendarApp() {
         <button
           onClick={() => {
             const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
-            setEditingEvent(null);
-            setDialogDate(todayStr);
-            setDialogOpen(true);
+            setVoiceWizardDate(todayStr);
+            setVoiceWizardOpen(true);
           }}
           className="fixed bottom-6 right-4 sm:bottom-8 sm:right-8 size-12 sm:size-14 rounded-full bg-foreground text-background shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-transform z-50"
         >
@@ -460,6 +460,21 @@ export function CalendarApp() {
         onPromptSignup={() => navigate('/auth')}
         groups={groups}
         activeGroupId={activeGroupId}
+      />
+
+      {/* Voice-driven Event Wizard (used for new events from + buttons) */}
+      <VoiceEventWizard
+        open={voiceWizardOpen}
+        onClose={() => setVoiceWizardOpen(false)}
+        initialDate={voiceWizardDate}
+        onSave={addEvent}
+        onAddAttendee={isAnonymous ? undefined : addAttendee}
+        profiles={mergedProfiles}
+        profileList={profileList}
+        childProfiles={childProfiles}
+        isAnonymous={isAnonymous}
+        activeGroupId={activeGroupId}
+        onPromptInvite={() => { setVoiceWizardOpen(false); navigate('/auth'); }}
       />
     </div>
   );
