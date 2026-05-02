@@ -187,7 +187,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
     if (visibility === 'private') {
       const creatorId = user?.id ?? 'local-user';
       setAssignedUserIds([creatorId]);
-      setSelectedChildProfileId(null);
+      setSelectedChildProfileIds([]);
     }
   }, [visibility, user?.id]);
 
@@ -220,7 +220,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
     setEndDay(startDay);
   }, [startYear, startMonth, startDay]);
 
-  const selectedChildProfile = childProfiles.find(cp => cp.id === selectedChildProfileId);
+  const selectedChildProfile = childProfiles.find(cp => cp.id === selectedChildProfileIds[0]);
 
   // The creator is always the current user
   const creatorUserId = user?.id || 'local-user';
@@ -242,7 +242,8 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       : assignedProfile
         ? assignedProfile.preferredColor
         : (editingEvent?.userColor ?? 0),
-    childProfileId: selectedChildProfileId,
+    childProfileId: selectedChildProfileIds[0] ?? null,
+    childProfileIds: selectedChildProfileIds,
     reminder: reminderEnabled ? { type: reminderType, timing: reminderTiming } : undefined,
     recurrenceType: recurrenceEnabled ? recurrenceType : null,
     recurrenceInterval: recurrenceEnabled ? recurrenceInterval : 1,
