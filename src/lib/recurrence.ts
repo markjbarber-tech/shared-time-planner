@@ -57,9 +57,12 @@ export function expandRecurringEvents(
       instanceIndex++;
       if (event.recurrenceType === 'weekly') {
         current.setDate(current.getDate() + 7 * interval);
-      } else {
+      } else if (event.recurrenceType === 'monthly') {
         // monthly
         current.setMonth(current.getMonth() + interval);
+      } else {
+        // yearly
+        current.setFullYear(current.getFullYear() + interval);
       }
 
       // Safety limit
