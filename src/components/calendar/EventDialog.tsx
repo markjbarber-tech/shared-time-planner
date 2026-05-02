@@ -884,17 +884,25 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                     style={{ fontSize: '16px' }}
                   />
                   <div className="flex gap-1 p-1 bg-background/50 rounded-lg border border-foreground/5">
-                    {(['weekly', 'monthly'] as RecurrenceType[]).map(t => (
-                      <button
-                        key={t}
-                        onClick={() => setRecurrenceType(t)}
-                        className={`px-3 py-1 rounded text-[11px] font-medium transition-all ${
-                          recurrenceType === t ? 'bg-foreground text-background' : 'text-muted-foreground'
-                        }`}
-                      >
-                        {t === 'weekly' ? (recurrenceInterval > 1 ? 'Weeks' : 'Week') : (recurrenceInterval > 1 ? 'Months' : 'Month')}
-                      </button>
-                    ))}
+                    {(['weekly', 'monthly', 'yearly'] as RecurrenceType[]).map(t => {
+                      const labels: Record<RecurrenceType, [string, string]> = {
+                        weekly: ['Week', 'Weeks'],
+                        monthly: ['Month', 'Months'],
+                        yearly: ['Year', 'Years'],
+                      };
+                      const [s, p] = labels[t];
+                      return (
+                        <button
+                          key={t}
+                          onClick={() => setRecurrenceType(t)}
+                          className={`px-3 py-1 rounded text-[11px] font-medium transition-all ${
+                            recurrenceType === t ? 'bg-foreground text-background' : 'text-muted-foreground'
+                          }`}
+                        >
+                          {recurrenceInterval > 1 ? p : s}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
