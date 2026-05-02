@@ -208,7 +208,11 @@ export function VoiceEventWizard({
   const [resolutionIndex, setResolutionIndex] = useState(0);
 
   const stopListening = useCallback(() => {
-    try { recognitionRef.current?.stop(); } catch {}
+    const r = recognitionRef.current;
+    if (r) {
+      try { r.stop(); } catch {}
+      try { r.abort?.(); } catch {}
+    }
     setListening(false);
   }, []);
 
@@ -534,6 +538,7 @@ export function VoiceEventWizard({
                 {/* Mic button */}
                 <div className="flex flex-col items-center gap-3 py-2">
                   <button
+                    type="button"
                     onClick={() => listening ? stopListening() : startListening()}
                     className={`size-20 rounded-full flex items-center justify-center transition-all shadow-lg ${
                       listening
@@ -544,9 +549,19 @@ export function VoiceEventWizard({
                   >
                     {listening ? <MicOff className="w-8 h-8" /> : <Mic className="w-8 h-8" />}
                   </button>
-                  <p className="text-xs text-muted-foreground">
-                    {listening ? 'Listening… tap to stop' : (SR ? 'Tap the mic to answer' : 'Voice not available — type below')}
-                  </p>
+                  {listening ? (
+                    <button
+                      type="button"
+                      onClick={stopListening}
+                      className="text-xs text-muted-foreground underline-offset-2 hover:underline"
+                    >
+                      Listening… tap to stop
+                    </button>
+                  ) : (
+                    <p className="text-xs text-muted-foreground">
+                      {SR ? 'Tap the mic to answer' : 'Voice not available — type below'}
+                    </p>
+                  )}
                 </div>
 
                 {/* Transcript / text input */}
