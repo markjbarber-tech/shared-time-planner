@@ -160,12 +160,22 @@ function addHour(t: string): string {
 
 /** Split a spoken people phrase into candidate names. */
 function splitNames(input: string): string[] {
-  return input
-    .toLowerCase()
-    .replace(/[.,!?]/g, ',')
-    .replace(/\band\b/g, ',')
+  let text = input.toLowerCase().trim();
+  // Strip common leading filler phrases
+  text = text.replace(/^(it'?s\s+|its\s+|just\s+|only\s+|with\s+|for\s+|attending(?:\s+is|\s+are)?\s+|attendees?\s+(?:is|are)\s+)/, '');
+  // Normalize separators: punctuation, "&", "plus", "as well as", "along with", "together with", "and"
+  text = text
+    .replace(/[.,!?;]/g, ',')
+    .replace(/\s*&\s*/g, ',')
+    .replace(/\bas well as\b/g, ',')
+    .replace(/\b(?:along|together)\s+with\b/g, ',')
+    .replace(/\bplus\b/g, ',')
+    .replace(/\band\b/g, ',');
+  return text
     .split(',')
-    .map(s => s.trim().replace(/^(just |only |me and )/, '').replace(/^myself$/, 'me'))
+    .map(s => s.trim())
+    .map(s => s.replace(/^(just\s+|only\s+|also\s+)+/, ''))
+    .map(s => (s === 'myself' || s === 'i' ? 'me' : s))
     .filter(Boolean);
 }
 
