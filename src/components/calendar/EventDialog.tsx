@@ -679,6 +679,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                                 onClick={() => {
                                   toggleAssignUser(p.userId);
                                   setAttendeeSearch('');
+                                  setShowAssignPicker(false);
                                 }}
                                 className="w-full flex items-center gap-2 px-3 py-2 hover:bg-foreground/5 transition-colors text-left"
                               >
@@ -710,6 +711,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                                 onClick={() => {
                                   toggleAssignChild(cp.id);
                                   setAttendeeSearch('');
+                                  setShowAssignPicker(false);
                                 }}
                                 className="w-full flex items-center gap-2 px-3 py-2 hover:bg-foreground/5 transition-colors text-left"
                               >
