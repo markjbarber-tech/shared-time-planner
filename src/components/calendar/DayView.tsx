@@ -170,14 +170,54 @@ export function DayView({ date, events, onBack, onAddEvent, onEditEvent, onDelet
           </div>
         ))}
 
-        {/* Events (timed only) */}
-        {dayEvents.filter(ev => !(ev.startTime === '00:00' && ev.endTime === '00:00') && !(ev.startDate !== ev.endDate && date !== ev.startDate && date !== ev.endDate)).map((event, i) => {
-          // For multi-day events, adjust displayed time range to the current day
-          const displayStartTime = (event.startDate !== event.endDate && date !== event.startDate) ? '00:00' : event.startTime;
-          const displayEndTime = (event.startDate !== event.endDate && date !== event.endDate) ? '23:59' : event.endTime;
-          const startMin = timeToMinutes(displayStartTime);
-          const endMin = timeToMinutes(displayEndTime);
-          const duration = Math.max(endMin - startMin, 30);
+        {(() => {
+          const timedEvents = dayEvents.filter(ev => !(ev.startTime === '00:00' && ev.endTime === '00:00') && !(ev.startDate !== ev.endDate && date !== ev.startDate && date !== ev.endDate));
+          // Compute display times + minute ranges
+          const computed = timedEvents.map(event => {
+            const displayStartTime = (event.startDate !== event.endDate && date !== event.startDate) ? '00:00' : event.startTime;
+            const displayEndTime = (event.startDate !== event.endDate && date !== event.endDate) ? '23:59' : event.endTime;
+            const startMin = timeToMinutes(displayStartTime);
+            const endMin = Math.max(timeToMinutes(displayEndTime), startMin + 30);
+            return { event, startMin, endMin };
+          });
+          // Sort for column assignment
+          const sorted = [...computed].sort((a, b) => a.startMin - b.startMin || a.endMin - b.endMin);
+          // Group into clusters of overlapping events; assign columns greedily
+          const layout = new Map<string, { col: number; cols: number }>();
+          let cluster: typeof sorted = [];
+          let clusterEnd = -1;
+          const flushCluster = () => {
+            if (cluster.length === 0) return;
+            const colEnds: number[] = [];
+            const assigned: { id: string; col: number }[] = [];
+            for (const item of cluster) {
+              let placed = -1;
+              for (let c = 0; c < colEnds.length; c++) {
+                if (colEnds[c] <= item.startMin) { placed = c; break; }
+              }
+              if (placed === -1) { placed = colEnds.length; colEnds.push(0); }
+              colEnds[placed] = item.endMin;
+              assigned.push({ id: item.event.id, col: placed });
+            }
+            const cols = colEnds.length;
+            for (const a of assigned) layout.set(a.id, { col: a.col, cols });
+            cluster = [];
+            clusterEnd = -1;
+          };
+          for (const item of sorted) {
+            if (cluster.length === 0 || item.startMin < clusterEnd) {
+              cluster.push(item);
+              clusterEnd = Math.max(clusterEnd, item.endMin);
+            } else {
+              flushCluster();
+              cluster.push(item);
+              clusterEnd = item.endMin;
+            }
+          }
+          flushCluster();
+
+          return computed.map(({ event, startMin, endMin }, i) => {
+          const duration = endMin - startMin;
           const top = (startMin / 60) * hourHeight;
           const height = (duration / 60) * hourHeight;
           const eventAttendees = getAttendees ? getAttendees(event.id) : [];
@@ -185,15 +225,20 @@ export function DayView({ date, events, onBack, onAddEvent, onEditEvent, onDelet
           const isOwner = event.userId === user?.id || event.userId === 'local-user';
           const isChild = !!event.childProfileId;
 
+          const lay = layout.get(event.id) || { col: 0, cols: 1 };
+          const widthPct = 100 / lay.cols;
+          const leftPct = lay.col * widthPct;
           return (
             <div
               key={event.id}
-              className={`absolute left-12 sm:left-20 right-2 sm:right-4 rounded-lg px-2 sm:px-3 py-2 overflow-hidden transition-all hover:shadow-md group cursor-pointer ${
+              className={`absolute rounded-lg px-2 sm:px-3 py-2 overflow-hidden transition-all hover:shadow-md group cursor-pointer ${
                 isChild ? 'border border-dashed' : 'border-l-3'
               }`}
               style={{
                 top,
                 height: Math.max(height, 28),
+                left: `calc(3rem + (100% - 3rem - 0.5rem) * ${leftPct / 100})`,
+                width: `calc((100% - 3rem - 0.5rem) * ${widthPct / 100} - 2px)`,
                 backgroundColor: bg,
                 ...(isChild
                   ? { borderColor: color }
@@ -274,7 +319,8 @@ export function DayView({ date, events, onBack, onAddEvent, onEditEvent, onDelet
               </div>
             </div>
           );
-        })}
+        });
+        })()}
       </div>
     </div>
   );
