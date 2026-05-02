@@ -209,15 +209,11 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
     }
   }, [startHour, startMinute]);
 
-  // Auto-update end date when start date changes and end date is before start date
+  // Auto-update end date to match start date whenever start date changes
   useEffect(() => {
-    const startDateStr = `${startYear}-${String(parseInt(startMonth) + 1).padStart(2, '0')}-${startDay}`;
-    const endDateStr = `${endYear}-${String(parseInt(endMonth) + 1).padStart(2, '0')}-${endDay}`;
-    if (endDateStr < startDateStr) {
-      setEndYear(startYear);
-      setEndMonth(startMonth);
-      setEndDay(startDay);
-    }
+    setEndYear(startYear);
+    setEndMonth(startMonth);
+    setEndDay(startDay);
   }, [startYear, startMonth, startDay]);
 
   const selectedChildProfile = childProfiles.find(cp => cp.id === selectedChildProfileId);
