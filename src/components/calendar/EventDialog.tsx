@@ -97,7 +97,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
   const [pendingAttendees, setPendingAttendees] = useState<string[]>([]);
   const [attendeeSearch, setAttendeeSearch] = useState('');
   const [showAssignPicker, setShowAssignPicker] = useState(false);
-  const [selectedChildProfileId, setSelectedChildProfileId] = useState<string | null>(null);
+  const [selectedChildProfileIds, setSelectedChildProfileIds] = useState<string[]>([]);
   const [assignedUserIds, setAssignedUserIds] = useState<string[]>([]);
   const [endTimeManuallySet, setEndTimeManuallySet] = useState(false);
   const [allDay, setAllDay] = useState(false);
@@ -135,7 +135,11 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
         setReminderTiming(editingEvent.reminder.timing);
       }
       setPendingAttendees([]);
-      setSelectedChildProfileId(editingEvent.childProfileId ?? null);
+      setSelectedChildProfileIds(
+        editingEvent.childProfileIds && editingEvent.childProfileIds.length > 0
+          ? editingEvent.childProfileIds
+          : (editingEvent.childProfileId ? [editingEvent.childProfileId] : [])
+      );
       // Populate assigned users: event owner + attendees
       const attendeeUserIds = attendees.map(a => a.userId);
       setAssignedUserIds([editingEvent.userId, ...attendeeUserIds.filter(id => id !== editingEvent.userId)]);
@@ -161,7 +165,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       setVisibility('public');
       setReminderEnabled(false);
       setPendingAttendees([]);
-      setSelectedChildProfileId(null);
+      setSelectedChildProfileIds([]);
       setAssignedUserIds([]);
       setAllDay(false);
       setEndTimeManuallySet(false);
@@ -183,7 +187,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
     if (visibility === 'private') {
       const creatorId = user?.id ?? 'local-user';
       setAssignedUserIds([creatorId]);
-      setSelectedChildProfileId(null);
+      setSelectedChildProfileIds([]);
     }
   }, [visibility, user?.id]);
 
@@ -216,7 +220,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
     setEndDay(startDay);
   }, [startYear, startMonth, startDay]);
 
-  const selectedChildProfile = childProfiles.find(cp => cp.id === selectedChildProfileId);
+  const selectedChildProfile = childProfiles.find(cp => cp.id === selectedChildProfileIds[0]);
 
   // The creator is always the current user
   const creatorUserId = user?.id || 'local-user';
@@ -238,7 +242,8 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       : assignedProfile
         ? assignedProfile.preferredColor
         : (editingEvent?.userColor ?? 0),
-    childProfileId: selectedChildProfileId,
+    childProfileId: selectedChildProfileIds[0] ?? null,
+    childProfileIds: selectedChildProfileIds,
     reminder: reminderEnabled ? { type: reminderType, timing: reminderTiming } : undefined,
     recurrenceType: recurrenceEnabled ? recurrenceType : null,
     recurrenceInterval: recurrenceEnabled ? recurrenceInterval : 1,
@@ -293,7 +298,9 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
   };
 
   const toggleAssignChild = (childId: string) => {
-    setSelectedChildProfileId(prev => prev === childId ? null : childId);
+    setSelectedChildProfileIds(prev =>
+      prev.includes(childId) ? prev.filter(id => id !== childId) : [...prev, childId]
+    );
   };
 
   // Filter for the search picker (users/children not yet assigned)
@@ -307,7 +314,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
     return true;
   });
   const filteredChildren = childProfiles.filter(cp => {
-    if (cp.id === selectedChildProfileId) return false;
+    if (selectedChildProfileIds.includes(cp.id)) return false;
     if (attendeeSearch) {
       return cp.displayName.toLowerCase().includes(attendeeSearch.toLowerCase());
     }
@@ -589,7 +596,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
 
             {!isAnonymous && <>
               {/* Currently assigned chips */}
-              {(assignedUserIds.length > 0 || selectedChildProfileId) && (
+              {(assignedUserIds.length > 0 || selectedChildProfileIds.length > 0) && (
                 <div className="flex flex-wrap gap-2">
                   {assignedUserIds.map(uid => {
                     const p = profileList.find(pr => pr.userId === uid);
@@ -618,16 +625,16 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                       </span>
                     );
                   })}
-                  {selectedChildProfileId && (() => {
-                    const cp = childProfiles.find(c => c.id === selectedChildProfileId);
+                  {selectedChildProfileIds.map(cid => {
+                    const cp = childProfiles.find(c => c.id === cid);
                     if (!cp) return null;
                     return (
-                      <span className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-foreground/5 text-xs font-medium border border-dashed border-foreground/10">
+                      <span key={cid} className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-foreground/5 text-xs font-medium border border-dashed border-foreground/10">
                         <Baby className="w-3.5 h-3.5" />
                         {cp.displayName}
                         {canEdit && (
                           <button
-                            onClick={() => setSelectedChildProfileId(null)}
+                            onClick={() => toggleAssignChild(cid)}
                             className="ml-0.5 size-4 rounded-full hover:bg-foreground/10 flex items-center justify-center transition-colors"
                           >
                             <X className="w-2.5 h-2.5" />
@@ -635,7 +642,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                         )}
                       </span>
                     );
-                  })()}
+                  })}
                 </div>
               )}
 
@@ -672,6 +679,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                                 onClick={() => {
                                   toggleAssignUser(p.userId);
                                   setAttendeeSearch('');
+                                  setShowAssignPicker(false);
                                 }}
                                 className="w-full flex items-center gap-2 px-3 py-2 hover:bg-foreground/5 transition-colors text-left"
                               >
@@ -703,6 +711,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
                                 onClick={() => {
                                   toggleAssignChild(cp.id);
                                   setAttendeeSearch('');
+                                  setShowAssignPicker(false);
                                 }}
                                 className="w-full flex items-center gap-2 px-3 py-2 hover:bg-foreground/5 transition-colors text-left"
                               >

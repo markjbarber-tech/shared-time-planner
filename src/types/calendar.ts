@@ -15,6 +15,7 @@ export interface CalendarEvent {
   userId: string;
   userColor: number; // index 0-5
   childProfileId?: string | null;
+  childProfileIds?: string[];
   reminder?: {
     type: ReminderType;
     timing: ReminderTiming;

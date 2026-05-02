@@ -57,6 +57,7 @@ export function useCalendarEvents(activeGroupId?: string | null) {
     userId: e.user_id,
     userColor: e.user_color,
     childProfileId: e.child_profile_id ?? null,
+    childProfileIds: (e as any).child_profile_ids ?? (e.child_profile_id ? [e.child_profile_id] : []),
     reminder: e.reminder_type && e.reminder_timing
       ? { type: e.reminder_type as 'email' | 'push', timing: e.reminder_timing as '1hour' | '1day' | '1week' }
       : undefined,
@@ -85,6 +86,7 @@ export function useCalendarEvents(activeGroupId?: string | null) {
       user_id: event.userId || user.id,
       user_color: event.userColor,
       child_profile_id: event.childProfileId ?? null,
+      child_profile_ids: event.childProfileIds ?? (event.childProfileId ? [event.childProfileId] : []),
       reminder_type: event.reminder?.type ?? null,
       reminder_timing: event.reminder?.timing ?? null,
       recurrence_type: event.recurrenceType ?? null,
@@ -119,6 +121,7 @@ export function useCalendarEvents(activeGroupId?: string | null) {
     if (updates.visibility !== undefined) mapped.visibility = updates.visibility;
     if (updates.userColor !== undefined) mapped.user_color = updates.userColor;
     if (updates.childProfileId !== undefined) mapped.child_profile_id = updates.childProfileId ?? null;
+    if (updates.childProfileIds !== undefined) mapped.child_profile_ids = updates.childProfileIds ?? [];
     if (updates.userId !== undefined) mapped.user_id = updates.userId;
     if (updates.recurrenceType !== undefined) mapped.recurrence_type = updates.recurrenceType ?? null;
     if (updates.recurrenceInterval !== undefined) mapped.recurrence_interval = updates.recurrenceInterval;

@@ -136,6 +136,7 @@ export type Database = {
         Row: {
           calendar_group_id: string | null
           child_profile_id: string | null
+          child_profile_ids: string[]
           created_at: string
           description: string | null
           end_date: string
@@ -157,6 +158,7 @@ export type Database = {
         Insert: {
           calendar_group_id?: string | null
           child_profile_id?: string | null
+          child_profile_ids?: string[]
           created_at?: string
           description?: string | null
           end_date: string
@@ -178,6 +180,7 @@ export type Database = {
         Update: {
           calendar_group_id?: string | null
           child_profile_id?: string | null
+          child_profile_ids?: string[]
           created_at?: string
           description?: string | null
           end_date?: string
