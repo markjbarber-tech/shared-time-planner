@@ -97,7 +97,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
   const [pendingAttendees, setPendingAttendees] = useState<string[]>([]);
   const [attendeeSearch, setAttendeeSearch] = useState('');
   const [showAssignPicker, setShowAssignPicker] = useState(false);
-  const [selectedChildProfileId, setSelectedChildProfileId] = useState<string | null>(null);
+  const [selectedChildProfileIds, setSelectedChildProfileIds] = useState<string[]>([]);
   const [assignedUserIds, setAssignedUserIds] = useState<string[]>([]);
   const [endTimeManuallySet, setEndTimeManuallySet] = useState(false);
   const [allDay, setAllDay] = useState(false);
@@ -135,7 +135,11 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
         setReminderTiming(editingEvent.reminder.timing);
       }
       setPendingAttendees([]);
-      setSelectedChildProfileId(editingEvent.childProfileId ?? null);
+      setSelectedChildProfileIds(
+        editingEvent.childProfileIds && editingEvent.childProfileIds.length > 0
+          ? editingEvent.childProfileIds
+          : (editingEvent.childProfileId ? [editingEvent.childProfileId] : [])
+      );
       // Populate assigned users: event owner + attendees
       const attendeeUserIds = attendees.map(a => a.userId);
       setAssignedUserIds([editingEvent.userId, ...attendeeUserIds.filter(id => id !== editingEvent.userId)]);
@@ -161,7 +165,7 @@ export function EventDialog({ open, onClose, onSave, onUpdate, onDelete, initial
       setVisibility('public');
       setReminderEnabled(false);
       setPendingAttendees([]);
-      setSelectedChildProfileId(null);
+      setSelectedChildProfileIds([]);
       setAssignedUserIds([]);
       setAllDay(false);
       setEndTimeManuallySet(false);
