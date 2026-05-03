@@ -29,6 +29,42 @@ type StepId = 'title' | 'date' | 'startTime' | 'endTime' | 'people' | 'summary';
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 const MONTHS_SHORT = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'];
 
+/** Map spoken ordinal/cardinal words (1..31) to numeric strings. */
+const DAY_WORD_MAP: Record<string, string> = (() => {
+  const cardinals = [
+    'zero','one','two','three','four','five','six','seven','eight','nine','ten',
+    'eleven','twelve','thirteen','fourteen','fifteen','sixteen','seventeen','eighteen','nineteen','twenty',
+    'twenty-one','twenty-two','twenty-three','twenty-four','twenty-five','twenty-six','twenty-seven','twenty-eight','twenty-nine','thirty','thirty-one',
+  ];
+  const ordinals = [
+    'zeroth','first','second','third','fourth','fifth','sixth','seventh','eighth','ninth','tenth',
+    'eleventh','twelfth','thirteenth','fourteenth','fifteenth','sixteenth','seventeenth','eighteenth','nineteenth','twentieth',
+    'twenty-first','twenty-second','twenty-third','twenty-fourth','twenty-fifth','twenty-sixth','twenty-seventh','twenty-eighth','twenty-ninth','thirtieth','thirty-first',
+  ];
+  const map: Record<string, string> = {};
+  for (let i = 1; i <= 31; i++) {
+    const c = cardinals[i];
+    const o = ordinals[i];
+    map[c] = String(i);
+    map[c.replace(/-/g, ' ')] = String(i);
+    map[o] = String(i);
+    map[o.replace(/-/g, ' ')] = String(i);
+  }
+  return map;
+})();
+
+/** Replace spoken day words ("sixth", "twenty-third", "twenty three") with numerals. */
+function normalizeDayWords(text: string): string {
+  let out = text;
+  // Two-word forms first (longest match wins)
+  const keys = Object.keys(DAY_WORD_MAP).sort((a, b) => b.length - a.length);
+  for (const k of keys) {
+    const re = new RegExp(`\\b${k}\\b`, 'g');
+    out = out.replace(re, DAY_WORD_MAP[k]);
+  }
+  return out;
+}
+
 function pad(n: number) { return String(n).padStart(2, '0'); }
 function dateToStr(d: Date) { return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`; }
 function format12h(h24: string, m: string) {
@@ -44,7 +80,8 @@ function formatDateLong(s: string) {
 
 /** Parse a spoken date phrase into YYYY-MM-DD. Returns null if not understood. */
 function parseSpokenDate(input: string, baseDate: Date): string | null {
-  const text = input.toLowerCase().trim().replace(/[.,!?]/g, '');
+  let text = input.toLowerCase().trim().replace(/[.,!?]/g, '');
+  text = normalizeDayWords(text);
   if (!text) return null;
   const today = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
 
