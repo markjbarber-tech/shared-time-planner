@@ -21,6 +21,7 @@ interface VoiceEventWizardProps {
   isAnonymous?: boolean;
   activeGroupId?: string | null;
   onPromptInvite?: () => void;
+  skipDateQuestion?: boolean;
 }
 
 type StepId = 'title' | 'date' | 'startTime' | 'endTime' | 'people' | 'summary';
@@ -196,6 +197,7 @@ interface PersonResolution {
 export function VoiceEventWizard({
   open, onClose, initialDate, onSave, onAddAttendee,
   profileList, profiles, childProfiles, isAnonymous, activeGroupId, onPromptInvite,
+  skipDateQuestion,
 }: VoiceEventWizardProps) {
   const { user } = useAuth();
   const { toast } = useToast();
@@ -280,7 +282,12 @@ export function VoiceEventWizard({
     const v = (value ?? transcript).trim();
     if (!v) return;
     setTitle(v);
-    goNext('date');
+    if (skipDateQuestion) {
+      setStartDate(initialDate);
+      goNext('startTime');
+    } else {
+      goNext('date');
+    }
   };
 
   const handleConfirmDate = (value?: string) => {
@@ -463,7 +470,7 @@ export function VoiceEventWizard({
   const goBack = () => {
     stopListening(); setTranscript('');
     if (step === 'date') setStep('title');
-    else if (step === 'startTime') setStep('date');
+    else if (step === 'startTime') setStep(skipDateQuestion ? 'title' : 'date');
     else if (step === 'endTime') setStep('startTime');
     else if (step === 'people') setStep(allDay ? 'startTime' : 'endTime');
     else if (step === 'summary') setStep('people');
