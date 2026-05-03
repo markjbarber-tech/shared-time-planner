@@ -210,6 +210,7 @@ export function VoiceEventWizard({
   const [startDate, setStartDate] = useState(initialDate);
   const [startTime, setStartTime] = useState('09:00');
   const [endTime, setEndTime] = useState('10:00');
+  const [allDay, setAllDay] = useState(false);
   const [assignedUserIds, setAssignedUserIds] = useState<string[]>([]);
   const [assignedChildIds, setAssignedChildIds] = useState<string[]>([]);
 
@@ -234,6 +235,7 @@ export function VoiceEventWizard({
       setStartDate(initialDate);
       setStartTime('09:00');
       setEndTime('10:00');
+      setAllDay(false);
       setAssignedUserIds(user?.id ? [user.id] : []);
       setAssignedChildIds([]);
       setTranscript('');
@@ -296,11 +298,20 @@ export function VoiceEventWizard({
   const handleConfirmStartTime = (value?: string) => {
     const raw = (value ?? transcript).trim();
     if (!raw) return;
+    // Detect "all day" / "whole day" / "full day"
+    if (/\b(all[-\s]?day|whole\s+day|full\s+day|entire\s+day|day[-\s]?long)\b/i.test(raw)) {
+      setAllDay(true);
+      setStartTime('00:00');
+      setEndTime('23:59');
+      goNext('people');
+      return;
+    }
     const parsed = parseSpokenTime(raw);
     if (!parsed) {
       toast({ title: "I didn't catch that time", description: 'Try "3 pm" or "9:30 am".' });
       return;
     }
+    setAllDay(false);
     setStartTime(parsed);
     setEndTime(addHour(parsed));
     goNext('endTime');
@@ -454,14 +465,14 @@ export function VoiceEventWizard({
     if (step === 'date') setStep('title');
     else if (step === 'startTime') setStep('date');
     else if (step === 'endTime') setStep('startTime');
-    else if (step === 'people') setStep('endTime');
+    else if (step === 'people') setStep(allDay ? 'startTime' : 'endTime');
     else if (step === 'summary') setStep('people');
   };
 
   const placeholder: Record<StepId, string> = {
     title: 'e.g. Soccer practice',
     date: 'e.g. tomorrow, next Friday, 12 March',
-    startTime: 'e.g. 3 pm, 9:30 am',
+    startTime: 'e.g. 3 pm, 9:30 am, or "all day"',
     endTime: 'e.g. 4 pm, 10:30 am',
     people: 'e.g. me, Sarah and Tom',
     summary: '',
