@@ -631,7 +631,7 @@ export function VoiceEventWizard({
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Clock className="w-4 h-4 text-muted-foreground" />
-                <span>{format12h(startTime.split(':')[0], startTime.split(':')[1])} — {format12h(endTime.split(':')[0], endTime.split(':')[1])}</span>
+                <span>{allDay ? 'All day' : `${format12h(startTime.split(':')[0], startTime.split(':')[1])} — ${format12h(endTime.split(':')[0], endTime.split(':')[1])}`}</span>
               </div>
               {(assignedUserIds.length > 0 || assignedChildIds.length > 0) && (
                 <div className="flex items-start gap-2 text-sm">
