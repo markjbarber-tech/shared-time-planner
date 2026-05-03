@@ -37,6 +37,7 @@ export function CalendarApp() {
   const [editingEvent, setEditingEvent] = useState<CalendarEvent | null>(null);
   const [voiceWizardOpen, setVoiceWizardOpen] = useState(false);
   const [voiceWizardDate, setVoiceWizardDate] = useState('');
+  const [voiceWizardSkipDate, setVoiceWizardSkipDate] = useState(false);
   
 
   const { user, signOut, migrationResult } = useAuth();
@@ -150,6 +151,7 @@ export function CalendarApp() {
 
   const handleDateClick = useCallback((date: string) => {
     setVoiceWizardDate(date);
+    setVoiceWizardSkipDate(false);
     setVoiceWizardOpen(true);
   }, []);
 
@@ -410,6 +412,7 @@ export function CalendarApp() {
             onBack={handleBackToMonth}
             onAddEvent={() => {
               setVoiceWizardDate(selectedDate);
+              setVoiceWizardSkipDate(true);
               setVoiceWizardOpen(true);
             }}
             onEditEvent={(event) => {
@@ -433,6 +436,7 @@ export function CalendarApp() {
           onClick={() => {
             const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
             setVoiceWizardDate(todayStr);
+            setVoiceWizardSkipDate(false);
             setVoiceWizardOpen(true);
           }}
           className="fixed bottom-6 right-4 sm:bottom-8 sm:right-8 size-12 sm:size-14 rounded-full bg-foreground text-background shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-transform z-50"
@@ -467,6 +471,7 @@ export function CalendarApp() {
         open={voiceWizardOpen}
         onClose={() => setVoiceWizardOpen(false)}
         initialDate={voiceWizardDate}
+        skipDateQuestion={voiceWizardSkipDate}
         onSave={addEvent}
         onAddAttendee={isAnonymous ? undefined : addAttendee}
         profiles={mergedProfiles}
